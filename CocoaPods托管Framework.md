@@ -1,4 +1,4 @@
-#CocoaPods托管Framework
+# CocoaPods托管Framework
 
 首先安装CocoaPods，没安装的自行安装
 
@@ -72,10 +72,11 @@ end
 |public_header_files| 共用头文件|
 |library| 依赖的系统tbd库，要去掉`lib`前缀,例如`libsqlite3.tbd`要写成`sqlite3`|
 |frameworks| 依赖的系统Framework|
-|vendored_libraries| 非系统库，如依赖的`.a`第三方静态库|
-|vendored_frameworks| 非系统库，如依赖的`.framework`第三方静态库，我们此次托管的是framework，所以也写在这里|
+|vendored_libraries| 非系统库，如依赖的`.a`第三方静态库。需要按照目录写|
+|vendored_frameworks| 非系统库，如依赖的`.framework`第三方静态库，我们此次托管的是framework，所以也写在这里。需要按照目录写|
 
 <br>
+
 编写完之后需要校验下`podspec`文件格式是的正确，Xcode是否能正常编译。使用下面代码
 
 ```
@@ -261,3 +262,13 @@ end
 ```
 
 其中source就是我们自己的私有库
+
+## 可能会遇到的问题
+
+1、swift验证不过
+
+2、xcode编译不过导致验证不过
+
+3、clone出错
+
+4、xcworkspace编译不过
