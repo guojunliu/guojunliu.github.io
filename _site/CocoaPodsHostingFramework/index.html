@@ -1,0 +1,684 @@
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>CocoaPods托管Framework – Steve.liu – A blog of an ios R&D engineer</title>
+
+      <meta charset="utf-8" />
+    <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
+
+    
+    <meta name="description" content="在发布sdk中，需要在CocoaPods上托管Framework
+
+安装CocoaPods
+
+首先安装CocoaPods，没安装的自行安装
+
+处理源码
+第一步在github上创建源码库（我们的源码是Framework），并把源码push到github上
+
+github地址：
+
+https://github.com/guojunliu/AvidlyAdsSDK.git
+
+
+podspec文件
+第二步,在目录下创建.podspec文件，此处创建的是AvidlyAdsSDK.podspec，
+
+$ pod spec create AvidlyAdsSDK
+
+
+用编辑器打开.podspec文件 (我自己用Sublime Text)
+
+文件内容为
+
+Pod::Spec.new do |s|
+  s.name             = 'AvidlyAdsSDK'
+  s.version          = '2.0.20'
+  s.summary          = 'Avidly Ad SDK'
+  s.description      = &lt;&lt;-DESC
+Avidly Ad SDK.
+                       DESC
+
+  s.homepage         = 'http://ads-sdk-doc.haloapps.com/docs/show/2'
+  s.license          = { :type =&gt; 'MIT', :file =&gt; 'LICENSE' }
+  s.author           = { "steve" =&gt; "steve.liu@holaverse.com" }
+  s.source           = { :git =&gt; 'https://github.com/guojunliu/AvidlyAdsSDK.git', :tag =&gt; s.version }
+
+  s.ios.deployment_target = '8.0'
+
+  s.source_files = 'Framework/Appnext/include/*', 'Framework/Chance/include/*', 'Framework/Domob/include/*'
+  
+  s.resources = "Framework/Chance/resource/*", "Framework/Domob/resource/*", "Framework/Vungle/resource/*", "Framework/AvidlyAdsSDK/resource/*",
+
+  s.public_header_files = 'Framework/Appnext/include/*', 'Framework/Chance/include/*', 'Framework/Domob/include/*'
+
+  s.library = 'sqlite3', 'z'
+
+  s.frameworks = 'QuartzCore', 'MediaPlayer', 'CoreMedia', 'CoreGraphics', 'CFNetwork', 'WebKit', 'WatchConnectivity', 'SystemConfiguration', 'StoreKit', 'Social', 'MessageUI','JavaScriptCore','EventKit','CoreTelephony','AVFoundation','AudioToolbox','AdSupport'
+
+  s.vendored_libraries = "Framework/Appnext/libAppnextLib.a", "Framework/Appnext/libAppnextSDKCore.a", "Framework/Chance/libChanceAd_Video.a", "Framework/Domob/libIndependentVideoSDK.a"
+
+  s.vendored_frameworks = 'Framework/AdColony/AdColony.framework', 'Framework/Mobvista/MVSDK.framework', 'Framework/Mobvista/MVSDKReward.framework', 'Framework/Unity/UnityAds.framework', 'Framework/Vungle/VungleSDK.framework', 'Framework/AvidlyAdsSDK/AvidlyAdsSDK.framework', 'Framework/FBAudienceNetwork/FBAudienceNetwork.framework', 'Framework/GoogleMobileAds/GoogleMobileAds.framework', 'Framework/HolaStatisticalSDK/HolaStatisticalSDK.framework', 'Framework/OneWay/OneWaySDK.framework'
+end
+
+
+字段解释
+
+
+  
+    
+      字段
+      解释
+    
+  
+
+" />
+    <meta property="og:description" content="在发布sdk中，需要在CocoaPods上托管Framework
+
+安装CocoaPods
+
+首先安装CocoaPods，没安装的自行安装
+
+处理源码
+第一步在github上创建源码库（我们的源码是Framework），并把源码push到github上
+
+github地址：
+
+https://github.com/guojunliu/AvidlyAdsSDK.git
+
+
+podspec文件
+第二步,在目录下创建.podspec文件，此处创建的是AvidlyAdsSDK.podspec，
+
+$ pod spec create AvidlyAdsSDK
+
+
+用编辑器打开.podspec文件 (我自己用Sublime Text)
+
+文件内容为
+
+Pod::Spec.new do |s|
+  s.name             = 'AvidlyAdsSDK'
+  s.version          = '2.0.20'
+  s.summary          = 'Avidly Ad SDK'
+  s.description      = &lt;&lt;-DESC
+Avidly Ad SDK.
+                       DESC
+
+  s.homepage         = 'http://ads-sdk-doc.haloapps.com/docs/show/2'
+  s.license          = { :type =&gt; 'MIT', :file =&gt; 'LICENSE' }
+  s.author           = { "steve" =&gt; "steve.liu@holaverse.com" }
+  s.source           = { :git =&gt; 'https://github.com/guojunliu/AvidlyAdsSDK.git', :tag =&gt; s.version }
+
+  s.ios.deployment_target = '8.0'
+
+  s.source_files = 'Framework/Appnext/include/*', 'Framework/Chance/include/*', 'Framework/Domob/include/*'
+  
+  s.resources = "Framework/Chance/resource/*", "Framework/Domob/resource/*", "Framework/Vungle/resource/*", "Framework/AvidlyAdsSDK/resource/*",
+
+  s.public_header_files = 'Framework/Appnext/include/*', 'Framework/Chance/include/*', 'Framework/Domob/include/*'
+
+  s.library = 'sqlite3', 'z'
+
+  s.frameworks = 'QuartzCore', 'MediaPlayer', 'CoreMedia', 'CoreGraphics', 'CFNetwork', 'WebKit', 'WatchConnectivity', 'SystemConfiguration', 'StoreKit', 'Social', 'MessageUI','JavaScriptCore','EventKit','CoreTelephony','AVFoundation','AudioToolbox','AdSupport'
+
+  s.vendored_libraries = "Framework/Appnext/libAppnextLib.a", "Framework/Appnext/libAppnextSDKCore.a", "Framework/Chance/libChanceAd_Video.a", "Framework/Domob/libIndependentVideoSDK.a"
+
+  s.vendored_frameworks = 'Framework/AdColony/AdColony.framework', 'Framework/Mobvista/MVSDK.framework', 'Framework/Mobvista/MVSDKReward.framework', 'Framework/Unity/UnityAds.framework', 'Framework/Vungle/VungleSDK.framework', 'Framework/AvidlyAdsSDK/AvidlyAdsSDK.framework', 'Framework/FBAudienceNetwork/FBAudienceNetwork.framework', 'Framework/GoogleMobileAds/GoogleMobileAds.framework', 'Framework/HolaStatisticalSDK/HolaStatisticalSDK.framework', 'Framework/OneWay/OneWaySDK.framework'
+end
+
+
+字段解释
+
+
+  
+    
+      字段
+      解释
+    
+  
+
+" />
+    
+    <meta name="author" content="Steve.liu" />
+
+    
+    <meta property="og:title" content="CocoaPods托管Framework" />
+    <meta property="twitter:title" content="CocoaPods托管Framework" />
+    
+  <!-- Async font loading -->
+<script>
+  window.WebFontConfig = {
+      custom: {
+          families: ['Spoqa Han Sans:100,300,400,700'],
+          urls: ['https://spoqa.github.io/spoqa-han-sans/css/SpoqaHanSans-kr.css']
+      },
+      timeout: 60000
+  };
+  (function(d) {
+      var wf = d.createElement('script'), s = d.scripts[0];
+      wf.src = 'https://ajax.googleapis.com/ajax/libs/webfont/1.5.18/webfont.js';
+      s.parentNode.insertBefore(wf, s);
+  })(document);
+</script>
+
+  <!--[if lt IE 9]>
+    <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+
+  <link rel="stylesheet" type="text/css" href="/style.css" />
+  <link rel="alternate" type="application/rss+xml" title="Steve.liu - A blog of an ios R&D engineer" href="/feed.xml" />
+  <link rel="shortcut icon" href="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1595252704250&di=204651231c7ea52f3c35a74ea8c7668c&imgtype=0&src=http%3A%2F%2Fdp.gtimg.cn%2Fdiscuzpic%2F0%2Fdiscuz_x5_gamebbs_qq_com_forum_201401_07_134550hg7hiypx7ddpjgn5.jpg%2F0">
+  <script src="https://kit.fontawesome.com/56f7faf3f4.js"></script>
+
+
+  <!-- Created with Jekyll Now - http://github.com/barryclark/jekyll-now -->
+
+</head>
+  <body>
+    <div class="wrapper-sidebar">
+  <header class="sidebar clearfix">
+    <div class="site-info">
+      
+        <a href="/" class="site-avatar"><img src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1595252704250&di=204651231c7ea52f3c35a74ea8c7668c&imgtype=0&src=http%3A%2F%2Fdp.gtimg.cn%2Fdiscuzpic%2F0%2Fdiscuz_x5_gamebbs_qq_com_forum_201401_07_134550hg7hiypx7ddpjgn5.jpg%2F0" /></a>
+       
+      <h1 class="site-name"><a href="/">Steve.liu</a></h1>
+      <p class="site-description">A blog of an ios R&D engineer</p>
+    </div>
+  </header>
+
+  <div class="navlist">
+    <nav>
+      
+      
+      <a href="/">首页</a>
+      
+      
+      
+      <a href="/about">关于</a>
+      
+      
+      
+      <a href="/archive">归档</a>
+      
+      
+      
+      <a href="/tags">标签</a>
+      
+      
+    </nav>
+  </div>
+
+  <div class="wrapper-footer-desktop">
+    <footer class="footer">
+      <!-- Refer to https://codepen.io/ruandre/pen/howFi -->
+<ul class="svg-icon">
+
+  
+  <li><a href="https://www.weibo.com/stevexiaogang" class="icon-1 weibo" title="Weibo"><svg viewBox="0 0 512 512"><path d="M407 177.6c7.6-24-13.4-46.8-37.4-41.7-22 4.8-28.8-28.1-7.1-32.8 50.1-10.9 92.3 37.1 76.5 84.8-6.8 21.2-38.8 10.8-32-10.3zM214.8 446.7C108.5 446.7 0 395.3 0 310.4c0-44.3 28-95.4 76.3-143.7C176 67 279.5 65.8 249.9 161c-4 13.1 12.3 5.7 12.3 6 79.5-33.6 140.5-16.8 114 51.4-3.7 9.4 1.1 10.9 8.3 13.1 135.7 42.3 34.8 215.2-169.7 215.2zm143.7-146.3c-5.4-55.7-78.5-94-163.4-85.7-84.8 8.6-148.8 60.3-143.4 116s78.5 94 163.4 85.7c84.8-8.6 148.8-60.3 143.4-116zM347.9 35.1c-25.9 5.6-16.8 43.7 8.3 38.3 72.3-15.2 134.8 52.8 111.7 124-7.4 24.2 29.1 37 37.4 12 31.9-99.8-55.1-195.9-157.4-174.3zm-78.5 311c-17.1 38.8-66.8 60-109.1 46.3-40.8-13.1-58-53.4-40.3-89.7 17.7-35.4 63.1-55.4 103.4-45.1 42 10.8 63.1 50.2 46 88.5zm-86.3-30c-12.9-5.4-30 .3-38 12.9-8.3 12.9-4.3 28 8.6 34 13.1 6 30.8.3 39.1-12.9 8-13.1 3.7-28.3-9.7-34zm32.6-13.4c-5.1-1.7-11.4.6-14.3 5.4-2.9 5.1-1.4 10.6 3.7 12.9 5.1 2 11.7-.3 14.6-5.4 2.8-5.2 1.1-10.9-4-12.9z"></svg></a></li>
+  
+  
+  
+
+  
+
+  
+  <li><a href="mailto:909476821@qq.com" class="icon-8 email" title="Email"><svg viewBox="0 0 512 512"><path d="M502.3 190.8c3.9-3.1 9.7-.2 9.7 4.7V400c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V195.6c0-5 5.7-7.8 9.7-4.7 22.4 17.4 52.1 39.5 154.1 113.6 21.1 15.4 56.7 47.8 92.2 47.6 35.7.3 72-32.8 92.3-47.6 102-74.1 131.6-96.3 154-113.7zM256 320c23.2.4 56.6-29.2 73.4-41.4 132.7-96.3 142.8-104.7 173.4-128.7 5.8-4.5 9.2-11.5 9.2-18.9v-19c0-26.5-21.5-48-48-48H48C21.5 64 0 85.5 0 112v19c0 7.4 3.4 14.3 9.2 18.9 30.6 23.9 40.7 32.4 173.4 128.7 16.8 12.2 50.2 41.8 73.4 41.4z"/></svg><!--[if lt IE 9]><em>Email</em><![endif]--></a></li>
+  
+
+  
+
+  
+
+  
+  <li><a href="https://github.com//guojunliu" class="icon-13 github" title="GitHub"><svg viewBox="0 0 512 512"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg><!--[if lt IE 9]><em>GitHub</em><![endif]--></a></li>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</ul>
+
+
+
+<p>909476821@qq.com</p>
+
+    </footer>
+  </div>
+</div>
+
+    <div id="main" role="main" class="wrapper-content">
+      <article class="posts">
+  <h1>CocoaPods托管Framework</h1>
+
+  <div clsss="meta">
+    <span class="date">
+      2017-06-16
+    </span>
+
+    <ul class="tag">
+      
+      <li>
+        <a href="http://localhost:4000/tags#sdk">
+          sdk
+        </a>
+      </li>
+      
+    </ul>
+  </div>
+
+  <div class="entry">
+    <p>在发布sdk中，需要在CocoaPods上托管Framework</p>
+
+<h3 id="安装cocoapods">安装CocoaPods</h3>
+
+<p>首先安装CocoaPods，没安装的自行安装</p>
+
+<h3 id="处理源码">处理源码</h3>
+<p>第一步在github上创建源码库（我们的源码是Framework），并把源码push到github上</p>
+
+<p>github地址：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://github.com/guojunliu/AvidlyAdsSDK.git
+</code></pre></div></div>
+
+<h3 id="podspec文件">podspec文件</h3>
+<p>第二步,在目录下创建<code class="language-plaintext highlighter-rouge">.podspec</code>文件，此处创建的是<code class="language-plaintext highlighter-rouge">AvidlyAdsSDK.podspec</code>，</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ pod spec create AvidlyAdsSDK
+</code></pre></div></div>
+
+<p>用编辑器打开.podspec文件 (我自己用Sublime Text)</p>
+
+<p>文件内容为</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Pod::Spec.new do |s|
+  s.name             = 'AvidlyAdsSDK'
+  s.version          = '2.0.20'
+  s.summary          = 'Avidly Ad SDK'
+  s.description      = &lt;&lt;-DESC
+Avidly Ad SDK.
+                       DESC
+
+  s.homepage         = 'http://ads-sdk-doc.haloapps.com/docs/show/2'
+  s.license          = { :type =&gt; 'MIT', :file =&gt; 'LICENSE' }
+  s.author           = { "steve" =&gt; "steve.liu@holaverse.com" }
+  s.source           = { :git =&gt; 'https://github.com/guojunliu/AvidlyAdsSDK.git', :tag =&gt; s.version }
+
+  s.ios.deployment_target = '8.0'
+
+  s.source_files = 'Framework/Appnext/include/*', 'Framework/Chance/include/*', 'Framework/Domob/include/*'
+  
+  s.resources = "Framework/Chance/resource/*", "Framework/Domob/resource/*", "Framework/Vungle/resource/*", "Framework/AvidlyAdsSDK/resource/*",
+
+  s.public_header_files = 'Framework/Appnext/include/*', 'Framework/Chance/include/*', 'Framework/Domob/include/*'
+
+  s.library = 'sqlite3', 'z'
+
+  s.frameworks = 'QuartzCore', 'MediaPlayer', 'CoreMedia', 'CoreGraphics', 'CFNetwork', 'WebKit', 'WatchConnectivity', 'SystemConfiguration', 'StoreKit', 'Social', 'MessageUI','JavaScriptCore','EventKit','CoreTelephony','AVFoundation','AudioToolbox','AdSupport'
+
+  s.vendored_libraries = "Framework/Appnext/libAppnextLib.a", "Framework/Appnext/libAppnextSDKCore.a", "Framework/Chance/libChanceAd_Video.a", "Framework/Domob/libIndependentVideoSDK.a"
+
+  s.vendored_frameworks = 'Framework/AdColony/AdColony.framework', 'Framework/Mobvista/MVSDK.framework', 'Framework/Mobvista/MVSDKReward.framework', 'Framework/Unity/UnityAds.framework', 'Framework/Vungle/VungleSDK.framework', 'Framework/AvidlyAdsSDK/AvidlyAdsSDK.framework', 'Framework/FBAudienceNetwork/FBAudienceNetwork.framework', 'Framework/GoogleMobileAds/GoogleMobileAds.framework', 'Framework/HolaStatisticalSDK/HolaStatisticalSDK.framework', 'Framework/OneWay/OneWaySDK.framework'
+end
+</code></pre></div></div>
+
+<p>字段解释</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>字段</th>
+      <th>解释</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>name</td>
+      <td>名称</td>
+    </tr>
+    <tr>
+      <td>version</td>
+      <td>版本号</td>
+    </tr>
+    <tr>
+      <td>summary</td>
+      <td>摘要</td>
+    </tr>
+    <tr>
+      <td>description</td>
+      <td>描述</td>
+    </tr>
+    <tr>
+      <td>homepage</td>
+      <td>主页</td>
+    </tr>
+    <tr>
+      <td>license</td>
+      <td>许可证，这个必须要有，且按照上述格式，否则会出错</td>
+    </tr>
+    <tr>
+      <td>author</td>
+      <td>作者</td>
+    </tr>
+    <tr>
+      <td>source</td>
+      <td>资源，源码git库</td>
+    </tr>
+    <tr>
+      <td>ios.deployment_target</td>
+      <td>ios 编译版本</td>
+    </tr>
+    <tr>
+      <td>source_files</td>
+      <td>源文件</td>
+    </tr>
+    <tr>
+      <td>resources</td>
+      <td>资源包，比如图片，bundle等</td>
+    </tr>
+    <tr>
+      <td>public_header_files</td>
+      <td>共用头文件</td>
+    </tr>
+    <tr>
+      <td>library</td>
+      <td>依赖的系统tbd库，要去掉<code class="language-plaintext highlighter-rouge">lib</code>前缀,例如<code class="language-plaintext highlighter-rouge">libsqlite3.tbd</code>要写成<code class="language-plaintext highlighter-rouge">sqlite3</code></td>
+    </tr>
+    <tr>
+      <td>frameworks</td>
+      <td>依赖的系统Framework</td>
+    </tr>
+    <tr>
+      <td>vendored_libraries</td>
+      <td>非系统库，如依赖的<code class="language-plaintext highlighter-rouge">.a</code>第三方静态库。需要按照目录写</td>
+    </tr>
+    <tr>
+      <td>vendored_frameworks</td>
+      <td>非系统库，如依赖的<code class="language-plaintext highlighter-rouge">.framework</code>第三方静态库，我们此次托管的是framework，所以也写在这里。需要按照目录写</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><br /></p>
+
+<p>编写完之后需要校验下<code class="language-plaintext highlighter-rouge">podspec</code>文件格式是的正确，Xcode是否能正常编译。使用下面代码</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ pod lib lint
+</code></pre></div></div>
+
+<p>出现下面代码表示验证通过</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-&gt; AvidlyAdsSDK (2.0.20)
+
+AvidlyAdsSDK passed validation.
+</code></pre></div></div>
+
+<p>接下来连同<code class="language-plaintext highlighter-rouge">podspec文件</code>一起push到github，由于Cocoapods在自己配置的s.source git中是以版本号检索的，即git的tag，所以我们push之后，别忘记给当次commit打上tag标签，这里打的是<code class="language-plaintext highlighter-rouge">2.0.20</code>,要和<code class="language-plaintext highlighter-rouge">podspec文件</code>中一致，才能被检索到</p>
+
+<h3 id="推送到官方库">推送到官方库</h3>
+<p>最后是使用<code class="language-plaintext highlighter-rouge">pod trunk</code>命令，把podspec文件推送到CocoaPod官方库</p>
+
+<p>pod trunk 需要注册 具体做法这里不再赘述 请移步CocoaPod官网</p>
+
+<p>pod trunk 设置完毕后执行命令</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ pod trunk push AvidlyAdsSDK.podspec
+</code></pre></div></div>
+
+<p>因为我们依赖的SDK比较多，源码比较大，所以整个过程比较耗时。</p>
+
+<p>推送完成之后查询一下</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pod search AvidlyAdsSDK
+</code></pre></div></div>
+<p>可以看到已经能查询到我们推送到CocoaPod官方的库了</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>-&gt; AvidlyAdsSDK (2.0.20)
+   Avidly Ad SDK
+   pod 'AvidlyAdsSDK', '~&gt; 2.0.20'
+   - Homepage: http://ads-sdk-doc.haloapps.com/docs/show/2
+   - Source:   https://github.com/guojunliu/AvidlyAdsSDK.git
+   - Versions: 2.0.20, 2.0.19 [AvidlyAdsSDK repo]
+</code></pre></div></div>
+
+<h3 id="search不到">search不到？</h3>
+
+<p>上一步中，在推送到官方库之后，有可能在search的时候，search不到，出现下面的提示</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>[!] Unable to find a pod with name, author, summary, or description matching `AvidlyAdsSDK`
+</code></pre></div></div>
+
+<p>虽然我们push到官方可了，但是依然search不到</p>
+
+<p>要解决这个问题，首先我们要了解下cocoapods的机制，在安装cocoapods的时候，使用过下面的命令</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pod setup
+</code></pre></div></div>
+<p>这行命令其中最重要的作用就是将cocoapods官方repo，clone到我们本地。</p>
+
+<p>我们可以看下我们本地的repo</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pod repo list
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>master
+- Type: git (master)
+- URL:  https://github.com/CocoaPods/Specs.git
+- Path: /Users/steve/.cocoapods/repos/master
+
+1 repo
+</code></pre></div></div>
+
+<p>可以看到我们本地目前只有一个repo，就是官方的master repo</p>
+
+<p>这个master repo中包含了所有push到cocoapod的<code class="language-plaintext highlighter-rouge">podspec文件</code>，可以去本机cocoapods目录下看一下，有成千上万的podspec文件。</p>
+
+<p>解决上述问题的最简单办法就是重新调用下<code class="language-plaintext highlighter-rouge">pod setup</code>，重新clone下master repo</p>
+
+<h4 id="但是">但是</h4>
+
+<p>由于master repo实在太大（大概700M+），我们不希望CP浪费时间在clone repo上，为了提高效率，所以我们要使用我们自己的私有repo</p>
+
+<h3 id="私有库">私有库</h3>
+
+<p>先来说一个概念，什么是repo？它是所有的Pods的一个索引，就是一个容器，所有公开的Pods都在这个里面，它实际是一个Git仓库remote端在GitHub上，但是当你使用了Cocoapods后它会被clone到本地的~/.cocoapods/repos目录下。可以进入到这个目录看到master文件夹就是这个官方的repo了。这个master目录的结构是这个样子的</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>master/xxx库/0.0.1版本/xxx.podspec
+            /0.0.2版本/xxx.podspec
+master/zzz库/2.0.1版本/zzz.podspec
+</code></pre></div></div>
+
+<p>其中<code class="language-plaintext highlighter-rouge">master</code>是repo名称，下一级目录<code class="language-plaintext highlighter-rouge">xxx库</code>是你托管的库名称，再下一级<code class="language-plaintext highlighter-rouge">0.0.1版本</code>是你库的版本，再下一级<code class="language-plaintext highlighter-rouge">xxx.podspec</code>就是你自己的podspec</p>
+
+<p>所以我们模拟这个目录创建一个就好了</p>
+
+<p>首先创建一个git库，这里是</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://github.com/guojunliu/AvidlyAdsSDK-SpecsRepo.git
+</code></pre></div></div>
+
+<p>接下来在创建目录及文件</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>AvidlyAdsSDK/2.0.20/AvidlyAdsSDK.podspec
+</code></pre></div></div>
+
+<p>如果需要维护多个版本的线上包，那就</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>AvidlyAdsSDK/2.0.19/AvidlyAdsSDK.podspec
+            /2.0.20/AvidlyAdsSDK.podspec
+</code></pre></div></div>
+
+<p>接下来push到github上</p>
+
+<p>repo创建完了，接下来我们将repo clone到我们本地，先看下我们本地的repo</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pod repo list
+</code></pre></div></div>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>master
+- Type: git (master)
+- URL:  https://github.com/CocoaPods/Specs.git
+- Path: /Users/steve/.cocoapods/repos/master
+
+1 repo
+</code></pre></div></div>
+
+<p>只有master</p>
+
+<p>接下来colen我们自己的repo</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>pod repo add Avidly https://github.com/guojunliu/AvidlyAdsSDK-SpecsRepo.git
+</code></pre></div></div>
+
+<p>其中<code class="language-plaintext highlighter-rouge">Avidly</code>是我们repo clone到本地的名字，自己命名</p>
+
+<p>完成之后再来看下本地的repo</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Avidly
+- Type: git (master)
+- URL:  https://github.com/guojunliu/AvidlyAdsSDK-SpecsRepo.git
+- Path: /Users/steve/.cocoapods/repos/Avidly
+
+master
+- Type: git (master)
+- URL:  https://github.com/CocoaPods/Specs.git
+- Path: /Users/steve/.cocoapods/repos/master
+
+2 repos
+</code></pre></div></div>
+
+<p>已经存在了，可以去~/.cocoapods/repos目录下瞅瞅</p>
+
+<p>接下来再search就可以找到我们托管的Framework了</p>
+
+<p>这样我们就不用让CP再等待setup了</p>
+
+<h3 id="测试">测试</h3>
+
+<p>Podfile如下</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>platform :ios, '8.0'
+use_frameworks!
+
+target ‘testAvidlyPod’ do
+  source 'https://github.com/guojunliu/AvidlyAdsSDK-SpecsRepo.git'
+  pod 'AvidlyAdsSDK', '~&gt; 2.0.20'
+end
+</code></pre></div></div>
+
+<p>其中source就是我们自己的私有库</p>
+
+<h3 id="可能会遇到的问题">可能会遇到的问题</h3>
+
+<p>1、swift验证不过</p>
+
+<p>2、xcode编译不过导致验证不过</p>
+
+<p>3、clone出错</p>
+
+<p>4、xcworkspace编译不过</p>
+
+  </div>
+
+  
+<div class="comments">
+	<div id="disqus_thread"></div>
+	<script type="text/javascript">
+
+	    var disqus_shortname = 'loffer';
+
+	    (function() {
+	        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+	        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+	        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+	    })();
+
+	</script>
+	<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+
+</article>
+
+<div class="pagination">
+  
+  
+    <span class="next" >
+      <a href="http://localhost:4000/SDKAutoArchive/">
+        下一篇 →
+      </a>
+    </span>
+  
+</div>
+    </div>
+
+    
+
+  </body>
+
+  <div class="wrapper-footer-mobile">
+    <footer class="footer">
+      <!-- Refer to https://codepen.io/ruandre/pen/howFi -->
+<ul class="svg-icon">
+
+  
+  <li><a href="https://www.weibo.com/stevexiaogang" class="icon-1 weibo" title="Weibo"><svg viewBox="0 0 512 512"><path d="M407 177.6c7.6-24-13.4-46.8-37.4-41.7-22 4.8-28.8-28.1-7.1-32.8 50.1-10.9 92.3 37.1 76.5 84.8-6.8 21.2-38.8 10.8-32-10.3zM214.8 446.7C108.5 446.7 0 395.3 0 310.4c0-44.3 28-95.4 76.3-143.7C176 67 279.5 65.8 249.9 161c-4 13.1 12.3 5.7 12.3 6 79.5-33.6 140.5-16.8 114 51.4-3.7 9.4 1.1 10.9 8.3 13.1 135.7 42.3 34.8 215.2-169.7 215.2zm143.7-146.3c-5.4-55.7-78.5-94-163.4-85.7-84.8 8.6-148.8 60.3-143.4 116s78.5 94 163.4 85.7c84.8-8.6 148.8-60.3 143.4-116zM347.9 35.1c-25.9 5.6-16.8 43.7 8.3 38.3 72.3-15.2 134.8 52.8 111.7 124-7.4 24.2 29.1 37 37.4 12 31.9-99.8-55.1-195.9-157.4-174.3zm-78.5 311c-17.1 38.8-66.8 60-109.1 46.3-40.8-13.1-58-53.4-40.3-89.7 17.7-35.4 63.1-55.4 103.4-45.1 42 10.8 63.1 50.2 46 88.5zm-86.3-30c-12.9-5.4-30 .3-38 12.9-8.3 12.9-4.3 28 8.6 34 13.1 6 30.8.3 39.1-12.9 8-13.1 3.7-28.3-9.7-34zm32.6-13.4c-5.1-1.7-11.4.6-14.3 5.4-2.9 5.1-1.4 10.6 3.7 12.9 5.1 2 11.7-.3 14.6-5.4 2.8-5.2 1.1-10.9-4-12.9z"></svg></a></li>
+  
+  
+  
+
+  
+
+  
+  <li><a href="mailto:909476821@qq.com" class="icon-8 email" title="Email"><svg viewBox="0 0 512 512"><path d="M502.3 190.8c3.9-3.1 9.7-.2 9.7 4.7V400c0 26.5-21.5 48-48 48H48c-26.5 0-48-21.5-48-48V195.6c0-5 5.7-7.8 9.7-4.7 22.4 17.4 52.1 39.5 154.1 113.6 21.1 15.4 56.7 47.8 92.2 47.6 35.7.3 72-32.8 92.3-47.6 102-74.1 131.6-96.3 154-113.7zM256 320c23.2.4 56.6-29.2 73.4-41.4 132.7-96.3 142.8-104.7 173.4-128.7 5.8-4.5 9.2-11.5 9.2-18.9v-19c0-26.5-21.5-48-48-48H48C21.5 64 0 85.5 0 112v19c0 7.4 3.4 14.3 9.2 18.9 30.6 23.9 40.7 32.4 173.4 128.7 16.8 12.2 50.2 41.8 73.4 41.4z"/></svg><!--[if lt IE 9]><em>Email</em><![endif]--></a></li>
+  
+
+  
+
+  
+
+  
+  <li><a href="https://github.com//guojunliu" class="icon-13 github" title="GitHub"><svg viewBox="0 0 512 512"><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg><!--[if lt IE 9]><em>GitHub</em><![endif]--></a></li>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+</ul>
+
+
+
+<p>909476821@qq.com</p>
+
+    </footer>
+
+
+</html>

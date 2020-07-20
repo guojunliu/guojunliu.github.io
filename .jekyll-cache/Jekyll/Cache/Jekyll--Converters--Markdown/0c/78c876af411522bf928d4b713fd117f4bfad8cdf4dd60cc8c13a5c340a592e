@@ -1,0 +1,66 @@
+I"i<p>在发布sdk中，需要在CocoaPods上托管Framework</p>
+
+<h3 id="安装cocoapods">安装CocoaPods</h3>
+
+<p>首先安装CocoaPods，没安装的自行安装</p>
+
+<h3 id="处理源码">处理源码</h3>
+<p>第一步在github上创建源码库（我们的源码是Framework），并把源码push到github上</p>
+
+<p>github地址：</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>https://github.com/guojunliu/AvidlyAdsSDK.git
+</code></pre></div></div>
+
+<h3 id="podspec文件">podspec文件</h3>
+<p>第二步,在目录下创建<code class="language-plaintext highlighter-rouge">.podspec</code>文件，此处创建的是<code class="language-plaintext highlighter-rouge">AvidlyAdsSDK.podspec</code>，</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>$ pod spec create AvidlyAdsSDK
+</code></pre></div></div>
+
+<p>用编辑器打开.podspec文件 (我自己用Sublime Text)</p>
+
+<p>文件内容为</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>Pod::Spec.new do |s|
+  s.name             = 'AvidlyAdsSDK'
+  s.version          = '2.0.20'
+  s.summary          = 'Avidly Ad SDK'
+  s.description      = &lt;&lt;-DESC
+Avidly Ad SDK.
+                       DESC
+
+  s.homepage         = 'http://ads-sdk-doc.haloapps.com/docs/show/2'
+  s.license          = { :type =&gt; 'MIT', :file =&gt; 'LICENSE' }
+  s.author           = { "steve" =&gt; "steve.liu@holaverse.com" }
+  s.source           = { :git =&gt; 'https://github.com/guojunliu/AvidlyAdsSDK.git', :tag =&gt; s.version }
+
+  s.ios.deployment_target = '8.0'
+
+  s.source_files = 'Framework/Appnext/include/*', 'Framework/Chance/include/*', 'Framework/Domob/include/*'
+  
+  s.resources = "Framework/Chance/resource/*", "Framework/Domob/resource/*", "Framework/Vungle/resource/*", "Framework/AvidlyAdsSDK/resource/*",
+
+  s.public_header_files = 'Framework/Appnext/include/*', 'Framework/Chance/include/*', 'Framework/Domob/include/*'
+
+  s.library = 'sqlite3', 'z'
+
+  s.frameworks = 'QuartzCore', 'MediaPlayer', 'CoreMedia', 'CoreGraphics', 'CFNetwork', 'WebKit', 'WatchConnectivity', 'SystemConfiguration', 'StoreKit', 'Social', 'MessageUI','JavaScriptCore','EventKit','CoreTelephony','AVFoundation','AudioToolbox','AdSupport'
+
+  s.vendored_libraries = "Framework/Appnext/libAppnextLib.a", "Framework/Appnext/libAppnextSDKCore.a", "Framework/Chance/libChanceAd_Video.a", "Framework/Domob/libIndependentVideoSDK.a"
+
+  s.vendored_frameworks = 'Framework/AdColony/AdColony.framework', 'Framework/Mobvista/MVSDK.framework', 'Framework/Mobvista/MVSDKReward.framework', 'Framework/Unity/UnityAds.framework', 'Framework/Vungle/VungleSDK.framework', 'Framework/AvidlyAdsSDK/AvidlyAdsSDK.framework', 'Framework/FBAudienceNetwork/FBAudienceNetwork.framework', 'Framework/GoogleMobileAds/GoogleMobileAds.framework', 'Framework/HolaStatisticalSDK/HolaStatisticalSDK.framework', 'Framework/OneWay/OneWaySDK.framework'
+end
+</code></pre></div></div>
+
+<p>字段解释</p>
+
+<table>
+  <tbody>
+    <tr>
+      <td>字段</td>
+      <td>解释</td>
+    </tr>
+  </tbody>
+</table>
+:ET

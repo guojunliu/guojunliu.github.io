@@ -1,0 +1,447 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.1.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2020-07-20T19:33:06+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Steve.liu</title><subtitle>A blog of an ios R&amp;D engineer</subtitle><entry><title type="html">SDK自动打包</title><link href="http://localhost:4000/SDKAutoArchive/" rel="alternate" type="text/html" title="SDK自动打包" /><published>2017-08-08T00:00:00+08:00</published><updated>2017-08-08T00:00:00+08:00</updated><id>http://localhost:4000/SDKAutoArchive</id><content type="html" xml:base="http://localhost:4000/SDKAutoArchive/">&lt;p&gt;背景：
+由于iOS Framework打包出来是分CPU指令集的，所以需要每个CPU指令集都打包一个Framework，然后使用&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;lipo -create&lt;/code&gt;命令将所有CPU指令集合并，才能形成一个兼容所有设备和模拟器的Framework。这样的打包流程复杂而繁琐，对于需要经常打包测试的需求来说明显是不合适的。&lt;/p&gt;
+
+&lt;h3 id=&quot;解决方案&quot;&gt;解决方案&lt;/h3&gt;
+&lt;p&gt;使用xcode &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Aggregate&lt;/code&gt;工具中的&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Run Script&lt;/code&gt;自动进行不同CPU指令集打包，并自动合并所有CPU指令集&lt;/p&gt;
+
+&lt;h3 id=&quot;处理器指令集介绍&quot;&gt;处理器指令集介绍&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;ARM处理器
+	- armv7
+	- armv7s
+ 	- arm64&lt;/li&gt;
+  &lt;li&gt;Mac处理器
+    &lt;ul&gt;
+      &lt;li&gt;i386&lt;/li&gt;
+      &lt;li&gt;x86_64&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;指令集&lt;/th&gt;
+      &lt;th&gt;设备&lt;/th&gt;
+      &lt;th&gt;支持设备&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;arm64&lt;/td&gt;
+      &lt;td&gt;真机64位&lt;/td&gt;
+      &lt;td&gt;iPhone6s、iphone6s plus、iPhone6、iPhone6 plus、iPhone5S、iPad Air、 iPad mini2&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;armv7s&lt;/td&gt;
+      &lt;td&gt;真机32位&lt;/td&gt;
+      &lt;td&gt;iPhone5、iPhone5C、iPad4(iPad with Retina Display)&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;armv7&lt;/td&gt;
+      &lt;td&gt;真机32位&lt;/td&gt;
+      &lt;td&gt;iPhone4、iPhone4S、iPad、iPad2、iPad3(The New iPad)、iPad mini、iPod Touch 3G、iPod Touch4&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;i386&lt;/td&gt;
+      &lt;td&gt;模拟器32位&lt;/td&gt;
+      &lt;td&gt;针对intel通用微处理器32位处理器&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;x86_64&lt;/td&gt;
+      &lt;td&gt;模拟器64位&lt;/td&gt;
+      &lt;td&gt;针对x86架构的64位处理器&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;h3 id=&quot;添加-aggregate&quot;&gt;添加 Aggregate&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;使用Xcode打开打包工程&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;File&lt;/code&gt;→&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;New&lt;/code&gt;→&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Target&lt;/code&gt;→&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Cross-platform&lt;/code&gt;→&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Aggregate&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;命名为&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AvidlyAdsSDKArchive&lt;/code&gt;(自由命名)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;添加-run-script&quot;&gt;添加 Run Script&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;打开&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AvidlyAdsSDKArchive&lt;/code&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Aggregate &lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;BuildPhases&lt;/code&gt;→&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;New&lt;/code&gt;→&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;+&lt;/code&gt;→&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Cross-platform&lt;/code&gt;→&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;New Run Script Phase&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;打开新建的&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Run Script&lt;/code&gt;，在shell中键入打包代码&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;shell编写打包代码&quot;&gt;shell编写打包代码&lt;/h3&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;# 工程名称
+# 如果工程名称和Framework的Target名称不一样的 话，要自定义FMKNAME
+# 例如: FMK_NAME = &quot;MyFramework&quot;
+FMK_NAME=${PROJECT_NAME}
+
+# 工程Info.list路径
+InfoPlist=${SRCROOT}/${PROJECT_NAME}/Info.plist
+
+# 工程Version
+Version=$(/usr/libexec/PlistBuddy -c &quot;Print CFBundleShortVersionString&quot; $InfoPlist)
+Version=${Version//./}
+
+# 工程Build
+Build=$(/usr/libexec/PlistBuddy -c &quot;Print CFBundleVersion&quot; $InfoPlist)
+
+# SDK文件夹名称
+SDKFilePath=${SRCROOT}/${PROJECT_NAME}_${Version}_${Build}
+
+# 文件路径是否存在
+if [ -d &quot;${SDKFilePath}&quot; ]
+then
+rm -rf &quot;${SDKFilePath}&quot;
+fi
+mkdir -p &quot;${SDKFilePath}&quot;
+
+# 当前时间
+updataDate=`date +%F`
+
+# 将信息写入文件
+updataFileName=${SDKFilePath}/version.md
+touch ${updataFileName}
+echo 版本:${Version} &amp;gt;&amp;gt; ${updataFileName}
+echo 编译:${Build} &amp;gt;&amp;gt; ${updataFileName}
+echo 时间:${updataDate} &amp;gt;&amp;gt; ${updataFileName}
+echo 更新: &amp;gt;&amp;gt; ${updataFileName}
+
+# SDK目录
+INSTALL_DIR=${SDKFilePath}/${FMK_NAME}.framework
+
+# Working dir will be deleted after the framework creation.
+WRK_DIR=build
+DEVICE_DIR=${WRK_DIR}/Release-iphoneos/${FMK_NAME}.framework
+SIMULATOR_DIR=${WRK_DIR}/Release-iphonesimulator/${FMK_NAME}.framework
+
+# -configuration ${CONFIGURATION}
+# Clean and Building both architectures.
+xcodebuild -configuration &quot;Release&quot; -target &quot;${FMK_NAME}&quot; -sdk iphoneos clean build
+xcodebuild -configuration &quot;Release&quot; -target &quot;${FMK_NAME}&quot; -sdk iphonesimulator clean build
+
+# Cleaning the oldest.
+if [ -d &quot;${INSTALL_DIR}&quot; ]
+then
+rm -rf &quot;${INSTALL_DIR}&quot;
+fi
+mkdir -p &quot;${INSTALL_DIR}&quot;
+cp -R &quot;${DEVICE_DIR}/&quot; &quot;${INSTALL_DIR}/&quot;
+
+# Uses the Lipo Tool to merge both binary files (i386 + armv6/armv7) into one Universal final product.
+lipo -create &quot;${DEVICE_DIR}/${FMK_NAME}&quot; &quot;${SIMULATOR_DIR}/${FMK_NAME}&quot; -output &quot;${INSTALL_DIR}/${FMK_NAME}&quot;
+rm -r &quot;${WRK_DIR}&quot;
+open &quot;${SRCROOT}&quot;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name></name></author><category term="sdk" /><summary type="html">背景： 由于iOS Framework打包出来是分CPU指令集的，所以需要每个CPU指令集都打包一个Framework，然后使用lipo -create命令将所有CPU指令集合并，才能形成一个兼容所有设备和模拟器的Framework。这样的打包流程复杂而繁琐，对于需要经常打包测试的需求来说明显是不合适的。 解决方案 使用xcode Aggregate工具中的Run Script自动进行不同CPU指令集打包，并自动合并所有CPU指令集 处理器指令集介绍 ARM处理器 - armv7 - armv7s - arm64 Mac处理器 i386 x86_64 指令集 设备 支持设备</summary></entry><entry><title type="html">CocoaPods托管Framework</title><link href="http://localhost:4000/CocoaPodsHostingFramework/" rel="alternate" type="text/html" title="CocoaPods托管Framework" /><published>2017-06-16T00:00:00+08:00</published><updated>2017-06-16T00:00:00+08:00</updated><id>http://localhost:4000/CocoaPodsHostingFramework</id><content type="html" xml:base="http://localhost:4000/CocoaPodsHostingFramework/">&lt;p&gt;在发布sdk中，需要在CocoaPods上托管Framework&lt;/p&gt;
+
+&lt;h3 id=&quot;安装cocoapods&quot;&gt;安装CocoaPods&lt;/h3&gt;
+
+&lt;p&gt;首先安装CocoaPods，没安装的自行安装&lt;/p&gt;
+
+&lt;h3 id=&quot;处理源码&quot;&gt;处理源码&lt;/h3&gt;
+&lt;p&gt;第一步在github上创建源码库（我们的源码是Framework），并把源码push到github上&lt;/p&gt;
+
+&lt;p&gt;github地址：&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;https://github.com/guojunliu/AvidlyAdsSDK.git
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;podspec文件&quot;&gt;podspec文件&lt;/h3&gt;
+&lt;p&gt;第二步,在目录下创建&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.podspec&lt;/code&gt;文件，此处创建的是&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AvidlyAdsSDK.podspec&lt;/code&gt;，&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ pod spec create AvidlyAdsSDK
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;用编辑器打开.podspec文件 (我自己用Sublime Text)&lt;/p&gt;
+
+&lt;p&gt;文件内容为&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Pod::Spec.new do |s|
+  s.name             = 'AvidlyAdsSDK'
+  s.version          = '2.0.20'
+  s.summary          = 'Avidly Ad SDK'
+  s.description      = &amp;lt;&amp;lt;-DESC
+Avidly Ad SDK.
+                       DESC
+
+  s.homepage         = 'http://ads-sdk-doc.haloapps.com/docs/show/2'
+  s.license          = { :type =&amp;gt; 'MIT', :file =&amp;gt; 'LICENSE' }
+  s.author           = { &quot;steve&quot; =&amp;gt; &quot;steve.liu@holaverse.com&quot; }
+  s.source           = { :git =&amp;gt; 'https://github.com/guojunliu/AvidlyAdsSDK.git', :tag =&amp;gt; s.version }
+
+  s.ios.deployment_target = '8.0'
+
+  s.source_files = 'Framework/Appnext/include/*', 'Framework/Chance/include/*', 'Framework/Domob/include/*'
+  
+  s.resources = &quot;Framework/Chance/resource/*&quot;, &quot;Framework/Domob/resource/*&quot;, &quot;Framework/Vungle/resource/*&quot;, &quot;Framework/AvidlyAdsSDK/resource/*&quot;,
+
+  s.public_header_files = 'Framework/Appnext/include/*', 'Framework/Chance/include/*', 'Framework/Domob/include/*'
+
+  s.library = 'sqlite3', 'z'
+
+  s.frameworks = 'QuartzCore', 'MediaPlayer', 'CoreMedia', 'CoreGraphics', 'CFNetwork', 'WebKit', 'WatchConnectivity', 'SystemConfiguration', 'StoreKit', 'Social', 'MessageUI','JavaScriptCore','EventKit','CoreTelephony','AVFoundation','AudioToolbox','AdSupport'
+
+  s.vendored_libraries = &quot;Framework/Appnext/libAppnextLib.a&quot;, &quot;Framework/Appnext/libAppnextSDKCore.a&quot;, &quot;Framework/Chance/libChanceAd_Video.a&quot;, &quot;Framework/Domob/libIndependentVideoSDK.a&quot;
+
+  s.vendored_frameworks = 'Framework/AdColony/AdColony.framework', 'Framework/Mobvista/MVSDK.framework', 'Framework/Mobvista/MVSDKReward.framework', 'Framework/Unity/UnityAds.framework', 'Framework/Vungle/VungleSDK.framework', 'Framework/AvidlyAdsSDK/AvidlyAdsSDK.framework', 'Framework/FBAudienceNetwork/FBAudienceNetwork.framework', 'Framework/GoogleMobileAds/GoogleMobileAds.framework', 'Framework/HolaStatisticalSDK/HolaStatisticalSDK.framework', 'Framework/OneWay/OneWaySDK.framework'
+end
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;字段解释&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;thead&gt;
+    &lt;tr&gt;
+      &lt;th&gt;字段&lt;/th&gt;
+      &lt;th&gt;解释&lt;/th&gt;
+    &lt;/tr&gt;
+  &lt;/thead&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;name&lt;/td&gt;
+      &lt;td&gt;名称&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;version&lt;/td&gt;
+      &lt;td&gt;版本号&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;summary&lt;/td&gt;
+      &lt;td&gt;摘要&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;description&lt;/td&gt;
+      &lt;td&gt;描述&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;homepage&lt;/td&gt;
+      &lt;td&gt;主页&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;license&lt;/td&gt;
+      &lt;td&gt;许可证，这个必须要有，且按照上述格式，否则会出错&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;author&lt;/td&gt;
+      &lt;td&gt;作者&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;source&lt;/td&gt;
+      &lt;td&gt;资源，源码git库&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;ios.deployment_target&lt;/td&gt;
+      &lt;td&gt;ios 编译版本&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;source_files&lt;/td&gt;
+      &lt;td&gt;源文件&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;resources&lt;/td&gt;
+      &lt;td&gt;资源包，比如图片，bundle等&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;public_header_files&lt;/td&gt;
+      &lt;td&gt;共用头文件&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;library&lt;/td&gt;
+      &lt;td&gt;依赖的系统tbd库，要去掉&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;lib&lt;/code&gt;前缀,例如&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;libsqlite3.tbd&lt;/code&gt;要写成&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;sqlite3&lt;/code&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;frameworks&lt;/td&gt;
+      &lt;td&gt;依赖的系统Framework&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;vendored_libraries&lt;/td&gt;
+      &lt;td&gt;非系统库，如依赖的&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.a&lt;/code&gt;第三方静态库。需要按照目录写&lt;/td&gt;
+    &lt;/tr&gt;
+    &lt;tr&gt;
+      &lt;td&gt;vendored_frameworks&lt;/td&gt;
+      &lt;td&gt;非系统库，如依赖的&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;.framework&lt;/code&gt;第三方静态库，我们此次托管的是framework，所以也写在这里。需要按照目录写&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;p&gt;编写完之后需要校验下&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;podspec&lt;/code&gt;文件格式是的正确，Xcode是否能正常编译。使用下面代码&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ pod lib lint
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;出现下面代码表示验证通过&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;-&amp;gt; AvidlyAdsSDK (2.0.20)
+
+AvidlyAdsSDK passed validation.
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;接下来连同&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;podspec文件&lt;/code&gt;一起push到github，由于Cocoapods在自己配置的s.source git中是以版本号检索的，即git的tag，所以我们push之后，别忘记给当次commit打上tag标签，这里打的是&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;2.0.20&lt;/code&gt;,要和&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;podspec文件&lt;/code&gt;中一致，才能被检索到&lt;/p&gt;
+
+&lt;h3 id=&quot;推送到官方库&quot;&gt;推送到官方库&lt;/h3&gt;
+&lt;p&gt;最后是使用&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;pod trunk&lt;/code&gt;命令，把podspec文件推送到CocoaPod官方库&lt;/p&gt;
+
+&lt;p&gt;pod trunk 需要注册 具体做法这里不再赘述 请移步CocoaPod官网&lt;/p&gt;
+
+&lt;p&gt;pod trunk 设置完毕后执行命令&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;$ pod trunk push AvidlyAdsSDK.podspec
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;因为我们依赖的SDK比较多，源码比较大，所以整个过程比较耗时。&lt;/p&gt;
+
+&lt;p&gt;推送完成之后查询一下&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;pod search AvidlyAdsSDK
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;可以看到已经能查询到我们推送到CocoaPod官方的库了&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;-&amp;gt; AvidlyAdsSDK (2.0.20)
+   Avidly Ad SDK
+   pod 'AvidlyAdsSDK', '~&amp;gt; 2.0.20'
+   - Homepage: http://ads-sdk-doc.haloapps.com/docs/show/2
+   - Source:   https://github.com/guojunliu/AvidlyAdsSDK.git
+   - Versions: 2.0.20, 2.0.19 [AvidlyAdsSDK repo]
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;search不到&quot;&gt;search不到？&lt;/h3&gt;
+
+&lt;p&gt;上一步中，在推送到官方库之后，有可能在search的时候，search不到，出现下面的提示&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;[!] Unable to find a pod with name, author, summary, or description matching `AvidlyAdsSDK`
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;虽然我们push到官方可了，但是依然search不到&lt;/p&gt;
+
+&lt;p&gt;要解决这个问题，首先我们要了解下cocoapods的机制，在安装cocoapods的时候，使用过下面的命令&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;pod setup
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;这行命令其中最重要的作用就是将cocoapods官方repo，clone到我们本地。&lt;/p&gt;
+
+&lt;p&gt;我们可以看下我们本地的repo&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;pod repo list
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;master
+- Type: git (master)
+- URL:  https://github.com/CocoaPods/Specs.git
+- Path: /Users/steve/.cocoapods/repos/master
+
+1 repo
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;可以看到我们本地目前只有一个repo，就是官方的master repo&lt;/p&gt;
+
+&lt;p&gt;这个master repo中包含了所有push到cocoapod的&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;podspec文件&lt;/code&gt;，可以去本机cocoapods目录下看一下，有成千上万的podspec文件。&lt;/p&gt;
+
+&lt;p&gt;解决上述问题的最简单办法就是重新调用下&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;pod setup&lt;/code&gt;，重新clone下master repo&lt;/p&gt;
+
+&lt;h4 id=&quot;但是&quot;&gt;但是&lt;/h4&gt;
+
+&lt;p&gt;由于master repo实在太大（大概700M+），我们不希望CP浪费时间在clone repo上，为了提高效率，所以我们要使用我们自己的私有repo&lt;/p&gt;
+
+&lt;h3 id=&quot;私有库&quot;&gt;私有库&lt;/h3&gt;
+
+&lt;p&gt;先来说一个概念，什么是repo？它是所有的Pods的一个索引，就是一个容器，所有公开的Pods都在这个里面，它实际是一个Git仓库remote端在GitHub上，但是当你使用了Cocoapods后它会被clone到本地的~/.cocoapods/repos目录下。可以进入到这个目录看到master文件夹就是这个官方的repo了。这个master目录的结构是这个样子的&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;master/xxx库/0.0.1版本/xxx.podspec
+            /0.0.2版本/xxx.podspec
+master/zzz库/2.0.1版本/zzz.podspec
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;其中&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;master&lt;/code&gt;是repo名称，下一级目录&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;xxx库&lt;/code&gt;是你托管的库名称，再下一级&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;0.0.1版本&lt;/code&gt;是你库的版本，再下一级&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;xxx.podspec&lt;/code&gt;就是你自己的podspec&lt;/p&gt;
+
+&lt;p&gt;所以我们模拟这个目录创建一个就好了&lt;/p&gt;
+
+&lt;p&gt;首先创建一个git库，这里是&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;https://github.com/guojunliu/AvidlyAdsSDK-SpecsRepo.git
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;接下来在创建目录及文件&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;AvidlyAdsSDK/2.0.20/AvidlyAdsSDK.podspec
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;如果需要维护多个版本的线上包，那就&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;AvidlyAdsSDK/2.0.19/AvidlyAdsSDK.podspec
+            /2.0.20/AvidlyAdsSDK.podspec
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;接下来push到github上&lt;/p&gt;
+
+&lt;p&gt;repo创建完了，接下来我们将repo clone到我们本地，先看下我们本地的repo&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;pod repo list
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;master
+- Type: git (master)
+- URL:  https://github.com/CocoaPods/Specs.git
+- Path: /Users/steve/.cocoapods/repos/master
+
+1 repo
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;只有master&lt;/p&gt;
+
+&lt;p&gt;接下来colen我们自己的repo&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;pod repo add Avidly https://github.com/guojunliu/AvidlyAdsSDK-SpecsRepo.git
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;其中&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;Avidly&lt;/code&gt;是我们repo clone到本地的名字，自己命名&lt;/p&gt;
+
+&lt;p&gt;完成之后再来看下本地的repo&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Avidly
+- Type: git (master)
+- URL:  https://github.com/guojunliu/AvidlyAdsSDK-SpecsRepo.git
+- Path: /Users/steve/.cocoapods/repos/Avidly
+
+master
+- Type: git (master)
+- URL:  https://github.com/CocoaPods/Specs.git
+- Path: /Users/steve/.cocoapods/repos/master
+
+2 repos
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;已经存在了，可以去~/.cocoapods/repos目录下瞅瞅&lt;/p&gt;
+
+&lt;p&gt;接下来再search就可以找到我们托管的Framework了&lt;/p&gt;
+
+&lt;p&gt;这样我们就不用让CP再等待setup了&lt;/p&gt;
+
+&lt;h3 id=&quot;测试&quot;&gt;测试&lt;/h3&gt;
+
+&lt;p&gt;Podfile如下&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;platform :ios, '8.0'
+use_frameworks!
+
+target ‘testAvidlyPod’ do
+  source 'https://github.com/guojunliu/AvidlyAdsSDK-SpecsRepo.git'
+  pod 'AvidlyAdsSDK', '~&amp;gt; 2.0.20'
+end
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;其中source就是我们自己的私有库&lt;/p&gt;
+
+&lt;h3 id=&quot;可能会遇到的问题&quot;&gt;可能会遇到的问题&lt;/h3&gt;
+
+&lt;p&gt;1、swift验证不过&lt;/p&gt;
+
+&lt;p&gt;2、xcode编译不过导致验证不过&lt;/p&gt;
+
+&lt;p&gt;3、clone出错&lt;/p&gt;
+
+&lt;p&gt;4、xcworkspace编译不过&lt;/p&gt;</content><author><name></name></author><category term="sdk" /><summary type="html">在发布sdk中，需要在CocoaPods上托管Framework 安装CocoaPods 首先安装CocoaPods，没安装的自行安装 处理源码 第一步在github上创建源码库（我们的源码是Framework），并把源码push到github上 github地址： https://github.com/guojunliu/AvidlyAdsSDK.git podspec文件 第二步,在目录下创建.podspec文件，此处创建的是AvidlyAdsSDK.podspec， $ pod spec create AvidlyAdsSDK 用编辑器打开.podspec文件 (我自己用Sublime Text) 文件内容为 Pod::Spec.new do |s| s.name = 'AvidlyAdsSDK' s.version = '2.0.20' s.summary = 'Avidly Ad SDK' s.description = &amp;lt;&amp;lt;-DESC Avidly Ad SDK. DESC s.homepage = 'http://ads-sdk-doc.haloapps.com/docs/show/2' s.license = { :type =&amp;gt; 'MIT', :file =&amp;gt; 'LICENSE' } s.author = { &quot;steve&quot; =&amp;gt; &quot;steve.liu@holaverse.com&quot; } s.source = { :git =&amp;gt; 'https://github.com/guojunliu/AvidlyAdsSDK.git', :tag =&amp;gt; s.version } s.ios.deployment_target = '8.0' s.source_files = 'Framework/Appnext/include/*', 'Framework/Chance/include/*', 'Framework/Domob/include/*' s.resources = &quot;Framework/Chance/resource/*&quot;, &quot;Framework/Domob/resource/*&quot;, &quot;Framework/Vungle/resource/*&quot;, &quot;Framework/AvidlyAdsSDK/resource/*&quot;, s.public_header_files = 'Framework/Appnext/include/*', 'Framework/Chance/include/*', 'Framework/Domob/include/*' s.library = 'sqlite3', 'z' s.frameworks = 'QuartzCore', 'MediaPlayer', 'CoreMedia', 'CoreGraphics', 'CFNetwork', 'WebKit', 'WatchConnectivity', 'SystemConfiguration', 'StoreKit', 'Social', 'MessageUI','JavaScriptCore','EventKit','CoreTelephony','AVFoundation','AudioToolbox','AdSupport' s.vendored_libraries = &quot;Framework/Appnext/libAppnextLib.a&quot;, &quot;Framework/Appnext/libAppnextSDKCore.a&quot;, &quot;Framework/Chance/libChanceAd_Video.a&quot;, &quot;Framework/Domob/libIndependentVideoSDK.a&quot; s.vendored_frameworks = 'Framework/AdColony/AdColony.framework', 'Framework/Mobvista/MVSDK.framework', 'Framework/Mobvista/MVSDKReward.framework', 'Framework/Unity/UnityAds.framework', 'Framework/Vungle/VungleSDK.framework', 'Framework/AvidlyAdsSDK/AvidlyAdsSDK.framework', 'Framework/FBAudienceNetwork/FBAudienceNetwork.framework', 'Framework/GoogleMobileAds/GoogleMobileAds.framework', 'Framework/HolaStatisticalSDK/HolaStatisticalSDK.framework', 'Framework/OneWay/OneWaySDK.framework' end 字段解释 字段 解释</summary></entry></feed>

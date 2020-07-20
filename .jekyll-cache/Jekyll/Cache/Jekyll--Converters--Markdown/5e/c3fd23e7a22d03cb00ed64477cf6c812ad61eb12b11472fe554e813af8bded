@@ -1,0 +1,31 @@
+I"<p>背景：
+由于iOS Framework打包出来是分CPU指令集的，所以需要每个CPU指令集都打包一个Framework，然后使用<code class="language-plaintext highlighter-rouge">lipo -create</code>命令将所有CPU指令集合并，才能形成一个兼容所有设备和模拟器的Framework。这样的打包流程复杂而繁琐，对于需要经常打包测试的需求来说明显是不合适的。</p>
+
+<h3 id="解决方案">解决方案</h3>
+<p>使用xcode <code class="language-plaintext highlighter-rouge">Aggregate</code>工具中的<code class="language-plaintext highlighter-rouge">Run Script</code>自动进行不同CPU指令集打包，并自动合并所有CPU指令集</p>
+
+<h3 id="处理器指令集介绍">处理器指令集介绍</h3>
+
+<ul>
+  <li>ARM处理器
+	- armv7
+	- armv7s
+ 	- arm64</li>
+  <li>Mac处理器
+    <ul>
+      <li>i386</li>
+      <li>x86_64</li>
+    </ul>
+  </li>
+</ul>
+
+<table>
+  <tbody>
+    <tr>
+      <td>指令集</td>
+      <td>设备</td>
+      <td>支持设备</td>
+    </tr>
+  </tbody>
+</table>
+:ET

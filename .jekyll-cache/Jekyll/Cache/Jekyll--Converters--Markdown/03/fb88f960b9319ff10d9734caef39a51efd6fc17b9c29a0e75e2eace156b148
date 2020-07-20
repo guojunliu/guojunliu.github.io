@@ -1,0 +1,140 @@
+I" <p>背景：
+由于iOS Framework打包出来是分CPU指令集的，所以需要每个CPU指令集都打包一个Framework，然后使用<code class="language-plaintext highlighter-rouge">lipo -create</code>命令将所有CPU指令集合并，才能形成一个兼容所有设备和模拟器的Framework。这样的打包流程复杂而繁琐，对于需要经常打包测试的需求来说明显是不合适的。</p>
+
+<h3 id="解决方案">解决方案</h3>
+<p>使用xcode <code class="language-plaintext highlighter-rouge">Aggregate</code>工具中的<code class="language-plaintext highlighter-rouge">Run Script</code>自动进行不同CPU指令集打包，并自动合并所有CPU指令集</p>
+
+<h3 id="处理器指令集介绍">处理器指令集介绍</h3>
+
+<ul>
+  <li>ARM处理器
+	- armv7
+	- armv7s
+ 	- arm64</li>
+  <li>Mac处理器
+    <ul>
+      <li>i386</li>
+      <li>x86_64</li>
+    </ul>
+  </li>
+</ul>
+
+<table>
+  <thead>
+    <tr>
+      <th>指令集</th>
+      <th>设备</th>
+      <th>支持设备</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>arm64</td>
+      <td>真机64位</td>
+      <td>iPhone6s、iphone6s plus、iPhone6、iPhone6 plus、iPhone5S、iPad Air、 iPad mini2</td>
+    </tr>
+    <tr>
+      <td>armv7s</td>
+      <td>真机32位</td>
+      <td>iPhone5、iPhone5C、iPad4(iPad with Retina Display)</td>
+    </tr>
+    <tr>
+      <td>armv7</td>
+      <td>真机32位</td>
+      <td>iPhone4、iPhone4S、iPad、iPad2、iPad3(The New iPad)、iPad mini、iPod Touch 3G、iPod Touch4</td>
+    </tr>
+    <tr>
+      <td>i386</td>
+      <td>模拟器32位</td>
+      <td>针对intel通用微处理器32位处理器</td>
+    </tr>
+    <tr>
+      <td>x86_64</td>
+      <td>模拟器64位</td>
+      <td>针对x86架构的64位处理器</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3 id="添加-aggregate">添加 Aggregate</h3>
+
+<ul>
+  <li>使用Xcode打开打包工程</li>
+  <li><code class="language-plaintext highlighter-rouge">File</code>→<code class="language-plaintext highlighter-rouge">New</code>→<code class="language-plaintext highlighter-rouge">Target</code>→<code class="language-plaintext highlighter-rouge">Cross-platform</code>→<code class="language-plaintext highlighter-rouge">Aggregate</code></li>
+  <li>命名为<code class="language-plaintext highlighter-rouge">AvidlyAdsSDKArchive</code>(自由命名)</li>
+</ul>
+
+<h3 id="添加-run-script">添加 Run Script</h3>
+
+<ul>
+  <li>打开<code class="language-plaintext highlighter-rouge">AvidlyAdsSDKArchive</code><code class="language-plaintext highlighter-rouge">Aggregate </code></li>
+  <li><code class="language-plaintext highlighter-rouge">BuildPhases</code>→<code class="language-plaintext highlighter-rouge">New</code>→<code class="language-plaintext highlighter-rouge">+</code>→<code class="language-plaintext highlighter-rouge">Cross-platform</code>→<code class="language-plaintext highlighter-rouge">New Run Script Phase</code></li>
+  <li>打开新建的<code class="language-plaintext highlighter-rouge">Run Script</code>，在shell中键入打包代码</li>
+</ul>
+
+<h3 id="shell编写打包代码">shell编写打包代码</h3>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code># 工程名称
+# 如果工程名称和Framework的Target名称不一样的 话，要自定义FMKNAME
+# 例如: FMK_NAME = "MyFramework"
+FMK_NAME=${PROJECT_NAME}
+
+# 工程Info.list路径
+InfoPlist=${SRCROOT}/${PROJECT_NAME}/Info.plist
+
+# 工程Version
+Version=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" $InfoPlist)
+Version=${Version//./}
+
+# 工程Build
+Build=$(/usr/libexec/PlistBuddy -c "Print CFBundleVersion" $InfoPlist)
+
+# SDK文件夹名称
+SDKFilePath=${SRCROOT}/${PROJECT_NAME}_${Version}_${Build}
+
+# 文件路径是否存在
+if [ -d "${SDKFilePath}" ]
+then
+rm -rf "${SDKFilePath}"
+fi
+mkdir -p "${SDKFilePath}"
+
+# 当前时间
+updataDate=`date +%F`
+
+# 将信息写入文件
+updataFileName=${SDKFilePath}/version.md
+touch ${updataFileName}
+echo 版本:${Version} &gt;&gt; ${updataFileName}
+echo 编译:${Build} &gt;&gt; ${updataFileName}
+echo 时间:${updataDate} &gt;&gt; ${updataFileName}
+echo 更新: &gt;&gt; ${updataFileName}
+
+# SDK目录
+INSTALL_DIR=${SDKFilePath}/${FMK_NAME}.framework
+
+# Working dir will be deleted after the framework creation.
+WRK_DIR=build
+DEVICE_DIR=${WRK_DIR}/Release-iphoneos/${FMK_NAME}.framework
+SIMULATOR_DIR=${WRK_DIR}/Release-iphonesimulator/${FMK_NAME}.framework
+
+# -configuration ${CONFIGURATION}
+# Clean and Building both architectures.
+xcodebuild -configuration "Release" -target "${FMK_NAME}" -sdk iphoneos clean build
+xcodebuild -configuration "Release" -target "${FMK_NAME}" -sdk iphonesimulator clean build
+
+# Cleaning the oldest.
+if [ -d "${INSTALL_DIR}" ]
+then
+rm -rf "${INSTALL_DIR}"
+fi
+mkdir -p "${INSTALL_DIR}"
+cp -R "${DEVICE_DIR}/" "${INSTALL_DIR}/"
+
+# Uses the Lipo Tool to merge both binary files (i386 + armv6/armv7) into one Universal final product.
+lipo -create "${DEVICE_DIR}/${FMK_NAME}" "${SIMULATOR_DIR}/${FMK_NAME}" -output "${INSTALL_DIR}/${FMK_NAME}"
+rm -r "${WRK_DIR}"
+open "${SRCROOT}"
+</code></pre></div></div>
+
+:ET
