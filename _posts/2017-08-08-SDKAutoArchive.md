@@ -1,7 +1,8 @@
 ---
 layout: post
-title: SDK自动打包
-tags: sdk
+title: <font color=#0099ff>SDK自动打包</font>
+tags: [SDK, Framework]
+Author: Steve.liu
 ---
 
 

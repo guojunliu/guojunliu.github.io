@@ -7,7 +7,7 @@
 # 井号后面的文字是说明文档，不会被程序读取。
 name: Steve.liu
 # 描述/签名
-description: A blog of an ios R&D engineer
+description: A blog of an iOS R&D engineer
 
 #
 # 下面的设定都是可选的
@@ -37,29 +37,29 @@ paginate: 8
 # 你的社交网络链接，它们会作为图标出现在你的网站页脚中，可选填写
 footer-links: 
   weibo: stevexiaogang
-  #behance: # https://www.behance.net/<>
-  #dribbble: # https://dribbble.com/<>
+  #behance:
+  #dribbble:
   email: 909476821@qq.com
-  #facebook: #https://www.facebook.com/<>
-  #flickr: #https://www.flickr.com/<>
+  #facebook:
+  #flickr:
   github: /guojunliu
-  #instagram: #https://instagram.com/<>
-  #linkedin: #https://www.linkedin.com/in/<>
-  #pinterest: #https://www.pinterest.com/<>
+  #instagram:
+  #linkedin:
+  #pinterest:
   #rss: #随便填点啥RSS就能用了
-  #stackoverflow: # http://stackoverflow.com/<>
-  #tumblr: # https://<username>.tumblr.com
-  #twitter: # https://www.twitter.com/<your_twitter_username>
-  #youtube: # channel/<your_long_string> or user/<user-name>
+  #stackoverflow:
+  #tumblr:
+  #twitter:
+  #youtube:
 
 # 站点页脚的文字
 footer-text: 909476821@qq.com
 
-# 输入Disqus shortname，即可添加评论区，细节可阅读文档。
-disqus: loffer #shortname
-
-# 输入Google Analytics web tracking code
-google_analytics:
+## 输入Disqus shortname，即可添加评论区，细节可阅读文档。
+#disqus: loffer #shortname
+#
+## 输入Google Analytics web tracking code
+#google_analytics:
 
 # 输入你的网站域名（如果你没有添加自己的域名，而是直接用GitHub pages分配的域名的话可以省略）
 url: 

@@ -1,7 +1,8 @@
 ---
 layout: post
-title: CocoaPods托管Framework
-tags: sdk
+title: <font color=#0099ff>CocoaPods托管Framework</font>
+tags: [SDK, Framework]
+Author: Steve.liu
 ---
 
 
