@@ -1,4 +1,11 @@
-I"�,<p>Djinni 是一个用来生成跨语言的类型声明和接口绑定的工具，主要用于 C++ 和 Java 以及 Objective-C 间的互通。</p>
+I"�-<p>iOS 10以后Apple对IDFA的获取逻辑进行了更新</p>
+
+<ul>
+  <li>iOS10以前，</li>
+  <li>iOS10以后</li>
+</ul>
+
+<p>Djinni 是一个用来生成跨语言的类型声明和接口绑定的工具，主要用于 C++ 和 Java 以及 Objective-C 间的互通。</p>
 
 <ul>
   <li>好处：</li>
@@ -294,6 +301,8 @@ NSLog(@"str:%@",str);
 <p>问答会持续更新哦 ！！！</p>
 
 <h2 id="最后">最后</h2>
+
+<p>一个根据djinni写成的demo（ios），解决了macOS Sierra下第一次build时出错的问题</p>
 
 <p>原文及demo托管在github上 https://github.com/guojunliu/djinni</p>
 
