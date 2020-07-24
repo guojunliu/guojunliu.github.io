@@ -1,4 +1,4 @@
-I"�<p>iOS 10以后Apple对IDFA的获取逻辑进行了更新</p>
+I"X <p>iOS 10以后Apple对IDFA的获取逻辑进行了更新</p>
 
 <ul>
   <li>iOS10以前，君子协议，不管用户是否同意使用IDFA，都可以获取到IDFA</li>
@@ -85,7 +85,113 @@
   <li>在第一次能获取到<code class="language-plaintext highlighter-rouge">IDFA</code>的情况下，<code class="language-plaintext highlighter-rouge">IDFA + KeyChain</code>可以有效防止用户限制广告跟踪之后IDFA的变化</li>
 </ul>
 
-<p>即为<a href="https://github.com/guojunliu/XYUUID">YXUUID</a></p>
+<p>流程如下</p>
 
-<h2 id="yxuuid">YXUUID</h2>
+<p><img src="../images/YXUUID/1.png" alt="Alt text" /></p>
+
+<p>核心代码如下</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>+ (NSString *)uuidForDevice {
+    NSString *deviceUUID = [XYKeyChain getDataWithServiceDomain:STR_XYUUIDForKeyChainAndDeviceOrIdfa];
+    if (deviceUUID &amp;&amp; ![deviceUUID isEqualToString:@""] &amp;&amp; ![deviceUUID isEqualToString:XY_ZeroIdfa]) {
+        return deviceUUID;
+    }
+    
+    NSString *idfa = [self uuidForIDFA];
+    if (idfa &amp;&amp; ![idfa isEqualToString:@""] &amp;&amp; ![idfa isEqualToString:XY_ZeroIdfa]) {
+        [XYKeyChain setData:idfa serviceDomain:STR_XYUUIDForKeyChainAndDeviceOrIdfa];
+        return idfa;
+    }
+    
+    NSString *deviceInfoUUID = [self uuidForDeviceInfo];
+    if (deviceInfoUUID &amp;&amp; ![deviceInfoUUID isEqualToString:@""]) {
+        [XYKeyChain setData:deviceInfoUUID serviceDomain:STR_XYUUIDForKeyChainAndDeviceOrIdfa];
+        return deviceInfoUUID;
+    }
+    
+    NSString *uuid = [self uuid];
+    if (uuid &amp;&amp; ![uuid isEqualToString:@""]) {
+        [XYKeyChain setData:uuid serviceDomain:STR_XYUUIDForKeyChainAndDeviceOrIdfa];
+        return uuid;
+    }
+    
+    return @"";
+}
+</code></pre></div></div>
+
+<p>根据以上组合封装之后即为<a href="https://github.com/guojunliu/XYUUID">YXUUID</a></p>
+
+<h2 id="xyuuid介绍">XYUUID介绍</h2>
+
+<h3 id="xyuuid的优点">XYUUID的优点</h3>
+
+<ul>
+  <li>API简单</li>
+  <li>使用了最新的iOS 14 API来获取IDFA</li>
+  <li>具有不同持久性级别的通用唯一标识符</li>
+</ul>
+
+<h3 id="uuidfordevice的有点">uuidForDevice的有点</h3>
+
+<ul>
+  <li>较长的时效性</li>
+  <li>较长的存储性</li>
+  <li>较低的冲突率</li>
+  <li>较低的漂移率</li>
+</ul>
+
+<h3 id="api">API</h3>
+
+<p>获取不同持久化级别的UUID</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>/// 随机UUID，此值每次都会刷新
++ (NSString *)uuid;
+
+/// 安装UUID，每次重新安装，此值会刷新
++ (NSString *)uuidForInstall;
+
+/// 开启应用UUID，每次开启应用，此值会刷新
++ (NSString *)uuidForAppOpen;
+
+/// IDFA，开启关闭授权，此值会刷新
++ (NSString *)uuidForIDFA;
+
+/// IDFV
++ (NSString *)uuidForIDFV;
+
+/// 设备信息UUID，根据设备信息生成，能维持一段时间内不变
++ (NSString *)uuidForDeviceInfo;
+
+/// 钥匙串UUID，卸载应用保持不变
++ (NSString *)uuidForKeychain;
+
+/// 设备UUID，设备唯一标识符
++ (NSString *)uuidForDevice;
+
+</code></pre></div></div>
+
+<h3 id="持久化级别">持久化级别</h3>
+
+<table>
+  <tbody>
+    <tr>
+      <td>UUID</td>
+      <td>App relaunch</td>
+      <td>Reset Advertising Identifier</td>
+      <td>App reinstall</td>
+      <td>System reboot</td>
+      <td>System upgrade</td>
+      <td>System reset</td>
+    </tr>
+    <tr>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+      <td> </td>
+    </tr>
+  </tbody>
+</table>
 :ET

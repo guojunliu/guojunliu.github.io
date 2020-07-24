@@ -1,4 +1,4 @@
-I"T<p>iOS 10以后Apple对IDFA的获取逻辑进行了更新</p>
+I"q,<p>iOS 10以后Apple对IDFA的获取逻辑进行了更新</p>
 
 <ul>
   <li>iOS10以前，君子协议，不管用户是否同意使用IDFA，都可以获取到IDFA</li>
@@ -85,6 +85,40 @@
   <li>在第一次能获取到<code class="language-plaintext highlighter-rouge">IDFA</code>的情况下，<code class="language-plaintext highlighter-rouge">IDFA + KeyChain</code>可以有效防止用户限制广告跟踪之后IDFA的变化</li>
 </ul>
 
+<p>流程如下</p>
+
+<p><img src="../images/YXUUID/1.png" alt="Alt text" /></p>
+
+<p>核心代码如下</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>+ (NSString *)uuidForDevice {
+    NSString *deviceUUID = [XYKeyChain getDataWithServiceDomain:STR_XYUUIDForKeyChainAndDeviceOrIdfa];
+    if (deviceUUID &amp;&amp; ![deviceUUID isEqualToString:@""] &amp;&amp; ![deviceUUID isEqualToString:XY_ZeroIdfa]) {
+        return deviceUUID;
+    }
+    
+    NSString *idfa = [self uuidForIDFA];
+    if (idfa &amp;&amp; ![idfa isEqualToString:@""] &amp;&amp; ![idfa isEqualToString:XY_ZeroIdfa]) {
+        [XYKeyChain setData:idfa serviceDomain:STR_XYUUIDForKeyChainAndDeviceOrIdfa];
+        return idfa;
+    }
+    
+    NSString *deviceInfoUUID = [self uuidForDeviceInfo];
+    if (deviceInfoUUID &amp;&amp; ![deviceInfoUUID isEqualToString:@""]) {
+        [XYKeyChain setData:deviceInfoUUID serviceDomain:STR_XYUUIDForKeyChainAndDeviceOrIdfa];
+        return deviceInfoUUID;
+    }
+    
+    NSString *uuid = [self uuid];
+    if (uuid &amp;&amp; ![uuid isEqualToString:@""]) {
+        [XYKeyChain setData:uuid serviceDomain:STR_XYUUIDForKeyChainAndDeviceOrIdfa];
+        return uuid;
+    }
+    
+    return @"";
+}
+</code></pre></div></div>
+
 <p>根据以上组合封装之后即为<a href="https://github.com/guojunliu/XYUUID">YXUUID</a></p>
 
 <h2 id="xyuuid介绍">XYUUID介绍</h2>
@@ -94,7 +128,7 @@
 <ul>
   <li>API简单</li>
   <li>使用了最新的iOS 14 API来获取IDFA</li>
-  <li>具有不能持久性级别的通用唯一标识符</li>
+  <li>具有不同持久性级别的通用唯一标识符</li>
 </ul>
 
 <h3 id="uuidfordevice的有点">uuidForDevice的有点</h3>
@@ -139,24 +173,89 @@
 <h3 id="持久化级别">持久化级别</h3>
 
 <table>
+  <thead>
+    <tr>
+      <th>UUID</th>
+      <th style="text-align: center">App relaunch</th>
+      <th style="text-align: center">Reset Advertising Identifier</th>
+      <th style="text-align: center">App reinstall</th>
+      <th style="text-align: center">System reboot</th>
+      <th style="text-align: center">System upgrade</th>
+      <th style="text-align: center">System reset</th>
+    </tr>
+  </thead>
   <tbody>
     <tr>
-      <td>UUID</td>
-      <td>App relaunch</td>
-      <td>Reset Advertising Identifier</td>
-      <td>App reinstall</td>
-      <td>System reboot</td>
-      <td>System upgrade</td>
-      <td>System reset</td>
+      <td><code class="language-plaintext highlighter-rouge">uuid </code></td>
+      <td style="text-align: center">❌</td>
+      <td style="text-align: center">❌</td>
+      <td style="text-align: center">❌</td>
+      <td style="text-align: center">❌</td>
+      <td style="text-align: center">❌</td>
+      <td style="text-align: center">❌</td>
     </tr>
     <tr>
-      <td> </td>
-      <td> </td>
-      <td> </td>
-      <td> </td>
-      <td> </td>
-      <td> </td>
-      <td> </td>
+      <td><code class="language-plaintext highlighter-rouge">uuidForInstall </code></td>
+      <td style="text-align: center">✅</td>
+      <td style="text-align: center">✅</td>
+      <td style="text-align: center">❌</td>
+      <td style="text-align: center">✅</td>
+      <td style="text-align: center">✅</td>
+      <td style="text-align: center">❌</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">uuidForAppOpen </code></td>
+      <td style="text-align: center">❌</td>
+      <td style="text-align: center">✅</td>
+      <td style="text-align: center">❌</td>
+      <td style="text-align: center">❌</td>
+      <td style="text-align: center">❌</td>
+      <td style="text-align: center">❌</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">uuidForIDFA </code></td>
+      <td style="text-align: center">✅</td>
+      <td style="text-align: center">❌</td>
+      <td style="text-align: center">✅</td>
+      <td style="text-align: center">✅</td>
+      <td style="text-align: center">✅</td>
+      <td style="text-align: center">❌</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">uuidForIDFV </code></td>
+      <td style="text-align: center">✅</td>
+      <td style="text-align: center">✅</td>
+      <td style="text-align: center">❌</td>
+      <td style="text-align: center">✅</td>
+      <td style="text-align: center">✅</td>
+      <td style="text-align: center">❌</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">uuidForDeviceInfo </code></td>
+      <td style="text-align: center">✅</td>
+      <td style="text-align: center">✅</td>
+      <td style="text-align: center">✅</td>
+      <td style="text-align: center">❌</td>
+      <td style="text-align: center">❌</td>
+      <td style="text-align: center">❌</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">uuidForKeychain </code></td>
+      <td style="text-align: center">✅</td>
+      <td style="text-align: center">✅</td>
+      <td style="text-align: center">✅</td>
+      <td style="text-align: center">✅</td>
+      <td style="text-align: center">✅</td>
+      <td style="text-align: center">❌</td>
+    </tr>
+    <tr>
+      <td><code class="language-plaintext highlighter-rouge">uuidForDevice </code></td>
+      <td style="text-align: center">✅</td>
+      <td style="text-align: center">✅</td>
+      <td style="text-align: center">✅</td>
+      <td style="text-align: center">✅</td>
+      <td style="text-align: center">✅</td>
+      <td style="text-align: center">❌</td>
     </tr>
   </tbody>
 </table>

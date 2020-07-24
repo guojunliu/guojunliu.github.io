@@ -14,10 +14,10 @@ description: A blog of an iOS R&D engineer
 #
 
 # 你的博客logo图片URL，建议尺寸不超过300px × 300px
-avatar: https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1595252704250&di=204651231c7ea52f3c35a74ea8c7668c&imgtype=0&src=http%3A%2F%2Fdp.gtimg.cn%2Fdiscuzpic%2F0%2Fdiscuz_x5_gamebbs_qq_com_forum_201401_07_134550hg7hiypx7ddpjgn5.jpg%2F0
+avatar: /images/avatar.png
 
 # 你的favicon（出现在浏览器tab上）图片URL，建议使用较小(64px × 64px)的图片
-favicon: https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1595252704250&di=204651231c7ea52f3c35a74ea8c7668c&imgtype=0&src=http%3A%2F%2Fdp.gtimg.cn%2Fdiscuzpic%2F0%2Fdiscuz_x5_gamebbs_qq_com_forum_201401_07_134550hg7hiypx7ddpjgn5.jpg%2F0
+favicon: /images/avatar.png
 
 
 # 菜单中的按钮

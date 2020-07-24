@@ -96,6 +96,40 @@ SimulateIDFA + IDFA + KeyChain
   在第一次能获取到IDFA的情况下，IDFA + KeyChain可以有效防止用户限制广告跟踪之后IDFA的变化
 
 
+流程如下
+
+
+
+核心代码如下
+
++ (NSString *)uuidForDevice {
+    NSString *deviceUUID = [XYKeyChain getDataWithServiceDomain:STR_XYUUIDForKeyChainAndDeviceOrIdfa];
+    if (deviceUUID &amp;&amp; ![deviceUUID isEqualToString:@""] &amp;&amp; ![deviceUUID isEqualToString:XY_ZeroIdfa]) {
+        return deviceUUID;
+    }
+    
+    NSString *idfa = [self uuidForIDFA];
+    if (idfa &amp;&amp; ![idfa isEqualToString:@""] &amp;&amp; ![idfa isEqualToString:XY_ZeroIdfa]) {
+        [XYKeyChain setData:idfa serviceDomain:STR_XYUUIDForKeyChainAndDeviceOrIdfa];
+        return idfa;
+    }
+    
+    NSString *deviceInfoUUID = [self uuidForDeviceInfo];
+    if (deviceInfoUUID &amp;&amp; ![deviceInfoUUID isEqualToString:@""]) {
+        [XYKeyChain setData:deviceInfoUUID serviceDomain:STR_XYUUIDForKeyChainAndDeviceOrIdfa];
+        return deviceInfoUUID;
+    }
+    
+    NSString *uuid = [self uuid];
+    if (uuid &amp;&amp; ![uuid isEqualToString:@""]) {
+        [XYKeyChain setData:uuid serviceDomain:STR_XYUUIDForKeyChainAndDeviceOrIdfa];
+        return uuid;
+    }
+    
+    return @"";
+}
+
+
 根据以上组合封装之后即为YXUUID
 
 XYUUID介绍
@@ -105,7 +139,7 @@ XYUUID的优点
 
   API简单
   使用了最新的iOS 14 API来获取IDFA
-  具有不能持久性级别的通用唯一标识符
+  具有不同持久性级别的通用唯一标识符
 
 
 uuidForDevice的有点
@@ -259,6 +293,40 @@ SimulateIDFA + IDFA + KeyChain
   在第一次能获取到IDFA的情况下，IDFA + KeyChain可以有效防止用户限制广告跟踪之后IDFA的变化
 
 
+流程如下
+
+
+
+核心代码如下
+
++ (NSString *)uuidForDevice {
+    NSString *deviceUUID = [XYKeyChain getDataWithServiceDomain:STR_XYUUIDForKeyChainAndDeviceOrIdfa];
+    if (deviceUUID &amp;&amp; ![deviceUUID isEqualToString:@""] &amp;&amp; ![deviceUUID isEqualToString:XY_ZeroIdfa]) {
+        return deviceUUID;
+    }
+    
+    NSString *idfa = [self uuidForIDFA];
+    if (idfa &amp;&amp; ![idfa isEqualToString:@""] &amp;&amp; ![idfa isEqualToString:XY_ZeroIdfa]) {
+        [XYKeyChain setData:idfa serviceDomain:STR_XYUUIDForKeyChainAndDeviceOrIdfa];
+        return idfa;
+    }
+    
+    NSString *deviceInfoUUID = [self uuidForDeviceInfo];
+    if (deviceInfoUUID &amp;&amp; ![deviceInfoUUID isEqualToString:@""]) {
+        [XYKeyChain setData:deviceInfoUUID serviceDomain:STR_XYUUIDForKeyChainAndDeviceOrIdfa];
+        return deviceInfoUUID;
+    }
+    
+    NSString *uuid = [self uuid];
+    if (uuid &amp;&amp; ![uuid isEqualToString:@""]) {
+        [XYKeyChain setData:uuid serviceDomain:STR_XYUUIDForKeyChainAndDeviceOrIdfa];
+        return uuid;
+    }
+    
+    return @"";
+}
+
+
 根据以上组合封装之后即为YXUUID
 
 XYUUID介绍
@@ -268,7 +336,7 @@ XYUUID的优点
 
   API简单
   使用了最新的iOS 14 API来获取IDFA
-  具有不能持久性级别的通用唯一标识符
+  具有不同持久性级别的通用唯一标识符
 
 
 uuidForDevice的有点
@@ -364,7 +432,7 @@ API
 
   <link rel="stylesheet" type="text/css" href="/style.css" />
   <link rel="alternate" type="application/rss+xml" title="Steve.liu - A blog of an iOS R&D engineer" href="/feed.xml" />
-  <link rel="shortcut icon" href="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1595252704250&di=204651231c7ea52f3c35a74ea8c7668c&imgtype=0&src=http%3A%2F%2Fdp.gtimg.cn%2Fdiscuzpic%2F0%2Fdiscuz_x5_gamebbs_qq_com_forum_201401_07_134550hg7hiypx7ddpjgn5.jpg%2F0">
+  <link rel="shortcut icon" href="/images/avatar.png">
   <script src="https://kit.fontawesome.com/56f7faf3f4.js"></script>
 
 
@@ -376,7 +444,7 @@ API
   <header class="sidebar clearfix">
     <div class="site-info">
       
-        <a href="/" class="site-avatar"><img src="https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1595252704250&di=204651231c7ea52f3c35a74ea8c7668c&imgtype=0&src=http%3A%2F%2Fdp.gtimg.cn%2Fdiscuzpic%2F0%2Fdiscuz_x5_gamebbs_qq_com_forum_201401_07_134550hg7hiypx7ddpjgn5.jpg%2F0" /></a>
+        <a href="/" class="site-avatar"><img src="/images/avatar.png" /></a>
        
       <h1 class="site-name"><a href="/">Steve.liu</a></h1>
       <p class="site-description">A blog of an iOS R&D engineer</p>
@@ -570,6 +638,40 @@ API
   <li>在第一次能获取到<code class="language-plaintext highlighter-rouge">IDFA</code>的情况下，<code class="language-plaintext highlighter-rouge">IDFA + KeyChain</code>可以有效防止用户限制广告跟踪之后IDFA的变化</li>
 </ul>
 
+<p>流程如下</p>
+
+<p><img src="../images/YXUUID/1.png" alt="Alt text" /></p>
+
+<p>核心代码如下</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>+ (NSString *)uuidForDevice {
+    NSString *deviceUUID = [XYKeyChain getDataWithServiceDomain:STR_XYUUIDForKeyChainAndDeviceOrIdfa];
+    if (deviceUUID &amp;&amp; ![deviceUUID isEqualToString:@""] &amp;&amp; ![deviceUUID isEqualToString:XY_ZeroIdfa]) {
+        return deviceUUID;
+    }
+    
+    NSString *idfa = [self uuidForIDFA];
+    if (idfa &amp;&amp; ![idfa isEqualToString:@""] &amp;&amp; ![idfa isEqualToString:XY_ZeroIdfa]) {
+        [XYKeyChain setData:idfa serviceDomain:STR_XYUUIDForKeyChainAndDeviceOrIdfa];
+        return idfa;
+    }
+    
+    NSString *deviceInfoUUID = [self uuidForDeviceInfo];
+    if (deviceInfoUUID &amp;&amp; ![deviceInfoUUID isEqualToString:@""]) {
+        [XYKeyChain setData:deviceInfoUUID serviceDomain:STR_XYUUIDForKeyChainAndDeviceOrIdfa];
+        return deviceInfoUUID;
+    }
+    
+    NSString *uuid = [self uuid];
+    if (uuid &amp;&amp; ![uuid isEqualToString:@""]) {
+        [XYKeyChain setData:uuid serviceDomain:STR_XYUUIDForKeyChainAndDeviceOrIdfa];
+        return uuid;
+    }
+    
+    return @"";
+}
+</code></pre></div></div>
+
 <p>根据以上组合封装之后即为<a href="https://github.com/guojunliu/XYUUID">YXUUID</a></p>
 
 <h2 id="xyuuid介绍">XYUUID介绍</h2>
@@ -579,7 +681,7 @@ API
 <ul>
   <li>API简单</li>
   <li>使用了最新的iOS 14 API来获取IDFA</li>
-  <li>具有不能持久性级别的通用唯一标识符</li>
+  <li>具有不同持久性级别的通用唯一标识符</li>
 </ul>
 
 <h3 id="uuidfordevice的有点">uuidForDevice的有点</h3>
