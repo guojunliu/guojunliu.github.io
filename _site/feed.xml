@@ -1,4 +1,361 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.1.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2020-07-24T18:27:51+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Steve.liu</title><subtitle>A blog of an iOS R&amp;D engineer</subtitle><entry><title type="html">&amp;lt;font color=#0099ff&amp;gt;SDK自动打包&amp;lt;/font&amp;gt;</title><link href="http://localhost:4000/SDKAutoArchive/" rel="alternate" type="text/html" title="&amp;lt;font color=#0099ff&amp;gt;SDK自动打包&amp;lt;/font&amp;gt;" /><published>2017-08-08T00:00:00+08:00</published><updated>2017-08-08T00:00:00+08:00</updated><id>http://localhost:4000/SDKAutoArchive</id><content type="html" xml:base="http://localhost:4000/SDKAutoArchive/">&lt;p&gt;背景：
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.1.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2020-08-05T11:37:05+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Steve.liu</title><subtitle>A blog of an iOS R&amp;D engineer</subtitle><entry><title type="html">Xcode11提前适配iOS14 IDFA</title><link href="http://localhost:4000/Xcode11%E6%8F%90%E5%89%8D%E9%80%82%E9%85%8DiOS14IDFA/" rel="alternate" type="text/html" title="Xcode11提前适配iOS14 IDFA" /><published>2020-08-04T00:00:00+08:00</published><updated>2020-08-04T00:00:00+08:00</updated><id>http://localhost:4000/Xcode11%E6%8F%90%E5%89%8D%E9%80%82%E9%85%8DiOS14IDFA</id><content type="html" xml:base="http://localhost:4000/Xcode11%E6%8F%90%E5%89%8D%E9%80%82%E9%85%8DiOS14IDFA/">&lt;p&gt;背景：&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;为了防止用户在升级到iOS14的时候出现不兼容的情况，也为了提升用户升级系统的平滑感。&lt;/p&gt;
+
+  &lt;p&gt;同时为了统计，广告，归因的一系列功能的在系统升级时不出现空窗期。&lt;/p&gt;
+
+  &lt;p&gt;开发者不能等到iOS发布，以及Xcode12发布之后再去针对App进行优化或者强制要求更新。&lt;/p&gt;
+
+  &lt;p&gt;针对Xcode12 Beta版不能打包上架，以及Xcode11无法使用AppTrackingTransparency系统库的问题，帮助开发者提前适配iOS 14 IDFA，是本文要解决的问题。&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;h3 id=&quot;一变化&quot;&gt;一、变化&lt;/h3&gt;
+
+&lt;p&gt;iOS 14 Apple对隐私增加了更强的保护，首当其冲受影响的就是IDFA。&lt;/p&gt;
+
+&lt;p&gt;在LAT（Limit Ad Tracking）的机制下又增加ATT（AppTrackingTransparency）机制。&lt;/p&gt;
+
+&lt;h3 id=&quot;二att机制特点&quot;&gt;二、ATT机制特点&lt;/h3&gt;
+
+&lt;h4 id=&quot;1前置于lat机制当没有att的时候lat不生效&quot;&gt;1、前置于LAT机制，当没有ATT的时候，LAT不生效&lt;/h4&gt;
+
+&lt;p&gt;在iOS 14的系统上如果不使用ATT向用户请求IDFA的使用权限的话，在设置里也不会有，即不主动请求权限，用户也没办法主动开启&lt;/p&gt;
+
+&lt;h4 id=&quot;2可以细化到针对不同app启用不同的设置&quot;&gt;2、可以细化到针对不同App启用不同的设置&lt;/h4&gt;
+
+&lt;p&gt;之前LAT是针对系统的，ATT可以在总开关之外，单独对App进行设置。以前一个App种树，大家乘凉的场景要消失了，现在需要每个App都要向用户请求IDFA权限&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;
+&lt;img src=&quot;../images/xcode11idfa/4.png&quot; alt=&quot;Alt text&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h4 id=&quot;3需要和定位相机等权限一样在infoplits中声明权限并说明使用目的&quot;&gt;3、需要和定位相机等权限一样，在info.plits中声明权限，并说明使用目的&lt;/h4&gt;
+
+&lt;p&gt;&lt;img src=&quot;../images/xcode11idfa/5.png&quot; alt=&quot;Alt text&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;三使用att&quot;&gt;三、使用ATT&lt;/h3&gt;
+
+&lt;h4 id=&quot;1获取当前app用户授权状态&quot;&gt;1、获取当前App，用户授权状态&lt;/h4&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;+ requestTrackingAuthorizationWithCompletionHandler:&lt;/code&gt;
+The request for user authorization to access app-related data.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;ATTrackingManagerAuthorizationStatus states = [ATTrackingManager trackingAuthorizationStatus];
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h4 id=&quot;2判断用户的授权状态&quot;&gt;2、判断用户的授权状态&lt;/h4&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;trackingAuthorizationStatus&lt;/code&gt; The authorization status that is current for the calling application.&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;typedef NS_ENUM(NSUInteger, ATTrackingManagerAuthorizationStatus) {
+    ATTrackingManagerAuthorizationStatusNotDetermined = 0,
+    ATTrackingManagerAuthorizationStatusRestricted,
+    ATTrackingManagerAuthorizationStatusDenied,
+    ATTrackingManagerAuthorizationStatusAuthorized
+} NS_SWIFT_NAME(ATTrackingManager.AuthorizationStatus) API_AVAILABLE(ios(14), macosx(10.16), tvos(14));
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;其中&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ATTrackingManagerAuthorizationStatusNotDetermined&lt;/code&gt; 未向用户请求授权&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ATTrackingManagerAuthorizationStatusRestricted&lt;/code&gt; 用户在系统级别开启了限制广告追踪&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ATTrackingManagerAuthorizationStatusDenied&lt;/code&gt; 用户拒绝向App授权&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ATTrackingManagerAuthorizationStatusAuthorized&lt;/code&gt; 用户同意向App授权&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h4 id=&quot;3向用户请求授权&quot;&gt;3、向用户请求授权&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;当&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;states&lt;/code&gt;为&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ATTrackingManagerAuthorizationStatusAuthorized&lt;/code&gt; 可以使用IDFA&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;当&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;states&lt;/code&gt;为&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ATTrackingManagerAuthorizationStatusRestricted&lt;/code&gt;和&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ATTrackingManagerAuthorizationStatusDenied&lt;/code&gt;时需要向用户弹窗请求用户主动去设置里关闭&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;限制广告追踪&lt;/code&gt;&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;../images/xcode11idfa/6.png&quot; style=&quot;zoom:50%&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;当&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;states&lt;/code&gt;为&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ATTrackingManagerAuthorizationStatusNotDetermined&lt;/code&gt; 向用户发起请求授权&lt;/p&gt;
+
+    &lt;p&gt;&lt;img src=&quot;../images/xcode11idfa/7.png&quot; style=&quot;zoom:50%&quot; /&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h4 id=&quot;4全部流程代码&quot;&gt;4、全部流程代码&lt;/h4&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;// iOS 14请求idfa权限
+if (@available(iOS 14.0, *)) {
+    ATTrackingManagerAuthorizationStatus states = [ATTrackingManager trackingAuthorizationStatus];
+    if (states == ATTrackingManagerAuthorizationStatusNotDetermined) {
+        // 未提示用户
+        
+        [ATTrackingManager requestTrackingAuthorizationWithCompletionHandler:^(ATTrackingManagerAuthorizationStatus status) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                // 获取到权限后，依然使用老方法获取idfa
+                if (status == ATTrackingManagerAuthorizationStatusAuthorized) {
+                    
+                }
+                else {
+                    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@&quot;&quot; message:XYLocalizedString(@&quot;请在设置-隐私-Tracking中允许App请求跟踪&quot;) preferredStyle:UIAlertControllerStyleAlert];
+                    UIAlertAction *action2 = [UIAlertAction actionWithTitle:XYLocalizedString(@&quot;确认&quot;) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {}];
+                    [alert addAction:action2];
+                    [self presentViewController:alert animated:YES completion:nil];
+                }
+            });
+        }];
+    }
+    else if (states == ATTrackingManagerAuthorizationStatusRestricted) {
+        // 限制使用
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@&quot;&quot; message:XYLocalizedString(@&quot;请在设置-隐私-Tracking中允许App请求跟踪&quot;) preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *action2 = [UIAlertAction actionWithTitle:XYLocalizedString(@&quot;确认&quot;) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {}];
+        [alert addAction:action2];
+        [self presentViewController:alert animated:YES completion:nil];
+    }
+    else if (states == ATTrackingManagerAuthorizationStatusDenied) {
+        // 拒绝
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@&quot;&quot; message:XYLocalizedString(@&quot;请在设置-隐私-Tracking中允许App请求跟踪&quot;) preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *action2 = [UIAlertAction actionWithTitle:XYLocalizedString(@&quot;确认&quot;) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {}];
+        [alert addAction:action2];
+        [self presentViewController:alert animated:YES completion:nil];
+    }
+    else if (states == ATTrackingManagerAuthorizationStatusAuthorized) {
+        // 可以使用IDFA
+    }
+}
+// iOS 14以下请求idfa权限
+else {
+    BOOL b = [XYSystemUtil canUseIDFA];
+    if (!b) {
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@&quot;&quot; message:XYLocalizedString(@&quot;请在设置-隐私-广告中允许App请求跟踪&quot;) preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *action2 = [UIAlertAction actionWithTitle:XYLocalizedString(@&quot;确认&quot;) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {}];
+        [alert addAction:action2];
+        [self presentViewController:alert animated:YES completion:nil];
+    }
+    else {
+    	// 可以使用IDFA
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h3 id=&quot;四测试以及上架重点来了&quot;&gt;四、测试以及上架（重点来了）&lt;/h3&gt;
+
+&lt;p&gt;矛盾点&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;Xcode11没有iOS14系统库，Xcode12 Beta版无法上架&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;针对iOS14和以下系统单独做适配&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;针对上架，笔者测试了三种情况&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;使用Xcode12 Beta编译打包直接上传，会直接无法上传，提示&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;ERROR ITMS-90534: “Invalid Toolchain. Your app was built with an unsupported SDK or version of Xcode. If you plan to submit this build to the App Store, make sure you are using the versions listed in https://help.apple.com/xcode/mac/current/#/devf16aefe3b or later.”&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;使用Xcode12 Beta打包，并修改ipa中info.plist里的Xcode版本号，可以正常上传到Connect，但是提审之后会收到邮件&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;The status of your app has changed to Invalid Binary.&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;使用Xcode11 Link iOS14系统库，然后打包上传，在机审之后会提示&lt;/p&gt;
+
+    &lt;blockquote&gt;
+      &lt;p&gt;此构建版本无效。ITMS-90562: Invalid Bundle - One or more dynamic libraries that are referenced by your app are not present in the dylib search path.&lt;/p&gt;
+    &lt;/blockquote&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h4 id=&quot;最后解决方案是&quot;&gt;最后解决方案是&lt;/h4&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;IDE层面，Xcode11 Link Xcode12 Beta版中的iOS14系统库&lt;/li&gt;
+  &lt;li&gt;编译打包层面，代码中不强制Link &lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AppTrackingTransparency.framework&lt;/code&gt;系统库&lt;/li&gt;
+  &lt;li&gt;代码编写层面，使用动态Link系统库，以及runtime调用对应的方法&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h4 id=&quot;第一步&quot;&gt;第一步&lt;/h4&gt;
+
+&lt;p&gt;为了能使用Xcode11来测试和调试ATT，我们需要将Xcode12 Beta版中的&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AppTrackingTransparency.framework&lt;/code&gt;copy到Xcode11同目录下&lt;/p&gt;
+
+&lt;p&gt;Xcode12 Beta版中的&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;AppTrackingTransparency.framework&lt;/code&gt;的路径如下&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;真机&lt;/p&gt;
+
+    &lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/Applications/Xcode-beta.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/AppTrackingTransparency.framework&lt;/code&gt;&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;模拟器&lt;/p&gt;
+
+    &lt;p&gt;&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;/Applications/Xcode-beta.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/AppTrackingTransparency.framework&lt;/code&gt;&lt;/p&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;完成此步之后，即可在测试和调试的时候使用Xcode11使用ATT&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h4 id=&quot;第二步&quot;&gt;第二步&lt;/h4&gt;
+
+&lt;p&gt;因在Xcode11上使用iOS13 SDK 来Deployment Target，会导致在低版本手机上无法Link高版本系统库，从而Crash，报错&lt;/p&gt;
+
+&lt;blockquote&gt;
+  &lt;p&gt;dyld: Library not loaded: /System/Library/Frameworks/AppTrackingTransparency.framework/AppTrackingTransparency&lt;/p&gt;
+
+  &lt;p&gt;Reason: image not found&lt;/p&gt;
+&lt;/blockquote&gt;
+
+&lt;p&gt;所以需要&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;动态Link系统库，以及runtime调用对应的方法&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;先创建对应的Runtime反射类&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;XYATTrackingManager&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;头文件&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;XYATTrackingManager.h&lt;/code&gt;完全copy自&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ATTrackingManager.h&lt;/code&gt;,并将类名由&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ATTrackingManager&lt;/code&gt;改为&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;XYATTrackingManager&lt;/code&gt;，代码如下：&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;#import &amp;lt;Foundation/Foundation.h&amp;gt;
+#import &amp;lt;os/availability.h&amp;gt;
+
+typedef NS_ENUM(NSUInteger, ATTrackingManagerAuthorizationStatus) {
+    ATTrackingManagerAuthorizationStatusNotDetermined = 0,
+    ATTrackingManagerAuthorizationStatusRestricted,
+    ATTrackingManagerAuthorizationStatusDenied,
+    ATTrackingManagerAuthorizationStatusAuthorized
+} NS_SWIFT_NAME(ATTrackingManager.AuthorizationStatus) API_AVAILABLE(ios(14), macosx(10.16), tvos(14));
+
+API_AVAILABLE(ios(14), macosx(10.16), tvos(14))
+@interface XYATTrackingManager : NSObject
+
+/*!
+ * @property trackingAuthorizationStatus
+ *
+ * @abstract
+ * Returns information about your application’s tracking authorization status.
+ * Users are able to grant or deny developers tracking privileges on a per-app basis.
+ * Application developers must call `requestTrackingAuthorizationWithCompletionHandler:` for the ability to track users.
+ *
+ * @result
+ * The current authorization status. If the user has not yet been prompted to approve access, the return value will either be
+ * ATTrackingManagerAuthorizationStatusNotDetermined, or ATTrackingManagerAuthorizationStatusRestricted if this value is managed.
+ * Once the user has been prompted, the return value will be either ATTrackingManagerAuthorizationStatusDenied or ATTrackingManagerAuthorizationStatusAuthorized.
+ */
+@property (class, nonatomic, readonly, assign) ATTrackingManagerAuthorizationStatus trackingAuthorizationStatus;
+
+/*!
+ * @method requestTrackingAuthorizationWithCompletionHandler:completion:
+ *
+ * @abstract
+ * Request user tracking authorization with a completion handler returning the user's authorization status.
+ * Users are able to grant or deny developers tracking privileges on a per-app basis.
+ * This method allows developers to determine if access has been granted. On first use, this method will prompt the user to grant or deny access.
+ *
+ * The completion handler will be called with the result of the user's decision for granting or denying permission to use application tracking.
+ * The completion handler will be called immediately if access to request authorization is restricted.
+ */
++ (void)requestTrackingAuthorizationWithCompletionHandler:(void(^)(ATTrackingManagerAuthorizationStatus status))completion;
+
+// This class, at this time, should not be instantiated.
++ (instancetype)new NS_UNAVAILABLE;
+
+// This class, at this time, should not be instantiated.
+- (instancetype)init NS_UNAVAILABLE;
+
+@end
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;br /&gt;
+实现文件&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;XYATTrackingManager.m&lt;/code&gt;需要做两步处理&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;动态Link AppTrackingTransparency.framework库&lt;/li&gt;
+  &lt;li&gt;Runtime调用 AppTrackingTransparency.framework库&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;实现代码如下&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;#import &quot;XYATTrackingManager.h&quot;
+#import &amp;lt;objc/runtime.h&amp;gt;
+#import &amp;lt;objc/message.h&amp;gt;
+
+@implementation XYATTrackingManager
+
++ (ATTrackingManagerAuthorizationStatus)trackingAuthorizationStatus {
+    NSBundle *bundle = [NSBundle bundleWithPath:@&quot;/System/Library/Frameworks/AppTrackingTransparency.framework&quot;];
+    [bundle load];
+    Class ATTrackingManager = NSClassFromString(@&quot;ATTrackingManager&quot;);
+    ATTrackingManagerAuthorizationStatus returnValue = ((int (*)(id, SEL)) objc_msgSend)(ATTrackingManager, _cmd);
+    return returnValue;
+}
+
++ (void)requestTrackingAuthorizationWithCompletionHandler:(void(^)(ATTrackingManagerAuthorizationStatus status))completion {
+    NSBundle *bundle = [NSBundle bundleWithPath:@&quot;/System/Library/Frameworks/AppTrackingTransparency.framework&quot;];
+    [bundle load];
+    Class ATTrackingManager = NSClassFromString(@&quot;ATTrackingManager&quot;);
+    ((void (*)(id, SEL, void(^)(ATTrackingManagerAuthorizationStatus status))) objc_msgSend)(ATTrackingManager, _cmd, completion);
+}
+
+@end
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;其中&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;NSBundle *bundle = [NSBundle bundleWithPath:@&quot;/System/Library/Frameworks/AppTrackingTransparency.framework&quot;];
+[bundle load];
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;p&gt;为动态Link AppTrackingTransparency.framework库&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Class ATTrackingManager = NSClassFromString(@&quot;ATTrackingManager&quot;);
+ATTrackingManagerAuthorizationStatus returnValue = ((int (*)(id, SEL)) objc_msgSend)(ATTrackingManager, _cmd);
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Class ATTrackingManager = NSClassFromString(@&quot;ATTrackingManager&quot;);
+((void (*)(id, SEL, void(^)(ATTrackingManagerAuthorizationStatus status))) objc_msgSend)(ATTrackingManager, _cmd, completion);
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;为Runtime反射调用AppTrackingTransparency.framework库&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h4 id=&quot;第三步&quot;&gt;第三步&lt;/h4&gt;
+
+&lt;p&gt;将代码里使用到的&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;ATTrackingManager&lt;/code&gt;全部替换为&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;XYATTrackingManager&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;到此就完成了Xcode11对iOS13 AppTrackingTransparency.framework库的支持，可以打包上架了。&lt;/p&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h3 id=&quot;五最后&quot;&gt;五、最后&lt;/h3&gt;
+
+&lt;p&gt;目前离iOS14正式版发布还有一个多月的时间，可以说时间已经很紧迫了。&lt;/p&gt;
+
+&lt;p&gt;在正式版发布之前提前让自己的App适配ATT并上线发布安装到用户的手机中是一件很有必要的事情&lt;/p&gt;
+
+&lt;p&gt;马上行动起来吧！！！&lt;/p&gt;</content><author><name></name></author><category term="SDK" /><category term="Framework" /><summary type="html">背景： 为了防止用户在升级到iOS14的时候出现不兼容的情况，也为了提升用户升级系统的平滑感。 同时为了统计，广告，归因的一系列功能的在系统升级时不出现空窗期。 开发者不能等到iOS发布，以及Xcode12发布之后再去针对App进行优化或者强制要求更新。 针对Xcode12 Beta版不能打包上架，以及Xcode11无法使用AppTrackingTransparency系统库的问题，帮助开发者提前适配iOS 14 IDFA，是本文要解决的问题。 一、变化 iOS 14 Apple对隐私增加了更强的保护，首当其冲受影响的就是IDFA。 在LAT（Limit Ad Tracking）的机制下又增加ATT（AppTrackingTransparency）机制。 二、ATT机制特点 1、前置于LAT机制，当没有ATT的时候，LAT不生效 在iOS 14的系统上如果不使用ATT向用户请求IDFA的使用权限的话，在设置里也不会有，即不主动请求权限，用户也没办法主动开启 2、可以细化到针对不同App启用不同的设置 之前LAT是针对系统的，ATT可以在总开关之外，单独对App进行设置。以前一个App种树，大家乘凉的场景要消失了，现在需要每个App都要向用户请求IDFA权限 3、需要和定位相机等权限一样，在info.plits中声明权限，并说明使用目的 三、使用ATT 1、获取当前App，用户授权状态 + requestTrackingAuthorizationWithCompletionHandler: The request for user authorization to access app-related data. ATTrackingManagerAuthorizationStatus states = [ATTrackingManager trackingAuthorizationStatus]; 2、判断用户的授权状态 trackingAuthorizationStatus The authorization status that is current for the calling application. typedef NS_ENUM(NSUInteger, ATTrackingManagerAuthorizationStatus) { ATTrackingManagerAuthorizationStatusNotDetermined = 0, ATTrackingManagerAuthorizationStatusRestricted, ATTrackingManagerAuthorizationStatusDenied, ATTrackingManagerAuthorizationStatusAuthorized } NS_SWIFT_NAME(ATTrackingManager.AuthorizationStatus) API_AVAILABLE(ios(14), macosx(10.16), tvos(14)); 其中 ATTrackingManagerAuthorizationStatusNotDetermined 未向用户请求授权 ATTrackingManagerAuthorizationStatusRestricted 用户在系统级别开启了限制广告追踪 ATTrackingManagerAuthorizationStatusDenied 用户拒绝向App授权 ATTrackingManagerAuthorizationStatusAuthorized 用户同意向App授权 3、向用户请求授权 当states为ATTrackingManagerAuthorizationStatusAuthorized 可以使用IDFA 当states为ATTrackingManagerAuthorizationStatusRestricted和ATTrackingManagerAuthorizationStatusDenied时需要向用户弹窗请求用户主动去设置里关闭限制广告追踪 当states为ATTrackingManagerAuthorizationStatusNotDetermined 向用户发起请求授权 4、全部流程代码 // iOS 14请求idfa权限 if (@available(iOS 14.0, *)) { ATTrackingManagerAuthorizationStatus states = [ATTrackingManager trackingAuthorizationStatus]; if (states == ATTrackingManagerAuthorizationStatusNotDetermined) { // 未提示用户 [ATTrackingManager requestTrackingAuthorizationWithCompletionHandler:^(ATTrackingManagerAuthorizationStatus status) { dispatch_async(dispatch_get_main_queue(), ^{ // 获取到权限后，依然使用老方法获取idfa if (status == ATTrackingManagerAuthorizationStatusAuthorized) { } else { UIAlertController *alert = [UIAlertController alertControllerWithTitle:@&quot;&quot; message:XYLocalizedString(@&quot;请在设置-隐私-Tracking中允许App请求跟踪&quot;) preferredStyle:UIAlertControllerStyleAlert]; UIAlertAction *action2 = [UIAlertAction actionWithTitle:XYLocalizedString(@&quot;确认&quot;) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {}]; [alert addAction:action2]; [self presentViewController:alert animated:YES completion:nil]; } }); }]; } else if (states == ATTrackingManagerAuthorizationStatusRestricted) { // 限制使用 UIAlertController *alert = [UIAlertController alertControllerWithTitle:@&quot;&quot; message:XYLocalizedString(@&quot;请在设置-隐私-Tracking中允许App请求跟踪&quot;) preferredStyle:UIAlertControllerStyleAlert]; UIAlertAction *action2 = [UIAlertAction actionWithTitle:XYLocalizedString(@&quot;确认&quot;) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {}]; [alert addAction:action2]; [self presentViewController:alert animated:YES completion:nil]; } else if (states == ATTrackingManagerAuthorizationStatusDenied) { // 拒绝 UIAlertController *alert = [UIAlertController alertControllerWithTitle:@&quot;&quot; message:XYLocalizedString(@&quot;请在设置-隐私-Tracking中允许App请求跟踪&quot;) preferredStyle:UIAlertControllerStyleAlert]; UIAlertAction *action2 = [UIAlertAction actionWithTitle:XYLocalizedString(@&quot;确认&quot;) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {}]; [alert addAction:action2]; [self presentViewController:alert animated:YES completion:nil]; } else if (states == ATTrackingManagerAuthorizationStatusAuthorized) { // 可以使用IDFA } } // iOS 14以下请求idfa权限 else { BOOL b = [XYSystemUtil canUseIDFA]; if (!b) { UIAlertController *alert = [UIAlertController alertControllerWithTitle:@&quot;&quot; message:XYLocalizedString(@&quot;请在设置-隐私-广告中允许App请求跟踪&quot;) preferredStyle:UIAlertControllerStyleAlert]; UIAlertAction *action2 = [UIAlertAction actionWithTitle:XYLocalizedString(@&quot;确认&quot;) style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {}]; [alert addAction:action2]; [self presentViewController:alert animated:YES completion:nil]; } else { // 可以使用IDFA } } 四、测试以及上架（重点来了） 矛盾点 Xcode11没有iOS14系统库，Xcode12 Beta版无法上架 针对iOS14和以下系统单独做适配 针对上架，笔者测试了三种情况 使用Xcode12 Beta编译打包直接上传，会直接无法上传，提示 ERROR ITMS-90534: “Invalid Toolchain. Your app was built with an unsupported SDK or version of Xcode. If you plan to submit this build to the App Store, make sure you are using the versions listed in https://help.apple.com/xcode/mac/current/#/devf16aefe3b or later.” 使用Xcode12 Beta打包，并修改ipa中info.plist里的Xcode版本号，可以正常上传到Connect，但是提审之后会收到邮件 The status of your app has changed to Invalid Binary. 使用Xcode11 Link iOS14系统库，然后打包上传，在机审之后会提示 此构建版本无效。ITMS-90562: Invalid Bundle - One or more dynamic libraries that are referenced by your app are not present in the dylib search path. 最后解决方案是 IDE层面，Xcode11 Link Xcode12 Beta版中的iOS14系统库 编译打包层面，代码中不强制Link AppTrackingTransparency.framework系统库 代码编写层面，使用动态Link系统库，以及runtime调用对应的方法 第一步 为了能使用Xcode11来测试和调试ATT，我们需要将Xcode12 Beta版中的AppTrackingTransparency.frameworkcopy到Xcode11同目录下 Xcode12 Beta版中的AppTrackingTransparency.framework的路径如下 真机 /Applications/Xcode-beta.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks/AppTrackingTransparency.framework 模拟器 /Applications/Xcode-beta.app/Contents/Developer/Platforms/iPhoneSimulator.platform/Developer/SDKs/iPhoneSimulator.sdk/System/Library/Frameworks/AppTrackingTransparency.framework 完成此步之后，即可在测试和调试的时候使用Xcode11使用ATT 第二步 因在Xcode11上使用iOS13 SDK 来Deployment Target，会导致在低版本手机上无法Link高版本系统库，从而Crash，报错 dyld: Library not loaded: /System/Library/Frameworks/AppTrackingTransparency.framework/AppTrackingTransparency Reason: image not found 所以需要动态Link系统库，以及runtime调用对应的方法 先创建对应的Runtime反射类XYATTrackingManager 头文件XYATTrackingManager.h完全copy自ATTrackingManager.h,并将类名由ATTrackingManager改为XYATTrackingManager，代码如下： #import &amp;lt;Foundation/Foundation.h&amp;gt; #import &amp;lt;os/availability.h&amp;gt; typedef NS_ENUM(NSUInteger, ATTrackingManagerAuthorizationStatus) { ATTrackingManagerAuthorizationStatusNotDetermined = 0, ATTrackingManagerAuthorizationStatusRestricted, ATTrackingManagerAuthorizationStatusDenied, ATTrackingManagerAuthorizationStatusAuthorized } NS_SWIFT_NAME(ATTrackingManager.AuthorizationStatus) API_AVAILABLE(ios(14), macosx(10.16), tvos(14)); API_AVAILABLE(ios(14), macosx(10.16), tvos(14)) @interface XYATTrackingManager : NSObject /*! * @property trackingAuthorizationStatus * * @abstract * Returns information about your application’s tracking authorization status. * Users are able to grant or deny developers tracking privileges on a per-app basis. * Application developers must call `requestTrackingAuthorizationWithCompletionHandler:` for the ability to track users. * * @result * The current authorization status. If the user has not yet been prompted to approve access, the return value will either be * ATTrackingManagerAuthorizationStatusNotDetermined, or ATTrackingManagerAuthorizationStatusRestricted if this value is managed. * Once the user has been prompted, the return value will be either ATTrackingManagerAuthorizationStatusDenied or ATTrackingManagerAuthorizationStatusAuthorized. */ @property (class, nonatomic, readonly, assign) ATTrackingManagerAuthorizationStatus trackingAuthorizationStatus; /*! * @method requestTrackingAuthorizationWithCompletionHandler:completion: * * @abstract * Request user tracking authorization with a completion handler returning the user's authorization status. * Users are able to grant or deny developers tracking privileges on a per-app basis. * This method allows developers to determine if access has been granted. On first use, this method will prompt the user to grant or deny access. * * The completion handler will be called with the result of the user's decision for granting or denying permission to use application tracking. * The completion handler will be called immediately if access to request authorization is restricted. */ + (void)requestTrackingAuthorizationWithCompletionHandler:(void(^)(ATTrackingManagerAuthorizationStatus status))completion; // This class, at this time, should not be instantiated. + (instancetype)new NS_UNAVAILABLE; // This class, at this time, should not be instantiated. - (instancetype)init NS_UNAVAILABLE; @end 实现文件XYATTrackingManager.m需要做两步处理 动态Link AppTrackingTransparency.framework库 Runtime调用 AppTrackingTransparency.framework库 实现代码如下 #import &quot;XYATTrackingManager.h&quot; #import &amp;lt;objc/runtime.h&amp;gt; #import &amp;lt;objc/message.h&amp;gt; @implementation XYATTrackingManager + (ATTrackingManagerAuthorizationStatus)trackingAuthorizationStatus { NSBundle *bundle = [NSBundle bundleWithPath:@&quot;/System/Library/Frameworks/AppTrackingTransparency.framework&quot;]; [bundle load]; Class ATTrackingManager = NSClassFromString(@&quot;ATTrackingManager&quot;); ATTrackingManagerAuthorizationStatus returnValue = ((int (*)(id, SEL)) objc_msgSend)(ATTrackingManager, _cmd); return returnValue; } + (void)requestTrackingAuthorizationWithCompletionHandler:(void(^)(ATTrackingManagerAuthorizationStatus status))completion { NSBundle *bundle = [NSBundle bundleWithPath:@&quot;/System/Library/Frameworks/AppTrackingTransparency.framework&quot;]; [bundle load]; Class ATTrackingManager = NSClassFromString(@&quot;ATTrackingManager&quot;); ((void (*)(id, SEL, void(^)(ATTrackingManagerAuthorizationStatus status))) objc_msgSend)(ATTrackingManager, _cmd, completion); } @end 其中 NSBundle *bundle = [NSBundle bundleWithPath:@&quot;/System/Library/Frameworks/AppTrackingTransparency.framework&quot;]; [bundle load]; 为动态Link AppTrackingTransparency.framework库 Class ATTrackingManager = NSClassFromString(@&quot;ATTrackingManager&quot;); ATTrackingManagerAuthorizationStatus returnValue = ((int (*)(id, SEL)) objc_msgSend)(ATTrackingManager, _cmd); Class ATTrackingManager = NSClassFromString(@&quot;ATTrackingManager&quot;); ((void (*)(id, SEL, void(^)(ATTrackingManagerAuthorizationStatus status))) objc_msgSend)(ATTrackingManager, _cmd, completion); 为Runtime反射调用AppTrackingTransparency.framework库 第三步 将代码里使用到的ATTrackingManager全部替换为XYATTrackingManager 到此就完成了Xcode11对iOS13 AppTrackingTransparency.framework库的支持，可以打包上架了。 五、最后 目前离iOS14正式版发布还有一个多月的时间，可以说时间已经很紧迫了。 在正式版发布之前提前让自己的App适配ATT并上线发布安装到用户的手机中是一件很有必要的事情 马上行动起来吧！！！</summary></entry><entry><title type="html">SDK自动打包</title><link href="http://localhost:4000/SDKAutoArchive/" rel="alternate" type="text/html" title="SDK自动打包" /><published>2017-08-08T00:00:00+08:00</published><updated>2017-08-08T00:00:00+08:00</updated><id>http://localhost:4000/SDKAutoArchive</id><content type="html" xml:base="http://localhost:4000/SDKAutoArchive/">&lt;p&gt;背景：
 由于iOS Framework打包出来是分CPU指令集的，所以需要每个CPU指令集都打包一个Framework，然后使用&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;lipo -create&lt;/code&gt;命令将所有CPU指令集合并，才能形成一个兼容所有设备和模拟器的Framework。这样的打包流程复杂而繁琐，对于需要经常打包测试的需求来说明显是不合适的。&lt;/p&gt;
 
 &lt;h3 id=&quot;解决方案&quot;&gt;解决方案&lt;/h3&gt;
@@ -232,7 +589,7 @@ rm -r &quot;${WRK_DIR_iphonesimulator}&quot;
 
 open &quot;${SRCROOT}&quot;
 
-&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name></name></author><category term="SDK" /><category term="Framework" /><summary type="html">背景： 由于iOS Framework打包出来是分CPU指令集的，所以需要每个CPU指令集都打包一个Framework，然后使用lipo -create命令将所有CPU指令集合并，才能形成一个兼容所有设备和模拟器的Framework。这样的打包流程复杂而繁琐，对于需要经常打包测试的需求来说明显是不合适的。 解决方案 使用xcode Aggregate工具中的Run Script自动进行不同CPU指令集打包，并自动合并所有CPU指令集 处理器指令集介绍 ARM处理器 - armv7 - armv7s - arm64 Mac处理器 i386 x86_64 指令集 设备 支持设备</summary></entry><entry><title type="html">&amp;lt;font color=#0099ff&amp;gt;CocoaPods托管Framework&amp;lt;/font&amp;gt;</title><link href="http://localhost:4000/CocoaPodsHostingFramework/" rel="alternate" type="text/html" title="&amp;lt;font color=#0099ff&amp;gt;CocoaPods托管Framework&amp;lt;/font&amp;gt;" /><published>2017-06-16T00:00:00+08:00</published><updated>2017-06-16T00:00:00+08:00</updated><id>http://localhost:4000/CocoaPodsHostingFramework</id><content type="html" xml:base="http://localhost:4000/CocoaPodsHostingFramework/">&lt;p&gt;在发布sdk中，需要在CocoaPods上托管Framework&lt;/p&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;</content><author><name></name></author><category term="SDK" /><category term="Framework" /><summary type="html">背景： 由于iOS Framework打包出来是分CPU指令集的，所以需要每个CPU指令集都打包一个Framework，然后使用lipo -create命令将所有CPU指令集合并，才能形成一个兼容所有设备和模拟器的Framework。这样的打包流程复杂而繁琐，对于需要经常打包测试的需求来说明显是不合适的。 解决方案 使用xcode Aggregate工具中的Run Script自动进行不同CPU指令集打包，并自动合并所有CPU指令集 处理器指令集介绍 ARM处理器 - armv7 - armv7s - arm64 Mac处理器 i386 x86_64 指令集 设备 支持设备</summary></entry><entry><title type="html">CocoaPods托管Framework</title><link href="http://localhost:4000/CocoaPodsHostingFramework/" rel="alternate" type="text/html" title="CocoaPods托管Framework" /><published>2017-06-16T00:00:00+08:00</published><updated>2017-06-16T00:00:00+08:00</updated><id>http://localhost:4000/CocoaPodsHostingFramework</id><content type="html" xml:base="http://localhost:4000/CocoaPodsHostingFramework/">&lt;p&gt;在发布sdk中，需要在CocoaPods上托管Framework&lt;/p&gt;
 
 &lt;h3 id=&quot;安装cocoapods&quot;&gt;安装CocoaPods&lt;/h3&gt;
 
@@ -541,7 +898,7 @@ end
 
 &lt;p&gt;3、clone出错&lt;/p&gt;
 
-&lt;p&gt;4、xcworkspace编译不过&lt;/p&gt;</content><author><name></name></author><category term="SDK" /><category term="Framework" /><summary type="html">在发布sdk中，需要在CocoaPods上托管Framework 安装CocoaPods 首先安装CocoaPods，没安装的自行安装 处理源码 第一步在github上创建源码库（我们的源码是Framework），并把源码push到github上 github地址： https://github.com/guojunliu/AvidlyAdsSDK.git podspec文件 第二步,在目录下创建.podspec文件，此处创建的是AvidlyAdsSDK.podspec， $ pod spec create AvidlyAdsSDK 用编辑器打开.podspec文件 (我自己用Sublime Text) 文件内容为 Pod::Spec.new do |s| s.name = 'AvidlyAdsSDK' s.version = '2.0.20' s.summary = 'Avidly Ad SDK' s.description = &amp;lt;&amp;lt;-DESC Avidly Ad SDK. DESC s.homepage = 'http://ads-sdk-doc.haloapps.com/docs/show/2' s.license = { :type =&amp;gt; 'MIT', :file =&amp;gt; 'LICENSE' } s.author = { &quot;steve&quot; =&amp;gt; &quot;steve.liu@holaverse.com&quot; } s.source = { :git =&amp;gt; 'https://github.com/guojunliu/AvidlyAdsSDK.git', :tag =&amp;gt; s.version } s.ios.deployment_target = '8.0' s.source_files = 'Framework/Appnext/include/*', 'Framework/Chance/include/*', 'Framework/Domob/include/*' s.resources = &quot;Framework/Chance/resource/*&quot;, &quot;Framework/Domob/resource/*&quot;, &quot;Framework/Vungle/resource/*&quot;, &quot;Framework/AvidlyAdsSDK/resource/*&quot;, s.public_header_files = 'Framework/Appnext/include/*', 'Framework/Chance/include/*', 'Framework/Domob/include/*' s.library = 'sqlite3', 'z' s.frameworks = 'QuartzCore', 'MediaPlayer', 'CoreMedia', 'CoreGraphics', 'CFNetwork', 'WebKit', 'WatchConnectivity', 'SystemConfiguration', 'StoreKit', 'Social', 'MessageUI','JavaScriptCore','EventKit','CoreTelephony','AVFoundation','AudioToolbox','AdSupport' s.vendored_libraries = &quot;Framework/Appnext/libAppnextLib.a&quot;, &quot;Framework/Appnext/libAppnextSDKCore.a&quot;, &quot;Framework/Chance/libChanceAd_Video.a&quot;, &quot;Framework/Domob/libIndependentVideoSDK.a&quot; s.vendored_frameworks = 'Framework/AdColony/AdColony.framework', 'Framework/Mobvista/MVSDK.framework', 'Framework/Mobvista/MVSDKReward.framework', 'Framework/Unity/UnityAds.framework', 'Framework/Vungle/VungleSDK.framework', 'Framework/AvidlyAdsSDK/AvidlyAdsSDK.framework', 'Framework/FBAudienceNetwork/FBAudienceNetwork.framework', 'Framework/GoogleMobileAds/GoogleMobileAds.framework', 'Framework/HolaStatisticalSDK/HolaStatisticalSDK.framework', 'Framework/OneWay/OneWaySDK.framework' end 字段解释 字段 解释</summary></entry><entry><title type="html">&amp;lt;font color=#0099ff&amp;gt;djinni中文文档&amp;lt;/font&amp;gt;</title><link href="http://localhost:4000/djinni/" rel="alternate" type="text/html" title="&amp;lt;font color=#0099ff&amp;gt;djinni中文文档&amp;lt;/font&amp;gt;" /><published>2016-10-28T00:00:00+08:00</published><updated>2016-10-28T00:00:00+08:00</updated><id>http://localhost:4000/djinni</id><content type="html" xml:base="http://localhost:4000/djinni/">&lt;p&gt;Djinni 是一个用来生成跨语言的类型声明和接口绑定的工具，主要用于 C++ 和 Java 以及 Objective-C 间的互通。&lt;/p&gt;
+&lt;p&gt;4、xcworkspace编译不过&lt;/p&gt;</content><author><name></name></author><category term="SDK" /><category term="Framework" /><summary type="html">在发布sdk中，需要在CocoaPods上托管Framework 安装CocoaPods 首先安装CocoaPods，没安装的自行安装 处理源码 第一步在github上创建源码库（我们的源码是Framework），并把源码push到github上 github地址： https://github.com/guojunliu/AvidlyAdsSDK.git podspec文件 第二步,在目录下创建.podspec文件，此处创建的是AvidlyAdsSDK.podspec， $ pod spec create AvidlyAdsSDK 用编辑器打开.podspec文件 (我自己用Sublime Text) 文件内容为 Pod::Spec.new do |s| s.name = 'AvidlyAdsSDK' s.version = '2.0.20' s.summary = 'Avidly Ad SDK' s.description = &amp;lt;&amp;lt;-DESC Avidly Ad SDK. DESC s.homepage = 'http://ads-sdk-doc.haloapps.com/docs/show/2' s.license = { :type =&amp;gt; 'MIT', :file =&amp;gt; 'LICENSE' } s.author = { &quot;steve&quot; =&amp;gt; &quot;steve.liu@holaverse.com&quot; } s.source = { :git =&amp;gt; 'https://github.com/guojunliu/AvidlyAdsSDK.git', :tag =&amp;gt; s.version } s.ios.deployment_target = '8.0' s.source_files = 'Framework/Appnext/include/*', 'Framework/Chance/include/*', 'Framework/Domob/include/*' s.resources = &quot;Framework/Chance/resource/*&quot;, &quot;Framework/Domob/resource/*&quot;, &quot;Framework/Vungle/resource/*&quot;, &quot;Framework/AvidlyAdsSDK/resource/*&quot;, s.public_header_files = 'Framework/Appnext/include/*', 'Framework/Chance/include/*', 'Framework/Domob/include/*' s.library = 'sqlite3', 'z' s.frameworks = 'QuartzCore', 'MediaPlayer', 'CoreMedia', 'CoreGraphics', 'CFNetwork', 'WebKit', 'WatchConnectivity', 'SystemConfiguration', 'StoreKit', 'Social', 'MessageUI','JavaScriptCore','EventKit','CoreTelephony','AVFoundation','AudioToolbox','AdSupport' s.vendored_libraries = &quot;Framework/Appnext/libAppnextLib.a&quot;, &quot;Framework/Appnext/libAppnextSDKCore.a&quot;, &quot;Framework/Chance/libChanceAd_Video.a&quot;, &quot;Framework/Domob/libIndependentVideoSDK.a&quot; s.vendored_frameworks = 'Framework/AdColony/AdColony.framework', 'Framework/Mobvista/MVSDK.framework', 'Framework/Mobvista/MVSDKReward.framework', 'Framework/Unity/UnityAds.framework', 'Framework/Vungle/VungleSDK.framework', 'Framework/AvidlyAdsSDK/AvidlyAdsSDK.framework', 'Framework/FBAudienceNetwork/FBAudienceNetwork.framework', 'Framework/GoogleMobileAds/GoogleMobileAds.framework', 'Framework/HolaStatisticalSDK/HolaStatisticalSDK.framework', 'Framework/OneWay/OneWaySDK.framework' end 字段解释 字段 解释</summary></entry><entry><title type="html">djinni中文文档</title><link href="http://localhost:4000/djinni/" rel="alternate" type="text/html" title="djinni中文文档" /><published>2016-10-28T00:00:00+08:00</published><updated>2016-10-28T00:00:00+08:00</updated><id>http://localhost:4000/djinni</id><content type="html" xml:base="http://localhost:4000/djinni/">&lt;p&gt;Djinni 是一个用来生成跨语言的类型声明和接口绑定的工具，主要用于 C++ 和 Java 以及 Objective-C 间的互通。&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;好处：&lt;/li&gt;
@@ -842,7 +1199,7 @@ NSLog(@&quot;str:%@&quot;,str);
 
 &lt;p&gt;原文及demo托管在github上 https://github.com/guojunliu/djinni&lt;/p&gt;
 
-&lt;p&gt;如果这篇文章或者demo能帮到你的话，麻烦给个Star，给个星星哦，能让它继续帮到想使用djinni的人&lt;/p&gt;</content><author><name></name></author><category term="c++" /><category term="djinni" /><summary type="html">Djinni 是一个用来生成跨语言的类型声明和接口绑定的工具，主要用于 C++ 和 Java 以及 Objective-C 间的互通。 好处： 用了接口描述文件。声明清晰、修改简易，并保证了跨平台接口的一致性。 自动生成接口绑定代码。免去了绑定 C++ 和 Java (JNI) 及 Objective-C (Objective-C++) 的麻烦。 1 配置djinni 1.1 下载djinni https://github.com/dropbox/djinni.git 将下载好的djinni放在[example_root]/deps/ 下 此时目录结构为： 1.2 编译djinni $ cd [djinni_root]/ $ src/build 第一次编译的时候会去下载sbt配置 本人系统环境是macOS Sierra 10.12 , 在此环境下sbt下载失败，导致编译失败 如果sbt下载失败的话，项目中放置了一个sbt的压缩包（里边文件默认隐藏的），复制里边的文件到你的用户文件夹下就可以了 2 使用djinni 2.1 编写djinni格式文件 hello_world = interface +c { static create():hello_world; get_hello_world(): string; get_name(): string; set_name(name:string); } 命名为helloworld.djinni 并放置在[example_root]/ 下 2.2 编写shell文件 #! /usr/bin/env bash base_dir=$(cd &quot;`dirname &quot;0&quot;`&quot; &amp;amp;&amp;amp; pwd) cpp_out=&quot;$base_dir/generated-src/cpp&quot; jni_out=&quot;$base_dir/generated-src/jni&quot; objc_out=&quot;$base_dir/generated-src/objc&quot; java_out=&quot;$base_dir/generated-src/java/com/mycompany/helloworld&quot; java_package=&quot;com.mycompany.helloworld&quot; namespace=&quot;helloworld&quot; objc_prefix=&quot;HW&quot; djinni_file=&quot;helloworld.djinni&quot; deps/djinni/src/run \ --java-out $java_out \ --java-package $java_package \ --ident-java-field mFooBar \ \ --cpp-out $cpp_out \ --cpp-namespace $namespace \ \ --jni-out $jni_out \ --ident-jni-class NativeFooBar \ --ident-jni-file NativeFooBar \ \ --objc-out $objc_out \ --objc-type-prefix $objc_prefix \ \ --objcpp-out $objc_out \ \ --idl $djinni_file 命名为run_djinni.sh 并放置在[example_root]/ 下 此时目录结构为： 2.3 生成接口代码 $ cd [example_root]/ $ sh ./run_djinni.sh 运行成功输出： 以及现在目录结构： 这里可以看到：依据描述文件helloworld.djinni，在generated-src目录下自动生产了 C++ 和 Java 及 Objective-C 的绑定代码。继续要做的，只是写它们的具体实现 3 编写c++代码 3.1 创建c++工程 这里用 XCode 创建一个 C++ 工程，来测试 C++ 接口代码。 首先，打开 XCode ，选择”Create a new Xcode project”。然后，选择”Command Line Tool”，来新建命令行工具。 “Next”到下一步时，”Language”选择”C++”。 “Next”到下一步，放在[example_root]/ 下 此时目录结构为： 3.2 编写c++实现代码 首先在[example_root]/ 下创建src/cpp目录，用来存放c++实现代码 src/cpp/hello_world_impl.hpp: #pragma once #include &quot;hello_world.hpp&quot; namespace helloworld { class HelloWorldImpl : public helloworld::HelloWorld { public: // Constructor HelloWorldImpl(); // Our method that returns a string std::string get_hello_world(); }; } src/cpp/hello_world_impl.cpp: #include &quot;hello_world_impl.hpp&quot; #include &amp;lt;string&amp;gt; namespace helloworld { std::shared_ptr&amp;lt;HelloWorld&amp;gt; HelloWorld::create() { return std::make_shared&amp;lt;HelloWorldImpl&amp;gt;(); } HelloWorldImpl::HelloWorldImpl() { } std::string HelloWorldImpl::get_hello_world() { std::string myString = &quot;Hello World! &quot;; time_t t = time(0); tm now=*localtime(&amp;amp;t); char tmdescr[200]={0}; const char fmt[]=&quot;%r&quot;; if (strftime(tmdescr, sizeof(tmdescr)-1, fmt, &amp;amp;now)&amp;gt;0) { myString += tmdescr; } return myString; } } 此时目录结构为： 3.3 调试c++代码 接下来，把以下 C++ 接口代码文件，拖动到 Xcode 工程目录来引入(只需引用文件，避免复制。) generated-src/cpp/hello_world.hpp src/cpp/hello_world_impl.cpp src/cpp/hello_world_impl.hpp 此时目录结构为： 编写以下代码： #include &amp;lt;iostream&amp;gt; using namespace std; #include &quot;hello_world_impl.hpp&quot; int main(int argc, const char * argv[]) { helloworld::HelloWorldImpl hw = helloworld::HelloWorldImpl(); string myString = hw.get_hello_world(); cout &amp;lt;&amp;lt; myString &amp;lt;&amp;lt; endl; return 0; } 输出为: Hello World! 02:28:10 PM c++代码调试通过 4 iOS工程 4.1 创建ios工程 在[example_root]/ 下创建ios_project目录 Xcode创建ios工程，命名为HelloWorld 4.2 添加文件 将以下目录中文件加入Xcode（只引用不copy），并虚拟目录分组为oc，c++，djinni [example_root]/generated-src/objc/ [example_root]/generated-src/cpp/ [example_root]/scr/cpp/ [example_root]/deps/djinni/support-lib/objc/ 此时目录结构为： 其中 oc文件夹中为djinni生成的接口文件 c++文件夹中为djinni生成的接口文件和我们自己写的c++实现文件 djinni文件夹中为转换文件（拖入工程就可以了） 4.3 调试 此时我们调用c++写的实现代码，只需要调用我们oc文件夹中的接口文件啦 首先引入头文件 #import &quot;HWHelloWorld.h&quot; 接着调用代码 NSString *str = [[HWHelloWorld create] getHelloWorld]; NSLog(@&quot;str:%@&quot;,str); 输出 Hello World! 02:28:10 PM perfect ！！！ 问答 Q：oc可以和c++混编为objective-c++，那么我们直接oc和c++互相调用不就行了吗，为什么还要用djinni呢？ A：oc可以和c++混编，但是java是需要通过jni。所以使用djinni就是为了统一接口，让同一份c++代码可以被oc和java调用，让c++工程师、objective-c工程师、java工程师能够愉快的一起合作项目。ps：如果只是单纯的想在oc里边混编c++，可以完全不用djinni Q：上边的例子中，是c++写实现代码，java和oc调用，那么有没有oc和java写实现代码，c++调用呢？ A：提出这个问题，说明你对c++跨平台有一定的了解了。当然啦，有调用，就有被调用。如果仔细看的上边的例子的话，会发现我们在helloworld.djinni文件中定义接口的时候，我们是这样写的hello_world = interface +c {}，那么这个+c是什么意思的，+c就是c++来实现代码，供其他平台调用。反过来我们可以写 +j +o，意思就是java和oc写实现代码，c++来调用。这样就实现了c++，java，oc之间的互相调用 Q：djinni与世面上的H5技术跨平台，Xamarin跨平台有什么区别呢？ A：首先来回答djinni和h5、Xamarin的区别。djinni可以说是由下至上的跨平台，主要用底层逻辑代码的跨平台，而UI则交给iOS和android平台去完成。h5则是由上至下的跨平台，UI统一，底层逻辑需要iOS和android各自平台去实现。而Xamarin则可以说是上下齐发力，底层是c#翻译ios的cocoa Touch框架和android框架，UI用自创的的框架统一ios和android平台的UI。 优缺点： djinni：优点是不依赖于IDE，更底层，速度更快，更稳定。缺点是得会c++。如果公司做游戏的，那么c++大神应该会不少（笔者就是这个情况） H5：前几年h5最大的问题，就是性能，渲染太差，这几年好了很多。缺点是很多底层API调用不到，需要各自平台去实现 Xamarin：笔者有幸研究了大半年的Xamarin，翻译了已经上架的一个APP。优点是统一了语言c#。缺点是收费（现在已经免费了），依赖IDE，要用Xamarin Studio或者VS。对习惯了Xcode的coder可能比较难接受，另外一个缺点，就是ios和android已经有很多成熟的库，而xamarin没有。比如笔者要接一个支付宝支付，然而并没有这样的xamarin库，需要使用者自己去binding。 最后，这个问题，选你适合的跨平台解决方案。 问答会持续更新哦 ！！！ 最后 一个根据djinni写成的demo（ios），解决了macOS Sierra下第一次build时出错的问题 原文及demo托管在github上 https://github.com/guojunliu/djinni 如果这篇文章或者demo能帮到你的话，麻烦给个Star，给个星星哦，能让它继续帮到想使用djinni的人</summary></entry><entry><title type="html">&amp;lt;font color=#0099ff&amp;gt;iOS 10后的设备唯一标识替代方案 — XYUUID库&amp;lt;/font&amp;gt;</title><link href="http://localhost:4000/XYUUID/" rel="alternate" type="text/html" title="&amp;lt;font color=#0099ff&amp;gt;iOS 10后的设备唯一标识替代方案 — XYUUID库&amp;lt;/font&amp;gt;" /><published>2016-10-12T00:00:00+08:00</published><updated>2016-10-12T00:00:00+08:00</updated><id>http://localhost:4000/XYUUID</id><content type="html" xml:base="http://localhost:4000/XYUUID/">&lt;p&gt;iOS 10以后Apple对IDFA的获取逻辑进行了更新&lt;/p&gt;
+&lt;p&gt;如果这篇文章或者demo能帮到你的话，麻烦给个Star，给个星星哦，能让它继续帮到想使用djinni的人&lt;/p&gt;</content><author><name></name></author><category term="c++" /><category term="djinni" /><summary type="html">Djinni 是一个用来生成跨语言的类型声明和接口绑定的工具，主要用于 C++ 和 Java 以及 Objective-C 间的互通。 好处： 用了接口描述文件。声明清晰、修改简易，并保证了跨平台接口的一致性。 自动生成接口绑定代码。免去了绑定 C++ 和 Java (JNI) 及 Objective-C (Objective-C++) 的麻烦。 1 配置djinni 1.1 下载djinni https://github.com/dropbox/djinni.git 将下载好的djinni放在[example_root]/deps/ 下 此时目录结构为： 1.2 编译djinni $ cd [djinni_root]/ $ src/build 第一次编译的时候会去下载sbt配置 本人系统环境是macOS Sierra 10.12 , 在此环境下sbt下载失败，导致编译失败 如果sbt下载失败的话，项目中放置了一个sbt的压缩包（里边文件默认隐藏的），复制里边的文件到你的用户文件夹下就可以了 2 使用djinni 2.1 编写djinni格式文件 hello_world = interface +c { static create():hello_world; get_hello_world(): string; get_name(): string; set_name(name:string); } 命名为helloworld.djinni 并放置在[example_root]/ 下 2.2 编写shell文件 #! /usr/bin/env bash base_dir=$(cd &quot;`dirname &quot;0&quot;`&quot; &amp;amp;&amp;amp; pwd) cpp_out=&quot;$base_dir/generated-src/cpp&quot; jni_out=&quot;$base_dir/generated-src/jni&quot; objc_out=&quot;$base_dir/generated-src/objc&quot; java_out=&quot;$base_dir/generated-src/java/com/mycompany/helloworld&quot; java_package=&quot;com.mycompany.helloworld&quot; namespace=&quot;helloworld&quot; objc_prefix=&quot;HW&quot; djinni_file=&quot;helloworld.djinni&quot; deps/djinni/src/run \ --java-out $java_out \ --java-package $java_package \ --ident-java-field mFooBar \ \ --cpp-out $cpp_out \ --cpp-namespace $namespace \ \ --jni-out $jni_out \ --ident-jni-class NativeFooBar \ --ident-jni-file NativeFooBar \ \ --objc-out $objc_out \ --objc-type-prefix $objc_prefix \ \ --objcpp-out $objc_out \ \ --idl $djinni_file 命名为run_djinni.sh 并放置在[example_root]/ 下 此时目录结构为： 2.3 生成接口代码 $ cd [example_root]/ $ sh ./run_djinni.sh 运行成功输出： 以及现在目录结构： 这里可以看到：依据描述文件helloworld.djinni，在generated-src目录下自动生产了 C++ 和 Java 及 Objective-C 的绑定代码。继续要做的，只是写它们的具体实现 3 编写c++代码 3.1 创建c++工程 这里用 XCode 创建一个 C++ 工程，来测试 C++ 接口代码。 首先，打开 XCode ，选择”Create a new Xcode project”。然后，选择”Command Line Tool”，来新建命令行工具。 “Next”到下一步时，”Language”选择”C++”。 “Next”到下一步，放在[example_root]/ 下 此时目录结构为： 3.2 编写c++实现代码 首先在[example_root]/ 下创建src/cpp目录，用来存放c++实现代码 src/cpp/hello_world_impl.hpp: #pragma once #include &quot;hello_world.hpp&quot; namespace helloworld { class HelloWorldImpl : public helloworld::HelloWorld { public: // Constructor HelloWorldImpl(); // Our method that returns a string std::string get_hello_world(); }; } src/cpp/hello_world_impl.cpp: #include &quot;hello_world_impl.hpp&quot; #include &amp;lt;string&amp;gt; namespace helloworld { std::shared_ptr&amp;lt;HelloWorld&amp;gt; HelloWorld::create() { return std::make_shared&amp;lt;HelloWorldImpl&amp;gt;(); } HelloWorldImpl::HelloWorldImpl() { } std::string HelloWorldImpl::get_hello_world() { std::string myString = &quot;Hello World! &quot;; time_t t = time(0); tm now=*localtime(&amp;amp;t); char tmdescr[200]={0}; const char fmt[]=&quot;%r&quot;; if (strftime(tmdescr, sizeof(tmdescr)-1, fmt, &amp;amp;now)&amp;gt;0) { myString += tmdescr; } return myString; } } 此时目录结构为： 3.3 调试c++代码 接下来，把以下 C++ 接口代码文件，拖动到 Xcode 工程目录来引入(只需引用文件，避免复制。) generated-src/cpp/hello_world.hpp src/cpp/hello_world_impl.cpp src/cpp/hello_world_impl.hpp 此时目录结构为： 编写以下代码： #include &amp;lt;iostream&amp;gt; using namespace std; #include &quot;hello_world_impl.hpp&quot; int main(int argc, const char * argv[]) { helloworld::HelloWorldImpl hw = helloworld::HelloWorldImpl(); string myString = hw.get_hello_world(); cout &amp;lt;&amp;lt; myString &amp;lt;&amp;lt; endl; return 0; } 输出为: Hello World! 02:28:10 PM c++代码调试通过 4 iOS工程 4.1 创建ios工程 在[example_root]/ 下创建ios_project目录 Xcode创建ios工程，命名为HelloWorld 4.2 添加文件 将以下目录中文件加入Xcode（只引用不copy），并虚拟目录分组为oc，c++，djinni [example_root]/generated-src/objc/ [example_root]/generated-src/cpp/ [example_root]/scr/cpp/ [example_root]/deps/djinni/support-lib/objc/ 此时目录结构为： 其中 oc文件夹中为djinni生成的接口文件 c++文件夹中为djinni生成的接口文件和我们自己写的c++实现文件 djinni文件夹中为转换文件（拖入工程就可以了） 4.3 调试 此时我们调用c++写的实现代码，只需要调用我们oc文件夹中的接口文件啦 首先引入头文件 #import &quot;HWHelloWorld.h&quot; 接着调用代码 NSString *str = [[HWHelloWorld create] getHelloWorld]; NSLog(@&quot;str:%@&quot;,str); 输出 Hello World! 02:28:10 PM perfect ！！！ 问答 Q：oc可以和c++混编为objective-c++，那么我们直接oc和c++互相调用不就行了吗，为什么还要用djinni呢？ A：oc可以和c++混编，但是java是需要通过jni。所以使用djinni就是为了统一接口，让同一份c++代码可以被oc和java调用，让c++工程师、objective-c工程师、java工程师能够愉快的一起合作项目。ps：如果只是单纯的想在oc里边混编c++，可以完全不用djinni Q：上边的例子中，是c++写实现代码，java和oc调用，那么有没有oc和java写实现代码，c++调用呢？ A：提出这个问题，说明你对c++跨平台有一定的了解了。当然啦，有调用，就有被调用。如果仔细看的上边的例子的话，会发现我们在helloworld.djinni文件中定义接口的时候，我们是这样写的hello_world = interface +c {}，那么这个+c是什么意思的，+c就是c++来实现代码，供其他平台调用。反过来我们可以写 +j +o，意思就是java和oc写实现代码，c++来调用。这样就实现了c++，java，oc之间的互相调用 Q：djinni与世面上的H5技术跨平台，Xamarin跨平台有什么区别呢？ A：首先来回答djinni和h5、Xamarin的区别。djinni可以说是由下至上的跨平台，主要用底层逻辑代码的跨平台，而UI则交给iOS和android平台去完成。h5则是由上至下的跨平台，UI统一，底层逻辑需要iOS和android各自平台去实现。而Xamarin则可以说是上下齐发力，底层是c#翻译ios的cocoa Touch框架和android框架，UI用自创的的框架统一ios和android平台的UI。 优缺点： djinni：优点是不依赖于IDE，更底层，速度更快，更稳定。缺点是得会c++。如果公司做游戏的，那么c++大神应该会不少（笔者就是这个情况） H5：前几年h5最大的问题，就是性能，渲染太差，这几年好了很多。缺点是很多底层API调用不到，需要各自平台去实现 Xamarin：笔者有幸研究了大半年的Xamarin，翻译了已经上架的一个APP。优点是统一了语言c#。缺点是收费（现在已经免费了），依赖IDE，要用Xamarin Studio或者VS。对习惯了Xcode的coder可能比较难接受，另外一个缺点，就是ios和android已经有很多成熟的库，而xamarin没有。比如笔者要接一个支付宝支付，然而并没有这样的xamarin库，需要使用者自己去binding。 最后，这个问题，选你适合的跨平台解决方案。 问答会持续更新哦 ！！！ 最后 一个根据djinni写成的demo（ios），解决了macOS Sierra下第一次build时出错的问题 原文及demo托管在github上 https://github.com/guojunliu/djinni 如果这篇文章或者demo能帮到你的话，麻烦给个Star，给个星星哦，能让它继续帮到想使用djinni的人</summary></entry><entry><title type="html">iOS 10后的设备唯一标识替代方案 — XYUUID库</title><link href="http://localhost:4000/XYUUID/" rel="alternate" type="text/html" title="iOS 10后的设备唯一标识替代方案 — XYUUID库" /><published>2016-10-12T00:00:00+08:00</published><updated>2016-10-12T00:00:00+08:00</updated><id>http://localhost:4000/XYUUID</id><content type="html" xml:base="http://localhost:4000/XYUUID/">&lt;p&gt;iOS 10以后Apple对IDFA的获取逻辑进行了更新&lt;/p&gt;
 
 &lt;ul&gt;
   &lt;li&gt;iOS10以前，君子协议，不管用户是否同意使用IDFA，都可以获取到IDFA&lt;/li&gt;

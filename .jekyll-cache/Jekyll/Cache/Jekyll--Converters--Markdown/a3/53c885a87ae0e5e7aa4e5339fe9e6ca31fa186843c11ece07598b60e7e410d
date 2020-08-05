@@ -1,0 +1,205 @@
+I"O(<p>背景：</p>
+
+<blockquote>
+  <p>为了防止用户在升级到iOS14的时候出现不兼容的情况，也为了提升用户升级系统的平滑感。</p>
+
+  <p>同时为了统计，广告，归因的一系列功能的在系统升级时不出现空窗期。</p>
+
+  <p>开发者不能等到iOS发布，以及Xcode12发布之后再去针对App进行优化或者强制要求更新。</p>
+
+  <p>针对Xcode12 Beta版不能打包上架，以及Xcode11无法使用AppTrackingTransparency系统库的问题，帮助开发者提前适配iOS 14 IDFA，是本文要解决的问题。</p>
+</blockquote>
+
+<h3 id="一变化">一、变化</h3>
+
+<p>iOS 14 Apple对隐私增加了更强的保护，首当其冲受影响的就是IDFA。</p>
+
+<p>在LAT（Limit Ad Tracking）的机制下又增加ATT（AppTrackingTransparency）机制。</p>
+
+<h3 id="二att机制特点">二、ATT机制特点</h3>
+
+<h4 id="1前置于lat机制当没有att的时候lat不生效">1、前置于LAT机制，当没有ATT的时候，LAT不生效</h4>
+
+<p>在iOS 14的系统上如果不使用ATT向用户请求IDFA的使用权限的话，在设置里也不会有，即不主动请求权限，用户也没办法主动开启</p>
+
+<h4 id="2可以细化到针对不同app启用不同的设置">2、可以细化到针对不同App启用不同的设置</h4>
+
+<p>之前LAT是针对系统的，ATT可以在总开关之外，单独对App进行设置。以前一个App种树，大家乘凉的场景要消失了，现在需要每个App都要向用户请求IDFA权限</p>
+
+<p><br />
+<img src="../images/xcode11idfa/4.png" alt="Alt text" /></p>
+
+<p><br /></p>
+<h4 id="3需要和定位相机等权限一样在infoplits中声明权限并说明使用目的">3、需要和定位相机等权限一样，在info.plits中声明权限，并说明使用目的</h4>
+
+<p><img src="../images/xcode11idfa/5.png" alt="Alt text" /></p>
+
+<h3 id="三使用att">三、使用ATT</h3>
+
+<h4 id="1获取当前app用户授权状态">1、获取当前App，用户授权状态</h4>
+
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">+ requestTrackingAuthorizationWithCompletionHandler:</code>
+The request for user authorization to access app-related data.</p>
+</blockquote>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>ATTrackingManagerAuthorizationStatus states = [ATTrackingManager trackingAuthorizationStatus];
+</code></pre></div></div>
+
+<p><br /></p>
+<h4 id="2判断用户的授权状态">2、判断用户的授权状态</h4>
+
+<blockquote>
+  <p><code class="language-plaintext highlighter-rouge">trackingAuthorizationStatus</code> The authorization status that is current for the calling application.</p>
+</blockquote>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>typedef NS_ENUM(NSUInteger, ATTrackingManagerAuthorizationStatus) {
+    ATTrackingManagerAuthorizationStatusNotDetermined = 0,
+    ATTrackingManagerAuthorizationStatusRestricted,
+    ATTrackingManagerAuthorizationStatusDenied,
+    ATTrackingManagerAuthorizationStatusAuthorized
+} NS_SWIFT_NAME(ATTrackingManager.AuthorizationStatus) API_AVAILABLE(ios(14), macosx(10.16), tvos(14));
+</code></pre></div></div>
+
+<p>其中</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">ATTrackingManagerAuthorizationStatusNotDetermined</code> 未向用户请求授权</li>
+  <li><code class="language-plaintext highlighter-rouge">ATTrackingManagerAuthorizationStatusRestricted</code> 用户在系统级别开启了限制广告追踪</li>
+  <li><code class="language-plaintext highlighter-rouge">ATTrackingManagerAuthorizationStatusDenied</code> 用户拒绝向App授权</li>
+  <li><code class="language-plaintext highlighter-rouge">ATTrackingManagerAuthorizationStatusAuthorized</code> 用户同意向App授权</li>
+</ul>
+
+<p><br /></p>
+<h4 id="3向用户请求授权">3、向用户请求授权</h4>
+
+<ul>
+  <li>
+    <p>当<code class="language-plaintext highlighter-rouge">states</code>为<code class="language-plaintext highlighter-rouge">ATTrackingManagerAuthorizationStatusAuthorized</code> 可以使用IDFA</p>
+  </li>
+  <li>
+    <p>当<code class="language-plaintext highlighter-rouge">states</code>为<code class="language-plaintext highlighter-rouge">ATTrackingManagerAuthorizationStatusRestricted</code>和<code class="language-plaintext highlighter-rouge">ATTrackingManagerAuthorizationStatusDenied</code>时需要向用户弹窗请求用户主动去设置里关闭<code class="language-plaintext highlighter-rouge">限制广告追踪</code></p>
+
+    <p><img src="../images/xcode11idfa/6.png" style="zoom:50%" /></p>
+  </li>
+</ul>
+
+<p><br /></p>
+
+<ul>
+  <li>
+    <p>当<code class="language-plaintext highlighter-rouge">states</code>为<code class="language-plaintext highlighter-rouge">ATTrackingManagerAuthorizationStatusNotDetermined</code> 向用户发起请求授权</p>
+
+    <p><img src="../images/xcode11idfa/7.png" style="zoom:50%" /></p>
+  </li>
+</ul>
+
+<p><br /></p>
+<h4 id="4全部流程代码">4、全部流程代码</h4>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>// iOS 14请求idfa权限
+if (@available(iOS 14.0, *)) {
+    ATTrackingManagerAuthorizationStatus states = [ATTrackingManager trackingAuthorizationStatus];
+    if (states == ATTrackingManagerAuthorizationStatusNotDetermined) {
+        // 未提示用户
+        
+        [ATTrackingManager requestTrackingAuthorizationWithCompletionHandler:^(ATTrackingManagerAuthorizationStatus status) {
+            dispatch_async(dispatch_get_main_queue(), ^{
+                // 获取到权限后，依然使用老方法获取idfa
+                if (status == ATTrackingManagerAuthorizationStatusAuthorized) {
+                    
+                }
+                else {
+                    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"" message:XYLocalizedString(@"请在设置-隐私-Tracking中允许App请求跟踪") preferredStyle:UIAlertControllerStyleAlert];
+                    UIAlertAction *action2 = [UIAlertAction actionWithTitle:XYLocalizedString(@"确认") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {}];
+                    [alert addAction:action2];
+                    [self presentViewController:alert animated:YES completion:nil];
+                }
+            });
+        }];
+    }
+    else if (states == ATTrackingManagerAuthorizationStatusRestricted) {
+        // 限制使用
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"" message:XYLocalizedString(@"请在设置-隐私-Tracking中允许App请求跟踪") preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *action2 = [UIAlertAction actionWithTitle:XYLocalizedString(@"确认") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {}];
+        [alert addAction:action2];
+        [self presentViewController:alert animated:YES completion:nil];
+    }
+    else if (states == ATTrackingManagerAuthorizationStatusDenied) {
+        // 拒绝
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"" message:XYLocalizedString(@"请在设置-隐私-Tracking中允许App请求跟踪") preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *action2 = [UIAlertAction actionWithTitle:XYLocalizedString(@"确认") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {}];
+        [alert addAction:action2];
+        [self presentViewController:alert animated:YES completion:nil];
+    }
+    else if (states == ATTrackingManagerAuthorizationStatusAuthorized) {
+        // 可以使用IDFA
+    }
+}
+// iOS 14以下请求idfa权限
+else {
+    BOOL b = [XYSystemUtil canUseIDFA];
+    if (!b) {
+        UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"" message:XYLocalizedString(@"请在设置-隐私-广告中允许App请求跟踪") preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *action2 = [UIAlertAction actionWithTitle:XYLocalizedString(@"确认") style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {}];
+        [alert addAction:action2];
+        [self presentViewController:alert animated:YES completion:nil];
+    }
+    else {
+    	// 可以使用IDFA
+    }
+}
+</code></pre></div></div>
+
+<p><br /></p>
+<h3 id="四测试以及上架重点来了">四、测试以及上架（重点来了）</h3>
+
+<p>矛盾点</p>
+
+<ul>
+  <li>
+    <p>Xcode11没有iOS14系统库，Xcode12 Beta版无法上架</p>
+  </li>
+  <li>
+    <p>针对iOS14和以下系统单独做适配</p>
+  </li>
+</ul>
+
+<p>针对上架，笔者测试了三种情况</p>
+
+<ul>
+  <li>
+    <p>使用Xcode12编译打包直接上传，会直接无法上传，提示</p>
+
+    <blockquote>
+      <p>ERROR ITMS-90534: “Invalid Toolchain. Your app was built with an unsupported SDK or version of Xcode. If you plan to submit this build to the App Store, make sure you are using the versions listed in https://help.apple.com/xcode/mac/current/#/devf16aefe3b or later.”</p>
+    </blockquote>
+  </li>
+  <li>
+    <p>使用Xcode12打包，并修改ipa中info.plist里的Xcode版本号，可以正常上传到Connect，但是提审之后会收到邮件</p>
+
+    <blockquote>
+      <p>The status of your app has changed to Invalid Binary.</p>
+    </blockquote>
+  </li>
+  <li>
+    <p>使用Xcode11 Link iOS14系统库，然后打包上传，在机审之后会提示</p>
+
+    <blockquote>
+      <p>此构建版本无效。ITMS-90562: Invalid Bundle - One or more dynamic libraries that are referenced by your app are not present in the dylib search path.</p>
+    </blockquote>
+  </li>
+</ul>
+
+<p><br /></p>
+<h4 id="最后解决方案是">最后解决方案是</h4>
+
+<ul>
+  <li>IDE层面，Xcode11 Link Xcode12 Beta版中的iOS14系统库</li>
+  <li>编译打包层面，代码中不强制Link <code class="language-plaintext highlighter-rouge">AppTrackingTransparency.framework</code>系统库</li>
+  <li>代码编写层面，使用动态Link系统库，以及runtime调用对应的方法</li>
+</ul>
+
+<p><code class="language-plaintext highlighter-rouge">/Applications/Xcode-beta.app/Contents/Developer/Platforms/iPhoneOS.platform/Developer/SDKs/iPhoneOS.sdk/System/Library/Frameworks</code></p>
+
+:ET
