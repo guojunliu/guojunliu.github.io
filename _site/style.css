@@ -367,7 +367,7 @@ img {
 
 .site-info {
   text-align: center;
-  margin: 100px auto 0;
+  margin: 50px auto 0;
 }
 
 @media screen and (max-width: 1200px) {
@@ -393,6 +393,38 @@ img {
 }
 
 .site-info .site-avatar img {
+  display: inline-block;
+  border-radius: 2px;
+}
+
+.site-qrcode {
+  text-align: center;
+  margin: 10px auto 0;
+}
+
+@media screen and (max-width: 1200px) {
+  .site-qrcode {
+    float: none;
+    display: block;
+    margin: 0 auto;
+  }
+}
+
+.site-qrcode .site-publicaccount {
+  margin: auto;
+  display: block;
+  max-width: 120px;
+  max-height: 120px;
+}
+
+@media screen and (max-width: 1200px) {
+  .site-qrcode .site-publicaccount {
+    max-width: 60px;
+    max-height: 60px;
+  }
+}
+
+.site-qrcode .site-publicaccount img {
   display: inline-block;
   border-radius: 2px;
 }

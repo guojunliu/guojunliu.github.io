@@ -343,7 +343,7 @@ img {
 }
 .site-info {
   text-align:center;
-  margin: 100px auto 0;
+  margin: 50px auto 0;
 
   @include mobile {
     float: none;
@@ -360,6 +360,34 @@ img {
     @include mobile {
       max-width: 120px;
       max-height: 120px;
+    }
+
+    img {
+      display: inline-block;
+      border-radius: 2px;
+    }
+  }
+}
+
+.site-qrcode {
+  text-align:center;
+  margin: 10px auto 0;
+
+  @include mobile {
+    float: none;
+    display: block;
+    margin: 0 auto;
+  }
+
+  .site-publicaccount {
+    margin:auto;
+    display: block;
+    max-width: 120px;
+    max-height: 120px;
+
+    @include mobile {
+      max-width: 60px;
+      max-height: 60px;
     }
 
     img {

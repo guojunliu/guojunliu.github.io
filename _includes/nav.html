@@ -21,7 +21,15 @@
     </nav>
   </div>
 
+  
+
   <div class="wrapper-footer-desktop">
+    <div class="site-qrcode">
+      {% if site.publicaccount %}
+        <a href="{{ site.baseurl }}/" class="site-publicaccount"><img src="{{ site.publicaccount }}" /></a>
+      {% endif %} 
+      <p class="site-description">{{ site.publicaccount-text }}</p>
+    </div>
     <footer class="footer">
       {% include footer.html %}
     </footer>
