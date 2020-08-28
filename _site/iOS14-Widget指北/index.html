@@ -15,10 +15,8 @@
   踩着八月的尾巴，本次我们就来探究一下Widget
 
   本文会从Widget初窥和Widget开发两个维度来探究一下Widget，
-
-  其中初窥会带您简单的了解一下Widget，适合应用决策者阅读；
-
-  开发会带着您一步一步的完成设计开发Widget，适合程序员阅读。
+其中初窥会带您简单的了解一下Widget，适合应用决策者阅读；
+开发会带着您一步一步的完成设计开发Widget，适合程序员阅读。
 
 
 Widget初窥
@@ -48,9 +46,9 @@ Think of this as more projecting content from your app onto the Home screen rath
 
 要设计一个优秀的Widget，就要先了解Widget的全部特点，了然于胸
 
-针对Apple提出的Glanceable、Relevant、Personalized我分别用一个词语来描述一目了然、早韭晚菘、千人千面
+针对Apple提出的Glanceable、Relevant、Personalized分别用一个词语来描述一目了然、早韭晚菘、千人千面
 
-下面简单来说下这几个特点
+简单来说下这几个特点
 
 
 
@@ -82,7 +80,25 @@ Think of this as more projecting content from your app onto the Home screen rath
 
 3、Personalized  个性化
 
-Widget要能为用户提供个性化的服务，比如天气Widget，需要能为不同城市的用户提供当地的天气情况。
+3.1 大小
+
+Widget要能为用户提供个性化的服务，比如天气Widget，需要能为不同的用户提供不同细节的天气情况。
+
+
+
+为此Apple提供三种不同大小的小部件
+
+
+  systemSmall
+  systemMedium
+  systemLarge
+
+
+其中systemSmall大小为2*2 Icon，systemMedium大小为4*2 Icon，systemLarge大小为4*4 Icon
+
+3.2 个性化配置
+
+另一方面Widget需要能为不同城市的用户提供当地的天气情况。
 
 为此Apple在创建Widget时为开发者提供了两种类型：
 
@@ -98,6 +114,12 @@ Widget要能为用户提供个性化的服务，比如天气Widget，需要能�
 
 
 需要说明的是，IntentConfiguration并不需要编写代码，只需要简单的配置，Xcode 会自动帮你生成对应的代码和类型。
+
+3.3 黑暗模式
+
+此外Widget还支持系统的黑暗模式
+
+
 
 
 
@@ -137,6 +159,29 @@ Widget的本质是一系列静态视图堆叠而成的集合，不同的时间�
 
 
 
+其中点击唤起主App有两种方案，分别是：
+
+
+  widgetURL
+  Link
+
+
+widgetURL唤起App的点击区域是Widget的所有区域，这种方案适合简单元素，单一逻辑的小部件
+
+
+
+对于systemSmall类型的小部件，只支持widgetURL唤起方式
+
+针对systemMedium 和systemLarge 还可以使用更细分的Link唤起方式，这种唤起方式能让小部件通过不同元素的点击唤起App的不同页面，让开发者有更多的施展空间
+
+
+
+举个简单的例子，widgetURL可应用于天气小部件，博客小部件，点击直达App；
+
+Link可用于备忘录和日历小部件，点击不同的备忘录和日期直接跳转到对应的备忘录详情和代办详情页面
+
+
+
 
 
 Widget初窥总结
@@ -148,6 +193,10 @@ Widget的出现犹如在一潭死水的iOS桌面上泛起了一片涟漪，一�
 俗话说：喜欢是放肆,但爱就是克制。这里不得不再次引用Apple在Widget介绍中出现频率最高的话widgets are not mini-apps，因为Widget在设计之初就是为了能使用最少的成本，向用户提供最核心的信息。为了尽可能的减少用户成本（电量，网络等）和提高用户体验，Apple在技术层面上做了很多限制，限制了非常多的功能，大大削弱了Widget的地位和重要程度，也降低了开发者实现的热情和积极性
 
 其实每年Apple更新的新技术只有很少的一部分能应用到App上，希望这次的Widget能有动力让大家结合自己的App，给自己的App带来更多的流量，也能给用户带来更好的体验。
+
+
+
+Widget开发
 " />
     <meta property="og:description" content="
   2020 年 6 月 22 日，苹果召开了第一次线上的开发者大会 - WWDC20。这次发布会上宣布了ARM架构Mac芯片（拳打Intel）、iOS 14 ATT（脚踢Facebook），可谓是一次可以载入史册（我是爸爸）的发布会了，当然还发布了被称为下一个顶级流量入口的Widget。
@@ -155,10 +204,8 @@ Widget的出现犹如在一潭死水的iOS桌面上泛起了一片涟漪，一�
   踩着八月的尾巴，本次我们就来探究一下Widget
 
   本文会从Widget初窥和Widget开发两个维度来探究一下Widget，
-
-  其中初窥会带您简单的了解一下Widget，适合应用决策者阅读；
-
-  开发会带着您一步一步的完成设计开发Widget，适合程序员阅读。
+其中初窥会带您简单的了解一下Widget，适合应用决策者阅读；
+开发会带着您一步一步的完成设计开发Widget，适合程序员阅读。
 
 
 Widget初窥
@@ -188,9 +235,9 @@ Think of this as more projecting content from your app onto the Home screen rath
 
 要设计一个优秀的Widget，就要先了解Widget的全部特点，了然于胸
 
-针对Apple提出的Glanceable、Relevant、Personalized我分别用一个词语来描述一目了然、早韭晚菘、千人千面
+针对Apple提出的Glanceable、Relevant、Personalized分别用一个词语来描述一目了然、早韭晚菘、千人千面
 
-下面简单来说下这几个特点
+简单来说下这几个特点
 
 
 
@@ -222,7 +269,25 @@ Think of this as more projecting content from your app onto the Home screen rath
 
 3、Personalized  个性化
 
-Widget要能为用户提供个性化的服务，比如天气Widget，需要能为不同城市的用户提供当地的天气情况。
+3.1 大小
+
+Widget要能为用户提供个性化的服务，比如天气Widget，需要能为不同的用户提供不同细节的天气情况。
+
+
+
+为此Apple提供三种不同大小的小部件
+
+
+  systemSmall
+  systemMedium
+  systemLarge
+
+
+其中systemSmall大小为2*2 Icon，systemMedium大小为4*2 Icon，systemLarge大小为4*4 Icon
+
+3.2 个性化配置
+
+另一方面Widget需要能为不同城市的用户提供当地的天气情况。
 
 为此Apple在创建Widget时为开发者提供了两种类型：
 
@@ -238,6 +303,12 @@ Widget要能为用户提供个性化的服务，比如天气Widget，需要能�
 
 
 需要说明的是，IntentConfiguration并不需要编写代码，只需要简单的配置，Xcode 会自动帮你生成对应的代码和类型。
+
+3.3 黑暗模式
+
+此外Widget还支持系统的黑暗模式
+
+
 
 
 
@@ -277,6 +348,29 @@ Widget的本质是一系列静态视图堆叠而成的集合，不同的时间�
 
 
 
+其中点击唤起主App有两种方案，分别是：
+
+
+  widgetURL
+  Link
+
+
+widgetURL唤起App的点击区域是Widget的所有区域，这种方案适合简单元素，单一逻辑的小部件
+
+
+
+对于systemSmall类型的小部件，只支持widgetURL唤起方式
+
+针对systemMedium 和systemLarge 还可以使用更细分的Link唤起方式，这种唤起方式能让小部件通过不同元素的点击唤起App的不同页面，让开发者有更多的施展空间
+
+
+
+举个简单的例子，widgetURL可应用于天气小部件，博客小部件，点击直达App；
+
+Link可用于备忘录和日历小部件，点击不同的备忘录和日期直接跳转到对应的备忘录详情和代办详情页面
+
+
+
 
 
 Widget初窥总结
@@ -288,6 +382,10 @@ Widget的出现犹如在一潭死水的iOS桌面上泛起了一片涟漪，一�
 俗话说：喜欢是放肆,但爱就是克制。这里不得不再次引用Apple在Widget介绍中出现频率最高的话widgets are not mini-apps，因为Widget在设计之初就是为了能使用最少的成本，向用户提供最核心的信息。为了尽可能的减少用户成本（电量，网络等）和提高用户体验，Apple在技术层面上做了很多限制，限制了非常多的功能，大大削弱了Widget的地位和重要程度，也降低了开发者实现的热情和积极性
 
 其实每年Apple更新的新技术只有很少的一部分能应用到App上，希望这次的Widget能有动力让大家结合自己的App，给自己的App带来更多的流量，也能给用户带来更好的体验。
+
+
+
+Widget开发
 " />
     
     <meta name="author" content="Steve.liu" />
@@ -421,11 +519,9 @@ Widget的出现犹如在一潭死水的iOS桌面上泛起了一片涟漪，一�
 
   <p>踩着八月的尾巴，本次我们就来探究一下Widget</p>
 
-  <p>本文会从<code class="language-plaintext highlighter-rouge">Widget初窥</code>和<code class="language-plaintext highlighter-rouge">Widget开发</code>两个维度来探究一下Widget，</p>
-
-  <p>其中<code class="language-plaintext highlighter-rouge">初窥</code>会带您简单的了解一下Widget，适合应用决策者阅读；</p>
-
-  <p><code class="language-plaintext highlighter-rouge">开发</code>会带着您一步一步的完成设计开发Widget，适合程序员阅读。</p>
+  <p>本文会从<code class="language-plaintext highlighter-rouge">Widget初窥</code>和<code class="language-plaintext highlighter-rouge">Widget开发</code>两个维度来探究一下Widget，
+其中<code class="language-plaintext highlighter-rouge">初窥</code>会带您简单的了解一下Widget，适合应用决策者阅读；
+<code class="language-plaintext highlighter-rouge">开发</code>会带着您一步一步的完成设计开发Widget，适合程序员阅读。</p>
 </blockquote>
 
 <h1 id="widget初窥">Widget初窥</h1>
@@ -455,9 +551,9 @@ Think of this as more projecting content from your app onto the Home screen rath
 
 <p>要设计一个优秀的Widget，就要先了解Widget的全部特点，了然于胸</p>
 
-<p>针对Apple提出的<code class="language-plaintext highlighter-rouge">Glanceable</code>、<code class="language-plaintext highlighter-rouge">Relevant</code>、<code class="language-plaintext highlighter-rouge">Personalized</code>我分别用一个词语来描述<code class="language-plaintext highlighter-rouge">一目了然</code>、<code class="language-plaintext highlighter-rouge">早韭晚菘</code>、<code class="language-plaintext highlighter-rouge">千人千面</code></p>
+<p>针对Apple提出的<code class="language-plaintext highlighter-rouge">Glanceable</code>、<code class="language-plaintext highlighter-rouge">Relevant</code>、<code class="language-plaintext highlighter-rouge">Personalized</code>分别用一个词语来描述<code class="language-plaintext highlighter-rouge">一目了然</code>、<code class="language-plaintext highlighter-rouge">早韭晚菘</code>、<code class="language-plaintext highlighter-rouge">千人千面</code></p>
 
-<p>下面简单来说下这几个特点</p>
+<p>简单来说下这几个特点</p>
 
 <p><br /></p>
 
@@ -483,13 +579,31 @@ Think of this as more projecting content from your app onto the Home screen rath
 
 <p>为此，苹果系统提供了一个叫Smart Stacks（智能叠放）的功能，Smart Stacks是一个Widgets的集合。系统会根据每个人的习惯，自动显示用户当前时间点最需要的Widget。</p>
 
-<p><img src="../images/widget/3.gif" alt="Alt text" /></p>
+<div style="align:center"><img src="../images/widget/3.gif" /></div>
 
 <p><br /></p>
 
 <h3 id="3personalized--个性化">3、Personalized  个性化</h3>
 
-<p>Widget要能为用户提供个性化的服务，比如天气Widget，需要能为不同城市的用户提供当地的天气情况。</p>
+<h4 id="31-大小">3.1 大小</h4>
+
+<p>Widget要能为用户提供个性化的服务，比如天气Widget，需要能为不同的用户提供不同细节的天气情况。</p>
+
+<p><img src="../images/widget/4.png" alt="Alt text" /></p>
+
+<p>为此Apple提供三种不同大小的小部件</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">systemSmall</code></li>
+  <li><code class="language-plaintext highlighter-rouge">systemMedium</code></li>
+  <li><code class="language-plaintext highlighter-rouge">systemLarge</code></li>
+</ul>
+
+<p>其中systemSmall大小为<code class="language-plaintext highlighter-rouge">2*2 Icon</code>，systemMedium大小为<code class="language-plaintext highlighter-rouge">4*2 Icon</code>，systemLarge大小为<code class="language-plaintext highlighter-rouge">4*4 Icon</code></p>
+
+<h4 id="32-个性化配置">3.2 个性化配置</h4>
+
+<p>另一方面Widget需要能为不同城市的用户提供当地的天气情况。</p>
 
 <p>为此Apple在创建Widget时为开发者提供了两种类型：</p>
 
@@ -502,9 +616,15 @@ Think of this as more projecting content from your app onto the Home screen rath
   </li>
 </ul>
 
-<p><img src="../images/widget/4.png" alt="Alt text" /></p>
+<p><img src="../images/widget/11.png" alt="Alt text" /></p>
 
 <p>需要说明的是，IntentConfiguration并不需要编写代码，只需要简单的配置，Xcode 会自动帮你生成对应的代码和类型。</p>
+
+<h4 id="33-黑暗模式">3.3 黑暗模式</h4>
+
+<p>此外Widget还支持系统的黑暗模式</p>
+
+<p><img src="../images/widget/12.png" alt="Alt text" /></p>
 
 <p><br /></p>
 
@@ -544,6 +664,29 @@ Think of this as more projecting content from your app onto the Home screen rath
 
 <p><img src="../images/widget/5.png" alt="Alt text" /></p>
 
+<p>其中点击唤起主App有两种方案，分别是：</p>
+
+<ul>
+  <li>widgetURL</li>
+  <li>Link</li>
+</ul>
+
+<p>widgetURL唤起App的点击区域是Widget的所有区域，这种方案适合简单元素，单一逻辑的小部件</p>
+
+<p><img src="../images/widget/8.png" alt="Alt text" /></p>
+
+<p>对于systemSmall类型的小部件，只支持widgetURL唤起方式</p>
+
+<p>针对<code class="language-plaintext highlighter-rouge">systemMedium </code>和<code class="language-plaintext highlighter-rouge">systemLarge </code>还可以使用更细分的Link唤起方式，这种唤起方式能让小部件通过不同元素的点击唤起App的不同页面，让开发者有更多的施展空间</p>
+
+<p><img src="../images/widget/9.png" alt="Alt text" /></p>
+
+<p>举个简单的例子，widgetURL可应用于天气小部件，博客小部件，点击直达App；</p>
+
+<p>Link可用于备忘录和日历小部件，点击不同的备忘录和日期直接跳转到对应的备忘录详情和代办详情页面</p>
+
+<p><img src="../images/widget/10.png" alt="Alt text" /></p>
+
 <p><br /></p>
 
 <h2 id="widget初窥总结">Widget初窥总结</h2>
@@ -555,6 +698,10 @@ Think of this as more projecting content from your app onto the Home screen rath
 <p>俗话说：喜欢是放肆,但爱就是克制。这里不得不再次引用Apple在Widget介绍中出现频率最高的话<code class="language-plaintext highlighter-rouge">widgets are not mini-apps</code>，因为Widget在设计之初就是为了能使用最少的成本，向用户提供最核心的信息。为了尽可能的减少用户成本（电量，网络等）和提高用户体验，Apple在技术层面上做了很多限制，限制了非常多的功能，大大削弱了Widget的地位和重要程度，也降低了开发者实现的热情和积极性</p>
 
 <p>其实每年Apple更新的新技术只有很少的一部分能应用到App上，希望这次的Widget能有动力让大家结合自己的App，给自己的App带来更多的流量，也能给用户带来更好的体验。</p>
+
+<p><br /></p>
+
+<h1 id="widget开发">Widget开发</h1>
 
   </div>
 
