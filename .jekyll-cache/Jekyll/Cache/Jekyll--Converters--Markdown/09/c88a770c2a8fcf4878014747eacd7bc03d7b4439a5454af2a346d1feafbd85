@@ -1,0 +1,32 @@
+I"�<blockquote>
+  <p>2020 年 6 月 22 日，苹果召开了第一次线上的开发者大会 - WWDC20。这次发布会上拳打Intel（宣布了ARM架构Mac芯片）、脚踢Facebook（iOS 14 ATT），可谓是一次可以载入史册的发布会了，当然还发布了被称为下一个顶级流量入口Widget。</p>
+
+  <p>踩着八月的尾巴，本次我们就来探究一下Widget</p>
+
+  <p>本文会从<code class="language-plaintext highlighter-rouge">Widget初窥</code>和<code class="language-plaintext highlighter-rouge">Widget开发</code>两个维度来探究一下Widget，其中<code class="language-plaintext highlighter-rouge">初窥</code>会带您简单的了解一下Widget，<code class="language-plaintext highlighter-rouge">开发</code>会带着您一步一步的完成设计开发Widget</p>
+</blockquote>
+
+<h2 id="widget初窥">Widget初窥</h2>
+
+<h4 id="widget是什么">Widget是什么</h4>
+
+<blockquote>
+  <p>In iOS 14, we have a dramatic new Home screen experience, one that is much more dynamic and personalized, with a focus on widgets.
+The content is the focus.
+This is very important: <code class="language-plaintext highlighter-rouge">widgets are not mini-apps.</code>
+Think of this as more projecting content from your app onto the Home screen rather than full mini-apps filled with tiny little buttons.</p>
+</blockquote>
+
+<p>Widget不是迷你应用程序。而是一种新的主屏幕体验，能快速提供用户关心的内容是重点</p>
+
+<h4 id="widget的特点">Widget的特点</h4>
+
+<h5 id="glanceable--一目了然一览无余">Glanceable | 一目了然，一览无余</h5>
+
+<p><img src="../images/widget/1.png" alt="Alt text" /></p>
+
+<p>普通人每天进入“主屏幕”的次数超过90次，但是在主屏幕仅停留几分钟。</p>
+
+<p>所以Widget一定要展示最核心的信息，并且要简洁明了。设计新颖，便于快速浏览，高效是一个优秀Widget的核心</p>
+
+:ET

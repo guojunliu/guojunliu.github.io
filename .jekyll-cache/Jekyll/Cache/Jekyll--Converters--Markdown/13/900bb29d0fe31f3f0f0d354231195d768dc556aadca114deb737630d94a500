@@ -1,0 +1,16 @@
+I"><blockquote>
+  <p>2020 年 6 月 22 日，苹果召开了第一次线上的开发者大会 - WWDC20。这次发布会上拳打Intel（宣布了ARM架构Mac芯片）、脚踢Facebook（iOS 14 ATT），可谓是一次可以载入史册的发布会了，当然还发布了被称为下一个顶级流量入口Widget。</p>
+
+  <p>踩着八月的尾巴，本次我们就来探究一下Widget</p>
+
+  <p>本文会从<code class="language-plaintext highlighter-rouge">Widget初窥</code>和<code class="language-plaintext highlighter-rouge">Widget开发</code>两个维度来探究一下Widget，其中<code class="language-plaintext highlighter-rouge">初窥</code>会带您简单的了解一下Widget，<code class="language-plaintext highlighter-rouge">开发</code>会带着您一步一步的完成设计开发Widget</p>
+</blockquote>
+
+<h2 id="widget初窥">Widget初窥</h2>
+
+<h4 id="widget是什么">Widget是什么</h4>
+
+<blockquote>
+  <p>In iOS 14, we have a dramatic new Home screen experience, one that is much more dynamic and personalized, with a focus on widgets.</p>
+</blockquote>
+:ET
