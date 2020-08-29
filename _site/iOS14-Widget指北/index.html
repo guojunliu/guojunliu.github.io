@@ -10,13 +10,13 @@
 
     
     <meta name="description" content="
-  2020 年 6 月 22 日，苹果召开了第一次线上的开发者大会 - WWDC20。这次发布会上宣布了ARM架构Mac芯片（拳打Intel）、iOS 14 ATT（脚踢Facebook），可谓是一次可以载入史册（我是爸爸）的发布会了，当然还发布了被称为下一个顶级流量入口的Widget。
+  2020 年 6 月 22 日，苹果召开了第一次线上的开发者大会 - WWDC20。这次发布会上宣布了ARM架构Mac芯片（拳打Intel）、iOS 14 ATT（脚踢Facebook），可谓是一次载入史册（我是爸爸）的发布会了，当然还发布了被称为下一个顶级流量入口的Widget。
 
-  踩着八月的尾巴，本次我们就来探究一下Widget
+  踩着八月的尾巴，本次我们就来探究一下Widget。
 
-  本文会从Widget初窥和Widget开发两个维度来探究一下Widget，
-其中初窥会带您简单的了解一下Widget，适合应用决策者阅读；
-开发会带着您一步一步的完成设计开发Widget，适合程序员阅读。
+  本文会从Widget初窥和Widget开发两个维度和章节来探究一下Widget，
+其中初窥章节会带您简单的了解一下Widget，适合应用决策者阅读；
+开发章节会带着您一步一步的完成设计开发Widget，适合程序员阅读。
 
 
 Widget初窥
@@ -30,7 +30,7 @@ This is very important: widgets are not mini-apps.
 Think of this as more projecting content from your app onto the Home screen rather than full mini-apps filled with tiny little buttons.
 
 
-简单来说Widget不是迷你应用程序。而是一种新的主屏幕体验，能快速提供用户关心的内容是重点
+一句话来说：Widget不是迷你应用程序。而是一种新的主屏幕体验，能快速提供用户关心的内容是重点
 
 
 
@@ -56,7 +56,7 @@ Think of this as more projecting content from your app onto the Home screen rath
 
 
 
-一个优秀的Widget要是一目了然，一览无余是什么意思呢？
+一个优秀的Widget要一目了然，一览无余。
 
 普通人每天进入“主屏幕”的次数超过90次，但是在主屏幕仅停留几分钟，就切换到其他App了。
 
@@ -66,7 +66,7 @@ Think of this as more projecting content from your app onto the Home screen rath
 
 
 
-2、Relevant | 早韭晚菘，量体裁衣
+2、Relevant | 早韭晚菘
 
 
 
@@ -78,7 +78,7 @@ Think of this as more projecting content from your app onto the Home screen rath
 
 
 
-3、Personalized  个性化
+3、Personalized  量体裁衣
 
 3.1 大小
 
@@ -133,7 +133,7 @@ Widget的本质是一系列静态视图堆叠而成的集合，不同的时间�
 
 顾名思义，Timeline就是一条时间线，在对应的时间点发生对应的事件
 
-许多Widget具有可预测的时间点，在这些时间点更新其内容是有意义的。例如，显示天气信息的小部件可能会在一整天内每小时更新一次温度。股市窗口小部件可以在公开市场时间频繁更新其内容，但周末则不能完全更新。通过提前计划这些时间，生成不同的视图放入时间线中，WidgetKit会在适当的时间到来时自动刷新您的窗口小部件。
+许多Widget具有可预测的时间点，在这些时间点更新其内容是有意义的。例如，显示天气信息的小部件可能会在一整天内每小时更新一次温度。股市窗口小部件可以在公开市场时间频繁更新其内容，但周末则不用完全更新。通过提前计划这些时间，生成不同的视图放入时间线中，WidgetKit会在适当的时间到来时自动刷新您的窗口小部件。
 
 这也决定了Widget基本上不能实时更新
 
@@ -180,7 +180,7 @@ widgetURL唤起App的点击区域是Widget的所有区域，这种方案适合�
 
 举个简单的例子，widgetURL可应用于天气小部件，博客小部件，点击直达App；
 
-Link可用于备忘录和日历小部件，点击不同的备忘录和日期直接跳转到对应的备忘录详情和代办详情页面
+Link可用于备忘录和日历小部件，点击不同的备忘录和日期直接跳转到对应的备忘录详情和待办详情页面
 
 
 
@@ -256,7 +256,7 @@ Widget开发
   重点：小部件不仅支持Swift项目，同样也支持Objective-C项目，OC小伙伴不用担心啦
 
 
-创建完小部件之后，我们会多出一个SmileEverydayWidget.swift文件，这已经是一个可以run起来的小部件了，因为我们接下来要逐个方法来分析，所以将文件全文展示如下
+创建完小部件之后，我们会多出一个SmileEverydayWidget.swift文件，这已经是一个可以run起来的小部件了，因为我们接下来要逐个方法来分析，所以先将文件全文展示如下
 
 //
 //  SmileEverydayWidget.swift
@@ -428,6 +428,12 @@ struct SmileEverydaWidgetEntryView : View {
 
 
 
+想象一下
+
+如果在用户的主屏幕上出现如下的场景，那么你的小部件离被移除可能已经不远了
+
+
+
 
 
 六、TimelineEntry
@@ -488,19 +494,29 @@ struct Provider: TimelineProvider {
   timeline()
 
 
-snapshot
+1、snapshot 快照
 
-为了在小部件库中显示小部件，WidgetKit 要求提供者提供预览快照， 即snapshot()，这个方法里主要提供了一些示例数据，最好是真实数据，用于当时间线不能离开展示的时候展示给用户，例如没有还没有从服务端获取到所需数据是，不至于展示白屏给用户看。
+为了在小部件库中显示小部件，WidgetKit 要求提供者提供预览快照， 即snapshot()，这个方法里主要提供了一些示例数据，最好是真实数据，用于时间线不能展示的时候展示给用户
 
 需要说明的是，快照是系统需要快速显示单个条目的位置。
 
-因此，您的扩展程序有望尽快返回视图，因为这样做时，您会在iOS上漂亮的Widget Gallery中看到真正的Widget。
+因此，您的扩展程序必须尽快返回视图，因为这样做时，用户会在iOS上漂亮的Widget Gallery中看到真正的Widget。
 
-这不是我们在设计时必须提供的屏幕截图或图像。这是您在iOS，iPadOS和macOS上真正的小部件体验。
+这不是我们在设计时必须提供的屏幕截图或图像。这是用户在iOS，iPadOS和macOS上真正的小部件体验。
 
 在大多数情况下，时间轴的第一个条目和快照可以作为同一条目返回，因此，在“小工具库”中看到的就是用户将其添加到设备中时得到的内容。
 
-timeline
+
+
+例如我们在Widget Gallery中添加电池小部件时，小部件此时在Widget Gallery中展示的就是当前设备电池信息的实时数据的快照，而不是一些虚假的数据，这个时候小部件的数据是什么样子，用户添加到主屏幕上之后小部件的数据就是什么样子，从而提高用户的体验。
+
+
+  对比
+
+
+小部件里有两个比较类似的概念，PlaceholderView和snapshot，都是一种占位解决方案，不同的是PlaceholderView是在主屏幕上无法快速获取数据时的一种占位视图，不至于显示loading或者白屏给用户看；而snapshot主要用于Widget Gallery中，用来提高用户体验的，一般来说，snapshot 就是时间线的第一帧
+
+2、timeline
 
 在请求初始快照后，WidgetKit调用timeline以请求提供者的常规时间轴。时间轴由一个或多个时间轴条目TimelineEntry以及一个重载策略ReloadPolicy组成，该重载策略通知WidgetKit何时请求后续时间轴。
 
@@ -531,7 +547,7 @@ struct Provider: TimelineProvider {
         var entries: [SimpleEntry] = []
         
         var currentDate = Date()
-        var nextUpdateDate = Calendar.current.date(byAdding: .second, value: 10, to: currentDate)!
+        var nextUpdateDate = Calendar.current.date(byAdding: .second, value: 3, to: currentDate)!
         
         let message = "蒹葭苍苍，白露为霜。所谓伊人，在水一方。\n溯洄从之，道阻且长；溯游从之，宛在水中央。\n蒹葭凄凄，白露未晞。所谓伊人，在水之湄。"
         let backgroundImageStr = "bg"
@@ -552,7 +568,7 @@ struct Provider: TimelineProvider {
             var msg = ""
             
             currentDate = nextUpdateDate;
-            nextUpdateDate = Calendar.current.date(byAdding: .second, value: 10, to: currentDate)!
+            nextUpdateDate = Calendar.current.date(byAdding: .second, value: 3, to: currentDate)!
             
             currentDateStr = formatter.string(from: currentDate)
             nextUpdateDateStr = formatter.string(from: nextUpdateDate)
@@ -577,25 +593,33 @@ struct Provider: TimelineProvider {
 
 这段代码里我们提供了一个古诗词的快照
 
-并生成了一个时间线，其中时间线里包含了10个entry，且每个entry 间隔10s
+并生成了一个时间线，其中时间线里包含了10个entry，且每个entry 间隔3s
 
 entry文本拼接显示了
 
 
-  诗经
+  展示文本（诗经）
   时间轴ID
   本次视图开始时间
   下次视图开始时间
 
+
+下边我们来看一下真实run出来的效果
+
+
+
+到此为止我们就有了一个可以在主屏幕上展示的小部件了
+
+并且能根据时间线展示不同的视图了。
 " />
     <meta property="og:description" content="
-  2020 年 6 月 22 日，苹果召开了第一次线上的开发者大会 - WWDC20。这次发布会上宣布了ARM架构Mac芯片（拳打Intel）、iOS 14 ATT（脚踢Facebook），可谓是一次可以载入史册（我是爸爸）的发布会了，当然还发布了被称为下一个顶级流量入口的Widget。
+  2020 年 6 月 22 日，苹果召开了第一次线上的开发者大会 - WWDC20。这次发布会上宣布了ARM架构Mac芯片（拳打Intel）、iOS 14 ATT（脚踢Facebook），可谓是一次载入史册（我是爸爸）的发布会了，当然还发布了被称为下一个顶级流量入口的Widget。
 
-  踩着八月的尾巴，本次我们就来探究一下Widget
+  踩着八月的尾巴，本次我们就来探究一下Widget。
 
-  本文会从Widget初窥和Widget开发两个维度来探究一下Widget，
-其中初窥会带您简单的了解一下Widget，适合应用决策者阅读；
-开发会带着您一步一步的完成设计开发Widget，适合程序员阅读。
+  本文会从Widget初窥和Widget开发两个维度和章节来探究一下Widget，
+其中初窥章节会带您简单的了解一下Widget，适合应用决策者阅读；
+开发章节会带着您一步一步的完成设计开发Widget，适合程序员阅读。
 
 
 Widget初窥
@@ -609,7 +633,7 @@ This is very important: widgets are not mini-apps.
 Think of this as more projecting content from your app onto the Home screen rather than full mini-apps filled with tiny little buttons.
 
 
-简单来说Widget不是迷你应用程序。而是一种新的主屏幕体验，能快速提供用户关心的内容是重点
+一句话来说：Widget不是迷你应用程序。而是一种新的主屏幕体验，能快速提供用户关心的内容是重点
 
 
 
@@ -635,7 +659,7 @@ Think of this as more projecting content from your app onto the Home screen rath
 
 
 
-一个优秀的Widget要是一目了然，一览无余是什么意思呢？
+一个优秀的Widget要一目了然，一览无余。
 
 普通人每天进入“主屏幕”的次数超过90次，但是在主屏幕仅停留几分钟，就切换到其他App了。
 
@@ -645,7 +669,7 @@ Think of this as more projecting content from your app onto the Home screen rath
 
 
 
-2、Relevant | 早韭晚菘，量体裁衣
+2、Relevant | 早韭晚菘
 
 
 
@@ -657,7 +681,7 @@ Think of this as more projecting content from your app onto the Home screen rath
 
 
 
-3、Personalized  个性化
+3、Personalized  量体裁衣
 
 3.1 大小
 
@@ -712,7 +736,7 @@ Widget的本质是一系列静态视图堆叠而成的集合，不同的时间�
 
 顾名思义，Timeline就是一条时间线，在对应的时间点发生对应的事件
 
-许多Widget具有可预测的时间点，在这些时间点更新其内容是有意义的。例如，显示天气信息的小部件可能会在一整天内每小时更新一次温度。股市窗口小部件可以在公开市场时间频繁更新其内容，但周末则不能完全更新。通过提前计划这些时间，生成不同的视图放入时间线中，WidgetKit会在适当的时间到来时自动刷新您的窗口小部件。
+许多Widget具有可预测的时间点，在这些时间点更新其内容是有意义的。例如，显示天气信息的小部件可能会在一整天内每小时更新一次温度。股市窗口小部件可以在公开市场时间频繁更新其内容，但周末则不用完全更新。通过提前计划这些时间，生成不同的视图放入时间线中，WidgetKit会在适当的时间到来时自动刷新您的窗口小部件。
 
 这也决定了Widget基本上不能实时更新
 
@@ -759,7 +783,7 @@ widgetURL唤起App的点击区域是Widget的所有区域，这种方案适合�
 
 举个简单的例子，widgetURL可应用于天气小部件，博客小部件，点击直达App；
 
-Link可用于备忘录和日历小部件，点击不同的备忘录和日期直接跳转到对应的备忘录详情和代办详情页面
+Link可用于备忘录和日历小部件，点击不同的备忘录和日期直接跳转到对应的备忘录详情和待办详情页面
 
 
 
@@ -835,7 +859,7 @@ Widget开发
   重点：小部件不仅支持Swift项目，同样也支持Objective-C项目，OC小伙伴不用担心啦
 
 
-创建完小部件之后，我们会多出一个SmileEverydayWidget.swift文件，这已经是一个可以run起来的小部件了，因为我们接下来要逐个方法来分析，所以将文件全文展示如下
+创建完小部件之后，我们会多出一个SmileEverydayWidget.swift文件，这已经是一个可以run起来的小部件了，因为我们接下来要逐个方法来分析，所以先将文件全文展示如下
 
 //
 //  SmileEverydayWidget.swift
@@ -1007,6 +1031,12 @@ struct SmileEverydaWidgetEntryView : View {
 
 
 
+想象一下
+
+如果在用户的主屏幕上出现如下的场景，那么你的小部件离被移除可能已经不远了
+
+
+
 
 
 六、TimelineEntry
@@ -1067,19 +1097,29 @@ struct Provider: TimelineProvider {
   timeline()
 
 
-snapshot
+1、snapshot 快照
 
-为了在小部件库中显示小部件，WidgetKit 要求提供者提供预览快照， 即snapshot()，这个方法里主要提供了一些示例数据，最好是真实数据，用于当时间线不能离开展示的时候展示给用户，例如没有还没有从服务端获取到所需数据是，不至于展示白屏给用户看。
+为了在小部件库中显示小部件，WidgetKit 要求提供者提供预览快照， 即snapshot()，这个方法里主要提供了一些示例数据，最好是真实数据，用于时间线不能展示的时候展示给用户
 
 需要说明的是，快照是系统需要快速显示单个条目的位置。
 
-因此，您的扩展程序有望尽快返回视图，因为这样做时，您会在iOS上漂亮的Widget Gallery中看到真正的Widget。
+因此，您的扩展程序必须尽快返回视图，因为这样做时，用户会在iOS上漂亮的Widget Gallery中看到真正的Widget。
 
-这不是我们在设计时必须提供的屏幕截图或图像。这是您在iOS，iPadOS和macOS上真正的小部件体验。
+这不是我们在设计时必须提供的屏幕截图或图像。这是用户在iOS，iPadOS和macOS上真正的小部件体验。
 
 在大多数情况下，时间轴的第一个条目和快照可以作为同一条目返回，因此，在“小工具库”中看到的就是用户将其添加到设备中时得到的内容。
 
-timeline
+
+
+例如我们在Widget Gallery中添加电池小部件时，小部件此时在Widget Gallery中展示的就是当前设备电池信息的实时数据的快照，而不是一些虚假的数据，这个时候小部件的数据是什么样子，用户添加到主屏幕上之后小部件的数据就是什么样子，从而提高用户的体验。
+
+
+  对比
+
+
+小部件里有两个比较类似的概念，PlaceholderView和snapshot，都是一种占位解决方案，不同的是PlaceholderView是在主屏幕上无法快速获取数据时的一种占位视图，不至于显示loading或者白屏给用户看；而snapshot主要用于Widget Gallery中，用来提高用户体验的，一般来说，snapshot 就是时间线的第一帧
+
+2、timeline
 
 在请求初始快照后，WidgetKit调用timeline以请求提供者的常规时间轴。时间轴由一个或多个时间轴条目TimelineEntry以及一个重载策略ReloadPolicy组成，该重载策略通知WidgetKit何时请求后续时间轴。
 
@@ -1110,7 +1150,7 @@ struct Provider: TimelineProvider {
         var entries: [SimpleEntry] = []
         
         var currentDate = Date()
-        var nextUpdateDate = Calendar.current.date(byAdding: .second, value: 10, to: currentDate)!
+        var nextUpdateDate = Calendar.current.date(byAdding: .second, value: 3, to: currentDate)!
         
         let message = "蒹葭苍苍，白露为霜。所谓伊人，在水一方。\n溯洄从之，道阻且长；溯游从之，宛在水中央。\n蒹葭凄凄，白露未晞。所谓伊人，在水之湄。"
         let backgroundImageStr = "bg"
@@ -1131,7 +1171,7 @@ struct Provider: TimelineProvider {
             var msg = ""
             
             currentDate = nextUpdateDate;
-            nextUpdateDate = Calendar.current.date(byAdding: .second, value: 10, to: currentDate)!
+            nextUpdateDate = Calendar.current.date(byAdding: .second, value: 3, to: currentDate)!
             
             currentDateStr = formatter.string(from: currentDate)
             nextUpdateDateStr = formatter.string(from: nextUpdateDate)
@@ -1156,16 +1196,24 @@ struct Provider: TimelineProvider {
 
 这段代码里我们提供了一个古诗词的快照
 
-并生成了一个时间线，其中时间线里包含了10个entry，且每个entry 间隔10s
+并生成了一个时间线，其中时间线里包含了10个entry，且每个entry 间隔3s
 
 entry文本拼接显示了
 
 
-  诗经
+  展示文本（诗经）
   时间轴ID
   本次视图开始时间
   下次视图开始时间
 
+
+下边我们来看一下真实run出来的效果
+
+
+
+到此为止我们就有了一个可以在主屏幕上展示的小部件了
+
+并且能根据时间线展示不同的视图了。
 " />
     
     <meta name="author" content="Steve.liu" />
@@ -1295,13 +1343,13 @@ entry文本拼接显示了
 
   <div class="entry">
     <blockquote>
-  <p>2020 年 6 月 22 日，苹果召开了第一次线上的开发者大会 - WWDC20。这次发布会上宣布了ARM架构Mac芯片（<del>拳打Intel</del>）、iOS 14 ATT（<del>脚踢Facebook</del>），可谓是一次可以载入史册（<del>我是爸爸</del>）的发布会了，当然还发布了被称为下一个顶级流量入口的<code class="language-plaintext highlighter-rouge">Widget</code>。</p>
+  <p>2020 年 6 月 22 日，苹果召开了第一次线上的开发者大会 - WWDC20。这次发布会上宣布了ARM架构Mac芯片（<del>拳打Intel</del>）、iOS 14 ATT（<del>脚踢Facebook</del>），可谓是一次载入史册（<del>我是爸爸</del>）的发布会了，当然还发布了被称为下一个顶级流量入口的<code class="language-plaintext highlighter-rouge">Widget</code>。</p>
 
-  <p>踩着八月的尾巴，本次我们就来探究一下Widget</p>
+  <p>踩着八月的尾巴，本次我们就来探究一下Widget。</p>
 
-  <p>本文会从<code class="language-plaintext highlighter-rouge">Widget初窥</code>和<code class="language-plaintext highlighter-rouge">Widget开发</code>两个维度来探究一下Widget，
-其中<code class="language-plaintext highlighter-rouge">初窥</code>会带您简单的了解一下Widget，适合应用决策者阅读；
-<code class="language-plaintext highlighter-rouge">开发</code>会带着您一步一步的完成设计开发Widget，适合程序员阅读。</p>
+  <p>本文会从<code class="language-plaintext highlighter-rouge">Widget初窥</code>和<code class="language-plaintext highlighter-rouge">Widget开发</code>两个维度和章节来探究一下Widget，
+其中<code class="language-plaintext highlighter-rouge">初窥</code>章节会带您简单的了解一下Widget，适合应用决策者阅读；
+<code class="language-plaintext highlighter-rouge">开发</code>章节会带着您一步一步的完成设计开发Widget，适合程序员阅读。</p>
 </blockquote>
 
 <h1 id="widget初窥">Widget初窥</h1>
@@ -1315,7 +1363,7 @@ This is very important: <code class="language-plaintext highlighter-rouge">widge
 Think of this as more projecting content from your app onto the Home screen rather than full mini-apps filled with tiny little buttons.</p>
 </blockquote>
 
-<p>简单来说Widget不是迷你应用程序。而是一种新的主屏幕体验，能快速提供用户关心的内容是重点</p>
+<p>一句话来说：Widget不是迷你应用程序。而是一种新的主屏幕体验，能快速提供用户关心的内容是重点</p>
 
 <p><br /></p>
 
@@ -1341,7 +1389,7 @@ Think of this as more projecting content from your app onto the Home screen rath
 
 <p><img src="../images/widget/1.png" alt="Alt text" /></p>
 
-<p>一个优秀的Widget要是一目了然，一览无余是什么意思呢？</p>
+<p>一个优秀的Widget要一目了然，一览无余。</p>
 
 <p>普通人每天进入“主屏幕”的次数超过90次，但是在主屏幕仅停留几分钟，就切换到其他App了。</p>
 
@@ -1351,7 +1399,7 @@ Think of this as more projecting content from your app onto the Home screen rath
 
 <p><br /></p>
 
-<h3 id="2relevant--早韭晚菘量体裁衣">2、Relevant | 早韭晚菘，量体裁衣</h3>
+<h3 id="2relevant--早韭晚菘">2、Relevant | 早韭晚菘</h3>
 
 <p><img src="../images/widget/2.png" alt="Alt text" /></p>
 
@@ -1363,7 +1411,7 @@ Think of this as more projecting content from your app onto the Home screen rath
 
 <p><br /></p>
 
-<h3 id="3personalized--个性化">3、Personalized  个性化</h3>
+<h3 id="3personalized--量体裁衣">3、Personalized  量体裁衣</h3>
 
 <h4 id="31-大小">3.1 大小</h4>
 
@@ -1418,7 +1466,7 @@ Think of this as more projecting content from your app onto the Home screen rath
 
 <p>顾名思义，Timeline就是一条时间线，在对应的时间点发生对应的事件</p>
 
-<p>许多Widget具有可预测的时间点，在这些时间点更新其内容是有意义的。例如，显示天气信息的小部件可能会在一整天内每小时更新一次温度。股市窗口小部件可以在公开市场时间频繁更新其内容，但周末则不能完全更新。通过提前计划这些时间，生成不同的视图放入时间线中，WidgetKit会在适当的时间到来时自动刷新您的窗口小部件。</p>
+<p>许多Widget具有可预测的时间点，在这些时间点更新其内容是有意义的。例如，显示天气信息的小部件可能会在一整天内每小时更新一次温度。股市窗口小部件可以在公开市场时间频繁更新其内容，但周末则不用完全更新。通过提前计划这些时间，生成不同的视图放入时间线中，WidgetKit会在适当的时间到来时自动刷新您的窗口小部件。</p>
 
 <p>这也决定了Widget基本上不能实时更新</p>
 
@@ -1465,7 +1513,7 @@ Think of this as more projecting content from your app onto the Home screen rath
 
 <p>举个简单的例子，widgetURL可应用于天气小部件，博客小部件，点击直达App；</p>
 
-<p>Link可用于备忘录和日历小部件，点击不同的备忘录和日期直接跳转到对应的备忘录详情和代办详情页面</p>
+<p>Link可用于备忘录和日历小部件，点击不同的备忘录和日期直接跳转到对应的备忘录详情和待办详情页面</p>
 
 <p><img src="../images/widget/10.png" alt="Alt text" /></p>
 
@@ -1541,7 +1589,7 @@ Think of this as more projecting content from your app onto the Home screen rath
   <p>重点：小部件不仅支持Swift项目，同样也支持Objective-C项目，OC小伙伴不用担心啦</p>
 </blockquote>
 
-<p>创建完小部件之后，我们会多出一个SmileEverydayWidget.swift文件，这已经是一个可以run起来的小部件了，因为我们接下来要逐个方法来分析，所以将文件全文展示如下</p>
+<p>创建完小部件之后，我们会多出一个SmileEverydayWidget.swift文件，这已经是一个可以run起来的小部件了，因为我们接下来要逐个方法来分析，所以先将文件全文展示如下</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>//
 //  SmileEverydayWidget.swift
@@ -1713,6 +1761,12 @@ struct SmileEverydayWidget: Widget {
 
 <p><img src="../images/widget/17.png" alt="Alt text" /></p>
 
+<p>想象一下</p>
+
+<p>如果在用户的主屏幕上出现如下的场景，那么你的小部件离被移除可能已经不远了</p>
+
+<p><img src="../images/widget/19.png" alt="Alt text" /></p>
+
 <p><br /></p>
 
 <h2 id="六timelineentry">六、TimelineEntry</h2>
@@ -1773,19 +1827,29 @@ struct SmileEverydayWidget: Widget {
   <li>timeline()</li>
 </ul>
 
-<h4 id="snapshot">snapshot</h4>
+<h4 id="1snapshot-快照">1、snapshot 快照</h4>
 
-<p>为了在小部件库中显示小部件，WidgetKit 要求提供者提供预览快照， 即<code class="language-plaintext highlighter-rouge">snapshot()</code>，这个方法里主要提供了一些<code class="language-plaintext highlighter-rouge">示例数据，最好是真实数据</code>，用于<code class="language-plaintext highlighter-rouge">当时间线不能离开展示</code>的时候展示给用户，例如没有还没有从服务端获取到所需数据是，不至于展示白屏给用户看。</p>
+<p>为了在小部件库中显示小部件，WidgetKit 要求提供者提供预览快照， 即<code class="language-plaintext highlighter-rouge">snapshot()</code>，这个方法里主要提供了一些<code class="language-plaintext highlighter-rouge">示例数据，最好是真实数据</code>，用于<code class="language-plaintext highlighter-rouge">时间线不能展示</code>的时候展示给用户</p>
 
 <p>需要说明的是，快照是系统需要快速显示单个条目的位置。</p>
 
-<p>因此，您的扩展程序有望尽快返回视图，因为这样做时，您会在iOS上漂亮的Widget Gallery中看到真正的Widget。</p>
+<p>因此，您的扩展程序必须尽快返回视图，因为这样做时，用户会在iOS上漂亮的Widget Gallery中看到真正的Widget。</p>
 
-<p>这不是我们在设计时必须提供的屏幕截图或图像。这是您在iOS，iPadOS和macOS上真正的小部件体验。</p>
+<p>这不是我们在设计时必须提供的屏幕截图或图像。这是用户在iOS，iPadOS和macOS上真正的小部件体验。</p>
 
 <p>在大多数情况下，时间轴的第一个条目和快照可以作为同一条目返回，因此，在“小工具库”中看到的就是用户将其添加到设备中时得到的内容。</p>
 
-<h4 id="timeline">timeline</h4>
+<p><img src="../images/widget/20.png" alt="Alt text" /></p>
+
+<p>例如我们在Widget Gallery中添加电池小部件时，小部件此时在Widget Gallery中展示的就是当前设备电池信息的实时数据的快照，而不是一些虚假的数据，这个时候小部件的数据是什么样子，用户添加到主屏幕上之后小部件的数据就是什么样子，从而提高用户的体验。</p>
+
+<blockquote>
+  <p>对比</p>
+</blockquote>
+
+<p>小部件里有两个比较类似的概念，<code class="language-plaintext highlighter-rouge">PlaceholderView</code>和<code class="language-plaintext highlighter-rouge">snapshot</code>，都是一种占位解决方案，不同的是<code class="language-plaintext highlighter-rouge">PlaceholderView</code>是在主屏幕上无法快速获取数据时的一种占位视图，不至于显示loading或者白屏给用户看；而<code class="language-plaintext highlighter-rouge">snapshot</code>主要用于<code class="language-plaintext highlighter-rouge">Widget Gallery</code>中，用来提高用户体验的，一般来说，<code class="language-plaintext highlighter-rouge">snapshot </code>就是时间线的第一帧</p>
+
+<h4 id="2timeline">2、timeline</h4>
 
 <p>在请求初始快照后，WidgetKit调用<code class="language-plaintext highlighter-rouge">timeline</code>以请求提供者的常规时间轴。时间轴由一个或多个时间轴条目<code class="language-plaintext highlighter-rouge">TimelineEntry</code>以及一个重载策略<code class="language-plaintext highlighter-rouge">ReloadPolicy</code>组成，该重载策略通知WidgetKit何时请求后续时间轴。</p>
 
@@ -1816,7 +1880,7 @@ struct SmileEverydayWidget: Widget {
         var entries: [SimpleEntry] = []
         
         var currentDate = Date()
-        var nextUpdateDate = Calendar.current.date(byAdding: .second, value: 10, to: currentDate)!
+        var nextUpdateDate = Calendar.current.date(byAdding: .second, value: 3, to: currentDate)!
         
         let message = "蒹葭苍苍，白露为霜。所谓伊人，在水一方。\n溯洄从之，道阻且长；溯游从之，宛在水中央。\n蒹葭凄凄，白露未晞。所谓伊人，在水之湄。"
         let backgroundImageStr = "bg"
@@ -1837,7 +1901,7 @@ struct SmileEverydayWidget: Widget {
             var msg = ""
             
             currentDate = nextUpdateDate;
-            nextUpdateDate = Calendar.current.date(byAdding: .second, value: 10, to: currentDate)!
+            nextUpdateDate = Calendar.current.date(byAdding: .second, value: 3, to: currentDate)!
             
             currentDateStr = formatter.string(from: currentDate)
             nextUpdateDateStr = formatter.string(from: nextUpdateDate)
@@ -1862,16 +1926,24 @@ struct SmileEverydayWidget: Widget {
 
 <p>这段代码里我们提供了一个古诗词的快照</p>
 
-<p>并生成了一个时间线，其中时间线里包含了<code class="language-plaintext highlighter-rouge">10个entry，且每个entry 间隔10s</code></p>
+<p>并生成了一个时间线，其中时间线里包含了<code class="language-plaintext highlighter-rouge">10个entry，且每个entry 间隔3s</code></p>
 
 <p>entry文本拼接显示了</p>
 
 <ul>
-  <li>诗经</li>
+  <li>展示文本（诗经）</li>
   <li>时间轴ID</li>
   <li>本次视图开始时间</li>
   <li>下次视图开始时间</li>
 </ul>
+
+<p>下边我们来看一下真实run出来的效果</p>
+
+<p><img src="../images/widget/21.gif" alt="Alt text" /></p>
+
+<p>到此为止我们就有了一个可以在主屏幕上展示的小部件了</p>
+
+<p>并且能根据时间线展示不同的视图了。</p>
 
   </div>
 
