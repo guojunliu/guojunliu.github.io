@@ -1,0 +1,603 @@
+I"�q<blockquote>
+  <p>2020 年 6 月 22 日，苹果召开了第一次线上的开发者大会 - WWDC20。这次发布会上宣布了ARM架构Mac芯片（<del>拳打Intel</del>）、iOS 14 ATT（<del>脚踢Facebook</del>），可谓是一次载入史册（<del>我是爸爸</del>）的发布会了，当然还发布了被称为下一个顶级流量入口的<code class="language-plaintext highlighter-rouge">Widget</code>。</p>
+
+  <p>踩着八月的尾巴，本次我们就来探究一下Widget。</p>
+
+  <p>本文会从<code class="language-plaintext highlighter-rouge">Widget初窥</code>和<code class="language-plaintext highlighter-rouge">Widget开发</code>两个维度和章节来探究一下Widget，
+其中<code class="language-plaintext highlighter-rouge">初窥</code>章节会带您简单的了解一下Widget，适合应用决策者阅读；
+<code class="language-plaintext highlighter-rouge">开发</code>章节会带着您一步一步的完成设计开发Widget，适合程序员阅读。</p>
+</blockquote>
+
+<h1 id="widget初窥">Widget初窥</h1>
+
+<h2 id="一widget是什么">一、Widget是什么</h2>
+
+<blockquote>
+  <p>In iOS 14, we have a dramatic new Home screen experience, one that is much more dynamic and personalized, with a focus on widgets.
+The content is the focus.
+This is very important: <code class="language-plaintext highlighter-rouge">widgets are not mini-apps.</code>
+Think of this as more projecting content from your app onto the Home screen rather than full mini-apps filled with tiny little buttons.</p>
+</blockquote>
+
+<p>一句话来说：Widget不是迷你应用程序。而是一种新的主屏幕体验，能快速提供用户关心的内容是重点</p>
+
+<p><br /></p>
+
+<h2 id="二widget的特点">二、Widget的特点</h2>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">Glanceable</code>		一目了然</li>
+  <li><code class="language-plaintext highlighter-rouge">Relevant</code>			早韭晚菘</li>
+  <li><code class="language-plaintext highlighter-rouge">Personalized</code>		量体裁衣</li>
+</ul>
+
+<p><img src="../images/widget/0.png" alt="Alt text" /></p>
+
+<p>要设计一个优秀的Widget，就要先了解Widget的全部特点，了然于胸</p>
+
+<p>针对Apple提出的<code class="language-plaintext highlighter-rouge">Glanceable</code>、<code class="language-plaintext highlighter-rouge">Relevant</code>、<code class="language-plaintext highlighter-rouge">Personalized</code>分别用一个成语来形容就是<code class="language-plaintext highlighter-rouge">一目了然</code>、<code class="language-plaintext highlighter-rouge">早韭晚菘</code>、<code class="language-plaintext highlighter-rouge">量体裁衣</code></p>
+
+<p>简单来说下这几个特点</p>
+
+<p><br /></p>
+
+<h3 id="1glanceable--一目了然一览无余">1、Glanceable | 一目了然，一览无余</h3>
+
+<p><img src="../images/widget/1.png" alt="Alt text" /></p>
+
+<p>一个优秀的Widget要一目了然，一览无余。</p>
+
+<p>普通人每天进入“主屏幕”的次数超过90次，但是在主屏幕仅停留几分钟，就切换到其他App了。</p>
+
+<p>所以Widget一定要充分利用狭小的屏幕展示最核心的信息，并且要简洁明了。设计新颖，便于快速浏览，高效是一个优秀Widget的核心。</p>
+
+<p>用户不用思考这个Widget怎么使用，不需要点击任何按钮就可以获得最关心的信息。</p>
+
+<p><br /></p>
+
+<h3 id="2relevant--早韭晚菘">2、Relevant | 早韭晚菘</h3>
+
+<p><img src="../images/widget/2.png" alt="Alt text" /></p>
+
+<p>苹果希望Widget可以和用户紧密结合，与用户的行为所关联，比如早上起床，用户希望看一下天气；中午恰饭，用户希望有人推荐下附近的美食；晚高峰的时候，用户希望了解一下行车路线；晚安的时候，希望记录下次日的行程。</p>
+
+<p>为此，苹果系统提供了一个叫Smart Stacks（智能叠放）的功能，Smart Stacks是一个Widgets的集合。系统会根据每个人的习惯，自动显示用户当前时间点最需要的Widget。</p>
+
+<div style="align:center"><img src="../images/widget/3.gif" /></div>
+
+<p><br /></p>
+
+<h3 id="3personalized--量体裁衣">3、Personalized  量体裁衣</h3>
+
+<h4 id="31-大小">3.1 大小</h4>
+
+<p>Widget要能为用户提供个性化的服务，比如天气Widget，需要能为不同的用户提供不同细节的天气情况。</p>
+
+<p><img src="../images/widget/4.png" alt="Alt text" /></p>
+
+<p>为此Apple提供三种不同大小的小部件</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">systemSmall</code></li>
+  <li><code class="language-plaintext highlighter-rouge">systemMedium</code></li>
+  <li><code class="language-plaintext highlighter-rouge">systemLarge</code></li>
+</ul>
+
+<p>其中systemSmall大小为<code class="language-plaintext highlighter-rouge">2*2 Icon</code>，systemMedium大小为<code class="language-plaintext highlighter-rouge">4*2 Icon</code>，systemLarge大小为<code class="language-plaintext highlighter-rouge">4*4 Icon</code>，具体的显示效果如下</p>
+
+<p><img src="../images/widget/13.png" alt="Alt text" /></p>
+
+<h4 id="32-个性化配置">3.2 个性化配置</h4>
+
+<p>另一方面Widget需要能为不同城市的用户提供当地的天气情况。</p>
+
+<p>为此Apple在创建Widget时为开发者提供了两种类型：</p>
+
+<ul>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">StaticConfiguration</code> ：对于没有用户可配置属性的窗口小部件,也就是用户无需配置，展示的内容只和用户信息有关系。例如，显示一般市场信息的股市窗口小部件，或显示趋势头条的新闻窗口小部件。</p>
+  </li>
+  <li>
+    <p><code class="language-plaintext highlighter-rouge">IntentConfiguration</code> ：对于具有用户可配置属性的窗口小部件,也就是支持用户配置及用户意图的推测。您使用SiriKit自定义意图来定义属性。例如，需要一个城市的邮政编码的天气小部件，或者需要一个跟踪号的包裹跟踪小部件。</p>
+  </li>
+</ul>
+
+<p><img src="../images/widget/11.png" alt="Alt text" /></p>
+
+<p>需要说明的是，IntentConfiguration并不需要编写代码，只需要简单的配置，Xcode 会自动帮你生成对应的代码和类型。</p>
+
+<h4 id="33-黑暗模式">3.3 黑暗模式</h4>
+
+<p>此外Widget还支持系统的黑暗模式</p>
+
+<p><img src="../images/widget/12.png" alt="Alt text" /></p>
+
+<p><br /></p>
+
+<h2 id="三widget的本质">三、Widget的本质</h2>
+
+<p>Widget的本质是一系列静态视图堆叠而成的集合，不同的时间点展示不同的视图</p>
+
+<p>这里要引入Widget的核心Timeline</p>
+
+<p>顾名思义，Timeline就是一条时间线，在对应的时间点发生对应的事件</p>
+
+<p>许多Widget具有可预测的时间点，在这些时间点更新其内容是有意义的。例如，显示天气信息的小部件可能会在一整天内每小时更新一次温度。股市窗口小部件可以在公开市场时间频繁更新其内容，但周末则不用完全更新。通过提前计划这些时间，生成不同的视图放入时间线中，WidgetKit会在适当的时间到来时自动刷新您的窗口小部件。</p>
+
+<p>这也决定了Widget基本上不能实时更新</p>
+
+<p>另外值得一提的是，WidgetKit会把 Timelines 所定义的Views 结构信息缓存到磁盘，然后在刷新的时候才通过 JIT 的方式来渲染。这使得系统可以在极低电量开销下为众多 Widgets 处理 Timelines 信息。</p>
+
+<p><img src="../images/widget/6.png" alt="Alt text" /></p>
+
+<p><br /></p>
+
+<h2 id="四用户交互">四、用户交互</h2>
+
+<p>不好意思，没有交互！！！</p>
+
+<p>为了实现以上的特点，Apple也移除限制了Widget的一些功能</p>
+
+<ul>
+  <li>不能交互</li>
+  <li>不能播放动画</li>
+  <li>不能播放视频</li>
+  <li>不支持滚动</li>
+  <li>不支持主动刷新视图</li>
+</ul>
+
+<p>唯一支持的只有用户点击Widget唤起主App</p>
+
+<p><img src="../images/widget/5.png" alt="Alt text" /></p>
+
+<p>其中点击唤起主App有两种方案，分别是：</p>
+
+<ul>
+  <li>widgetURL</li>
+  <li>Link</li>
+</ul>
+
+<p>widgetURL唤起App的点击区域是Widget的所有区域，这种方案适合简单元素，单一逻辑的小部件</p>
+
+<p><img src="../images/widget/8.png" alt="Alt text" /></p>
+
+<p>对于systemSmall类型的小部件，只支持widgetURL唤起方式</p>
+
+<p>针对<code class="language-plaintext highlighter-rouge">systemMedium </code>和<code class="language-plaintext highlighter-rouge">systemLarge </code>还可以使用更细分的Link唤起方式，这种唤起方式能让小部件通过不同元素的点击唤起App的不同页面，让开发者有更多的施展空间</p>
+
+<p><img src="../images/widget/9.png" alt="Alt text" /></p>
+
+<p>举个简单的例子，widgetURL可应用于天气小部件，博客小部件，点击直达App；</p>
+
+<p>Link可用于备忘录和日历小部件，点击不同的备忘录和日期直接跳转到对应的备忘录详情和待办详情页面</p>
+
+<p><img src="../images/widget/10.png" alt="Alt text" /></p>
+
+<p><br /></p>
+
+<h2 id="widget初窥总结">Widget初窥总结</h2>
+
+<p>Widget的出现犹如在一潭死水的iOS桌面上泛起了一片涟漪，一定会有很多App来争夺这块肥肉一般的流量入口。</p>
+
+<p>但是仔细研究一下会发现，Apple这次推出的Widget非常克制，并没有非常激进，</p>
+
+<p>俗话说：喜欢是放肆,但爱就是克制。这里不得不再次引用Apple在Widget介绍中出现频率最高的话<code class="language-plaintext highlighter-rouge">widgets are not mini-apps</code>，因为Widget在设计之初就是为了能使用最少的成本，向用户提供最核心的信息。为了尽可能的减少用户成本（电量，网络等）和提高用户体验，Apple在技术层面上做了很多限制，限制了非常多的功能，大大削弱了Widget的地位和重要程度，也降低了开发者实现的热情和积极性</p>
+
+<p>其实每年Apple更新的新技术只有很少的一部分能应用到App上，希望这次的Widget能有动力让大家结合自己的App，给自己的App带来更多的流量，也能给用户带来更好的体验。</p>
+
+<hr />
+<hr />
+
+<p><br /></p>
+
+<h1 id="widget开发">Widget开发</h1>
+
+<p>重头戏来啦，接下来让我们一步一步设计编写出优秀的小部件吧</p>
+
+<p>开始之前，首先我们要介绍下Widget的开发语言，Apple特别指定了小部件只能使用SwiftUI来开发</p>
+
+<h2 id="一swiftui">一、SwiftUI</h2>
+
+<p><img src="../images/widget/14.png" alt="Alt text" /></p>
+
+<p>现在iOS主流的开发语言还是Objective-C，那Apple为什么要选择2019 WWDC发布迄今为止只有一年的SwiftUI呢？</p>
+
+<p>首先，从一开始就将小部件实现多平台化是Apple的一个目标，SwiftUI在跨设备展示的能力上是一把大杀器；</p>
+
+<p>其次SwiftUI还使自动布局和暗模式等功能变得非常容易，降低了适配等开发成本，对不需要太多元素的小部件来说，SwiftUI重点关注布局的特点无疑是最合适的；</p>
+
+<p>从另一方面来讲，只有使用 SwiftUI 才能达到我们上边说的对于 Widget 的限制。如果可以使用 Objective-C UIKit 的话，我们强大的开发者可能会想出无数的黑科技来忽略Apple真的小部件的限制。比如开发无法使用 UIViewRepresentable 来桥接 UIKit；</p>
+
+<p>最后Apple也夹带了自己的私心，Apple今年已经将 Swift 语言和 SwiftUI 的重要程度提升到了一个新的高度，Swift已经可以独立于Foundtion框架，那么对应的SwiftUI也应该不依赖于UIKit框架了，强行使用SwiftUI可以使开发人员尽可能容易地将其学习其内容并应用于iOS，iPadOS和macOS，</p>
+
+<p>毕竟5月份卡位第20位Objective-C在6月份已经跌出了前20</p>
+
+<p><img src="../images/widget/16.png" alt="Alt text" /></p>
+
+<p>这里要重点说明一下，Widget只要使用任何 UIKit 的元素就会直接 Crash</p>
+
+<p><br /></p>
+
+<h2 id="二将小部件目标添加到您的应用">二、将小部件目标添加到您的应用</h2>
+
+<p>窗口小部件扩展模板提供了创建窗口小部件的起点。单个小部件扩展可以包含多种小部件。例如，一个体育应用程序可能有一个显示团队信息的小部件，另一个显示游戏时间表的小部件。一个小部件扩展可以包含两个小部件。尽管建议将所有窗口小部件包含在一个窗口小部件扩展中，但如有必要，可以添加多个扩展。</p>
+
+<ol>
+  <li>
+    <p>在Xcode中打开您的应用程序项目，然后选择“文件”&gt;“新建”&gt;“目标”。</p>
+  </li>
+  <li>
+    <p>从“应用程序扩展”组中，选择“窗口小部件扩展”，然后单击“下一步”。</p>
+  </li>
+  <li>
+    <p>输入您的包名。</p>
+  </li>
+  <li>
+    <p>如果窗口小部件提供了用户可配置的属性，请选中<code class="language-plaintext highlighter-rouge">Include Configuration Intent</code>复选框。</p>
+  </li>
+</ol>
+
+<p>单击完成。</p>
+
+<p><img src="../images/widget/15.png" alt="Alt text" /></p>
+
+<blockquote>
+  <p>重点：小部件不仅支持Swift项目，同样也支持Objective-C项目，OC小伙伴不用担心啦</p>
+</blockquote>
+
+<p>创建完小部件之后，我们会多出一个SmileEverydayWidget.swift文件，这已经是一个可以run起来的小部件了，因为我们接下来要逐个方法来分析，所以先将文件全文展示如下</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>//
+//  SmileEverydayWidget.swift
+//  SmileEverydayWidget
+//
+//  Created by steve on 2020/8/28.
+//
+
+import WidgetKit
+import SwiftUI
+
+struct Provider: TimelineProvider {
+    public typealias Entry = SimpleEntry
+
+    public func snapshot(with context: Context, completion: @escaping (SimpleEntry) -&gt; ()) {
+        let entry = SimpleEntry(date: Date())
+        completion(entry)
+    }
+
+    public func timeline(with context: Context, completion: @escaping (Timeline&lt;Entry&gt;) -&gt; ()) {
+        var entries: [SimpleEntry] = []
+
+        // Generate a timeline consisting of five entries an hour apart, starting from the current date.
+        let currentDate = Date()
+        for hourOffset in 0 ..&lt; 5 {
+            let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
+            let entry = SimpleEntry(date: entryDate)
+            entries.append(entry)
+        }
+
+        let timeline = Timeline(entries: entries, policy: .atEnd)
+        completion(timeline)
+    }
+}
+
+struct SimpleEntry: TimelineEntry {
+    public let date: Date
+}
+
+struct PlaceholderView : View {
+    var body: some View {
+        Text("Placeholder View")
+    }
+}
+
+struct SmileEverydayWidgetEntryView : View {
+    var entry: Provider.Entry
+
+    var body: some View {
+        Text(entry.date, style: .time)
+    }
+}
+
+@main
+struct SmileEverydayWidget: Widget {
+    private let kind: String = "SmileEverydayWidget"
+
+    public var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: Provider(), placeholder: PlaceholderView()) { entry in
+            SmileEverydayWidgetEntryView(entry: entry)
+        }
+        .configurationDisplayName("My Widget")
+        .description("This is an example widget.")
+    }
+}
+
+struct SmileEverydayWidget_Previews: PreviewProvider {
+    static var previews: some View {
+        /*@START_MENU_TOKEN@*/Text("Hello, World!")/*@END_MENU_TOKEN@*/
+    }
+}
+</code></pre></div></div>
+
+<p>这里的概念和代码比较多，接下来我们一个一个来解释</p>
+
+<p><br /></p>
+
+<h2 id="三widget-api">三、Widget API</h2>
+
+<p>首先我们从带有<code class="language-plaintext highlighter-rouge">main</code>字段的方法来说起，</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>@main
+struct SmileEverydayWidget: Widget {
+    private let kind: String = "com.steve.liu.smileEverydayWidget"
+
+    public var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: Provider(), placeholder: PlaceholderView()) { entry in
+            SmileEverydayWidgetEntryView(entry: entry)
+        }
+        .configurationDisplayName("My Widget")
+        .description("This is an example widget.")
+        .supportedFamilies([.systemSmall, .systemMedium, .systemLarge])
+    }
+}
+</code></pre></div></div>
+
+<p>大家都知道带有<code class="language-plaintext highlighter-rouge">main</code>标识的方法都是程序的入口</p>
+
+<p>这段代码使用SwiftUI声明了一个名为SmileEverydayWidget的小部件，其中<code class="language-plaintext highlighter-rouge">StaticConfiguration</code>是小部件的初始化方法，它有几个参数：</p>
+
+<ol>
+  <li><code class="language-plaintext highlighter-rouge">kind</code></li>
+  <li><code class="language-plaintext highlighter-rouge">provider</code></li>
+  <li><code class="language-plaintext highlighter-rouge">placeholder</code></li>
+</ol>
+
+<p>其中</p>
+
+<p><code class="language-plaintext highlighter-rouge">kind</code>是<code class="language-plaintext highlighter-rouge">标识小部件的字符串,并且应描述小部件所代表的内容。即小部件的包名</code></p>
+
+<p><code class="language-plaintext highlighter-rouge">provider</code>为<code class="language-plaintext highlighter-rouge">时间线提供者</code></p>
+
+<p><code class="language-plaintext highlighter-rouge">PlaceholderView</code>为<code class="language-plaintext highlighter-rouge">占位视图</code></p>
+
+<p>同时也提供了一些方法，例如</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">configurationDisplayName()</code>设置小部件显示的名称</li>
+  <li><code class="language-plaintext highlighter-rouge">description()</code>设置小部件的描述</li>
+  <li><code class="language-plaintext highlighter-rouge">supportedFamilies()</code>设置小部件支持的尺寸</li>
+</ul>
+
+<blockquote>
+  <p>这里有一个重点，为了使某个应用程序的窗口小部件出现在窗口小部件库中，用户必须在安装该应用程序后至少启动一次包含该窗口小部件的应用程序。</p>
+</blockquote>
+
+<p><br /></p>
+
+<h2 id="四widgetentryview">四、WidgetEntryView</h2>
+
+<p>WidgetEntryView就是使用SwiftUI布局的小部件视图</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>struct SmileEverydayWidgetEntryView : View {
+    var entry: Provider.Entry
+
+    var body: some View {
+        Text(entry.date, style: .time)
+    }
+}
+</code></pre></div></div>
+
+<p>例如这个小部件视图就简单的展示了当前的时间</p>
+
+<p>接下来我们可以将默认的布局更改为我们自己想要的布局，例如我在设置了显示文本的字体和小部件的背景图</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>struct SmileEverydaWidgetEntryView : View {
+    var entry: Provider.Entry
+
+    var body: some View {
+        
+        return Text(entry.message)
+            .background(Image(entry.backgroundImageStr))
+            .font(.callout)
+    }
+}
+</code></pre></div></div>
+
+<p><br /></p>
+
+<h2 id="五placeholderview">五、PlaceholderView</h2>
+
+<p>每种小部件都需要提供占位符UI。</p>
+
+<p>占位符UI是窗口小部件的默认内容。</p>
+
+<p>它应该代表您的小部件类型，但仅此而已。</p>
+
+<p>此用户界面中不应有任何用户数据。</p>
+
+<p><img src="../images/widget/17.png" alt="Alt text" /></p>
+
+<p>想象一下</p>
+
+<p>如果在用户的主屏幕上出现如下的场景，那么你的小部件离被移除可能已经不远了</p>
+
+<p><img src="../images/widget/19.png" alt="Alt text" /></p>
+
+<p><br /></p>
+
+<h2 id="六timelineentry">六、TimelineEntry</h2>
+
+<p>我们知道小部件是按照时间线来展示的，<code class="language-plaintext highlighter-rouge">TimelineEntry</code>时间线上的一个个条目</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>struct SimpleEntry: TimelineEntry {
+    public let date: Date
+}
+</code></pre></div></div>
+
+<p>TimelineEntry有一个必须有的属性就是<code class="language-plaintext highlighter-rouge">date</code>，也就是这个条目在时间线上的具体时间</p>
+
+<p>另外开发者可以在TimelineEntry里自定义各种属性，用来给小部件视图提供数据</p>
+
+<p>例如我在TimelineEntry里自定义了<code class="language-plaintext highlighter-rouge">message </code>和<code class="language-plaintext highlighter-rouge">backgroundImageStr </code>属性，用来显示小部件上的文字和背景图片</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>struct SimpleEntry: TimelineEntry {
+    public let date: Date
+    public let message: String
+    public let backgroundImageStr : String
+}
+</code></pre></div></div>
+
+<h2 id="七timelineprovider">七、TimelineProvider</h2>
+
+<p><code class="language-plaintext highlighter-rouge">TimelineProvider</code> 是一个提供了上述我们所说的<code class="language-plaintext highlighter-rouge">TimelineEntry</code>集合的对象</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>struct Provider: TimelineProvider {
+    public typealias Entry = SimpleEntry
+
+    public func snapshot(with context: Context, completion: @escaping (SimpleEntry) -&gt; ()) {
+        let entry = SimpleEntry(date: Date())
+        completion(entry)
+    }
+
+    public func timeline(with context: Context, completion: @escaping (Timeline&lt;Entry&gt;) -&gt; ()) {
+        var entries: [SimpleEntry] = []
+
+        // Generate a timeline consisting of five entries an hour apart, starting from the current date.
+        let currentDate = Date()
+        for hourOffset in 0 ..&lt; 5 {
+            let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
+            let entry = SimpleEntry(date: entryDate)
+            entries.append(entry)
+        }
+
+        let timeline = Timeline(entries: entries, policy: .atEnd)
+        completion(timeline)
+    }
+}
+</code></pre></div></div>
+
+<p>其中包含两个方法</p>
+
+<ul>
+  <li>snapshot()</li>
+  <li>timeline()</li>
+</ul>
+
+<h4 id="1snapshot-快照">1、snapshot 快照</h4>
+
+<p>为了在小部件库中显示小部件，WidgetKit 要求提供者提供预览快照， 即<code class="language-plaintext highlighter-rouge">snapshot()</code>，这个方法里主要提供了一些<code class="language-plaintext highlighter-rouge">示例数据，最好是真实数据</code>，用于<code class="language-plaintext highlighter-rouge">时间线不能展示</code>的时候展示给用户</p>
+
+<p>需要说明的是，快照是系统需要快速显示单个条目的位置。</p>
+
+<p>因此，您的扩展程序必须尽快返回视图，因为这样做时，用户会在iOS上漂亮的Widget Gallery中看到真正的Widget。</p>
+
+<p>这不是我们在设计时必须提供的屏幕截图或图像。这是用户在iOS，iPadOS和macOS上真正的小部件体验。</p>
+
+<p>在大多数情况下，时间轴的第一个条目和快照可以作为同一条目返回，因此，在“小工具库”中看到的就是用户将其添加到设备中时得到的内容。</p>
+
+<p><img src="../images/widget/20.png" alt="Alt text" /></p>
+
+<p>例如我们在Widget Gallery中添加电池小部件时，小部件此时在Widget Gallery中展示的就是当前设备电池信息的实时数据的快照，而不是一些虚假的数据，这个时候小部件的数据是什么样子，用户添加到主屏幕上之后小部件的数据就是什么样子，从而提高用户的体验。</p>
+
+<blockquote>
+  <p>对比</p>
+</blockquote>
+
+<p>小部件里有两个比较类似的概念，<code class="language-plaintext highlighter-rouge">PlaceholderView</code>和<code class="language-plaintext highlighter-rouge">snapshot</code>，都是一种占位解决方案，不同的是<code class="language-plaintext highlighter-rouge">PlaceholderView</code>是在主屏幕上无法快速获取数据时的一种占位视图，不至于显示loading或者白屏给用户看；而<code class="language-plaintext highlighter-rouge">snapshot</code>主要用于<code class="language-plaintext highlighter-rouge">Widget Gallery</code>中，用来提高用户体验的，一般来说，<code class="language-plaintext highlighter-rouge">snapshot </code>就是时间线的第一帧</p>
+
+<h4 id="2timeline">2、timeline</h4>
+
+<p>在请求初始快照后，WidgetKit调用<code class="language-plaintext highlighter-rouge">timeline</code>以请求提供者的常规时间轴。时间轴由一个或多个时间轴条目<code class="language-plaintext highlighter-rouge">TimelineEntry</code>以及一个重载策略<code class="language-plaintext highlighter-rouge">ReloadPolicy</code>组成，该重载策略通知WidgetKit何时请求后续时间轴。</p>
+
+<p>关于重载策略，提供了以下几种策略</p>
+
+<ul>
+  <li><code class="language-plaintext highlighter-rouge">atEnd</code>: 是指 Timeline 执行到最后一个时间片的时候再刷新。</li>
+  <li><code class="language-plaintext highlighter-rouge">atAfter</code>: 是指在某个时间以后有规律的刷新</li>
+  <li><code class="language-plaintext highlighter-rouge">never</code>：是指以后不需要刷新了。什么时候需要重新刷新需要 App 重新告知 Widget</li>
+</ul>
+
+<p>根据上边的分析，我们可以将<code class="language-plaintext highlighter-rouge">TimelineProvider </code>改造如下</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>struct Provider: TimelineProvider {
+    public typealias Entry = SimpleEntry
+
+    public func snapshot(with context: Context, completion: @escaping (SimpleEntry) -&gt; ()) {
+        let date = Date()
+        let message = "蒹葭苍苍，白露为霜。所谓伊人，在水一方。"
+        let backgroundImageStr = "bg7"
+        
+        
+        let entry = SimpleEntry(date: date, message: message, backgroundImageStr: backgroundImageStr)
+        completion(entry)
+    }
+
+    public func timeline(with context: Context, completion: @escaping (Timeline&lt;Entry&gt;) -&gt; ()) {
+        var entries: [SimpleEntry] = []
+        
+        var currentDate = Date()
+        var nextUpdateDate = Calendar.current.date(byAdding: .second, value: 3, to: currentDate)!
+        
+        let message = "蒹葭苍苍，白露为霜。所谓伊人，在水一方。\n溯洄从之，道阻且长；溯游从之，宛在水中央。\n蒹葭凄凄，白露未晞。所谓伊人，在水之湄。"
+        let backgroundImageStr = "bg"
+        
+        
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        var currentDateStr = ""
+        var nextUpdateDateStr = ""
+
+        let longUuid = UUID().uuidString
+        let range: Range = longUuid.range(of: "-")!
+        let location: Int = longUuid.distance(from: longUuid.startIndex, to: range.lowerBound)
+        let uuid = longUuid.prefix(location)
+        
+        for i in 1 ..&lt; 10 {
+            
+            var msg = ""
+            
+            currentDate = nextUpdateDate;
+            nextUpdateDate = Calendar.current.date(byAdding: .second, value: 3, to: currentDate)!
+            
+            currentDateStr = formatter.string(from: currentDate)
+            nextUpdateDateStr = formatter.string(from: nextUpdateDate)
+            
+            msg.append(message)
+            msg.append("\n时间轴ID " + uuid);
+            msg.append("\n时间轴第" + String(i+1) + "个视图")
+            msg.append("\n本次视图开始时间 " + currentDateStr)
+            msg.append("\n下次视图开始时间 " + nextUpdateDateStr)
+            
+            let entry = SimpleEntry(date: currentDate, message: msg, backgroundImageStr: backgroundImageStr+String(i))
+            
+            entries.append(entry)
+            print(String(i))
+        }
+        
+        let timeline = Timeline(entries: entries, policy: .atEnd)
+        completion(timeline)
+    }
+}
+</code></pre></div></div>
+
+<p>这段代码里我们提供了一个古诗词的快照</p>
+
+<p>并生成了一个时间线，其中时间线里包含了<code class="language-plaintext highlighter-rouge">10个entry，且每个entry 间隔10s</code></p>
+
+<p>entry文本拼接显示了</p>
+
+<ul>
+  <li>展示文本（诗经）</li>
+  <li>时间轴ID</li>
+  <li>本次视图开始时间</li>
+  <li>下次视图开始时间</li>
+</ul>
+
+<p>下边我们来看一下真实run出来的效果</p>
+
+<p><img src="../images/widget/21.gif" alt="Alt text" /></p>
+
+<p>到此为止我们就有了一个可以在主屏幕上展示的小部件了</p>
+
+<p>并且能根据时间线展示不同的视图了。</p>
+:ET

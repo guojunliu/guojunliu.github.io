@@ -593,7 +593,7 @@ struct Provider: TimelineProvider {
 
 这段代码里我们提供了一个古诗词的快照
 
-并生成了一个时间线，其中时间线里包含了10个entry，且每个entry 间隔3s
+并生成了一个时间线，其中时间线里包含了10个entry，且每个entry 间隔10s
 
 entry文本拼接显示了
 
@@ -611,6 +611,132 @@ entry文本拼接显示了
 到此为止我们就有了一个可以在主屏幕上展示的小部件了
 
 并且能根据时间线展示不同的视图了。
+
+
+
+七、Reload Timeline 使小部件保持最新
+
+为了使我们的小部件能随时提供最新的，而不是过期的信息，我们需要不时的对小部件进行更新。
+
+我们已经知道了小部件的本质是一系列的视图堆叠，那么更新小部件就是更新这些视图。
+
+比如一个有三个视图的小部件，预测了现在和未来3小时的天气预报，这个小部件显示步骤如下：
+
+
+
+但是有一个很重要的问题就是时间线是我们预测出来的，是预测就会有偏差。比如天气预报，预报2小时后有雨，但是随着天气的变化，2小时后变成晴天了，这个时候我们如果不更新小部件上的时间线，就会在2小时后给用户提供错误的信息。
+
+为此我们需要在有信息变化的时候重新显示新的视图，如下图：
+
+
+
+为了是我们的小部件信息准确无误，首先我们需要了解下小部件是如何刷新的
+
+很不幸，Widget 的刷新完全由 WidgetCenter控制。开发者无法通过任何 API 去主动刷新 Widget 的页面，只能告知 WidgetCenter，Timeline 需要刷新了
+
+所以我们不能直接刷新小部件的视图，而是要通过生成一个新的时间线来替换旧的时间线，Reload Timeline 并不是直接刷新 Widget，而是 WidgetCenter 重新向 Widget 请求下一阶段的数据。
+
+其中Reload Timeline分为两种方式
+
+
+  System Reloads
+  App Reloads
+
+
+1、System Reloads
+
+这个行为由系统主动发起，会调用一次 Reload Timeline 向 Widget 请求下一阶段刷新的数据。系统除了会按时发起 System Reloads 之外，还会动态决策每个不同的 TimeLine 的 System Reloads 的频次。比如被点击次数很大程度上直接决定了 System Reloads 的频率，点击率越高，更新频次越快，当然还有一些由于设备环境变化触发的行为也会触发 System Reloads，比如设备时间进行了变更。
+
+很显然这种方案不能很好的解决我们上边的问题
+
+2、App Reloads
+
+这种行为指的是App主动通知小部件，你需要更新信息了。这里边根据App的当前的前后台状态又分为两种方式
+
+
+  应用在前台运行
+  应用在后台运行
+
+
+当应用在前台运行的时候，App 可以直接使用WidgetCenter的 API 来 Reload Timeline；而当应用处于后台时，可以使用后台推送（Background Notification）来 Reload Timeline。
+
+除了这些，给Timeline设定合适的刷新策略也是很重要的手段
+
+
+
+八、交互
+
+前边我们说过，widget和app交互有两种方式SwiftUI widgetURL API和SwiftUI Link API
+
+这两种方式的本质都是URL Schemes，只要监听SceneDelegate的scene:openURLContexts:就可以了
+
+由于Schemes大家都太熟悉了，关于如何高效快速准确的传递参数，这里就不展开讲了。
+
+
+
+九、设计漂亮的小部件
+
+如果你已经看到了这里，并且已经理解了上述的讲解，你已经具备了开发小部件的能力。
+
+那么有哪些关键点能给自己的小部件锦上添花呢？
+
+去除额外的App信息：系统会在小部件下方自动显示你的应用名称，因此你无需在内容中重复App的名称，Icon，而是要通过颜色，布局和图像来联系您的App
+
+简洁的描述。小部件库中显示的描述可以帮助人们理解每个小部件的功能。从动作动词开始描述通常效果很好；例如，“查看当前天气状况和位置预测”或“跟踪即将举行的活动和会议”。避免包含不必要的短语来引用窗口小部件本身，例如“此窗口小部件显示…”，“使用此窗口小部件…”或“添加此窗口小部件”。
+
+舒适的信息密度：一览无余。当内容显得稀疏时，小部件可能看起来是多余的；当内容太密集时，小部件将无法浏览。如果要包含很多信息，请避免让小部件成为难以解析的项的拼贴。寻求整理内容的方法，以便人们可以立即掌握关键部分，并以更长的时间查看相关细节。您可能还考虑创建一个较大的小部件，并寻找可以用图形替换文本而又不会失去清晰度的位置。
+
+明智地使用颜色：丰富，美丽的色彩吸引眼球，但它们绝不能阻止人们一眼就吸收小部件的信息。使用颜色可以增强小部件的外观，而不会与小部件的内容竞争。
+
+使用系统字体，支持系统功能：例如 支持黑暗模式；使用SF Pro和使用系统字体；文本可缩放。
+
+
+
+设计一个真实的预览以显示在小部件库中：突出显示小部件的外观和功能可帮助人们做出明智的决定，并鼓励他们添加小部件。您可以在小部件预览中显示真实数据，但是如果数据生成或加载所需的时间太长，请显示真实的模拟数据。
+
+设计占位符内容，以帮助人们识别您的小部件。小部件在加载数据时显示占位符内容。通过将UI的静态部分与代表实际内容的半透明形状结合起来，可以创建有效的预览。例如，您可以使用不同宽度的矩形来建议文本行，并使用圆环或正方形代替字形和图像。
+
+
+
+图片适配屏幕尺寸：确保图片在大部件和小部件下都不会压缩
+
+
+
+
+
+十围之木，始生如蘖
+
+简单的总结一下
+
+一个优秀的小部件是完全可以提高用户体验，成为很好的流量入口，给App带来巨大的商业价值。
+
+但是要设计一个优秀的小部件也并非易事。
+
+本文抛砖引玉，希望大家能设计出更多优秀的小部件。
+
+本次的Widget指北到这里就结束了，万字不易，多多传播，可以关注下公众号。
+
+
+
+
+
+Demo
+
+
+  SmileEveryday
+
+
+
+
+参考
+
+
+  Meet WidgetKit
+  Human Interface Guidelines
+  Creating a Widget Extension
+  Keeping a Widget Up To Date
+  Apple Widget：下一个顶级流量入口？
+
 " />
     <meta property="og:description" content="
   2020 年 6 月 22 日，苹果召开了第一次线上的开发者大会 - WWDC20。这次发布会上宣布了ARM架构Mac芯片（拳打Intel）、iOS 14 ATT（脚踢Facebook），可谓是一次载入史册（我是爸爸）的发布会了，当然还发布了被称为下一个顶级流量入口的Widget。
@@ -1196,7 +1322,7 @@ struct Provider: TimelineProvider {
 
 这段代码里我们提供了一个古诗词的快照
 
-并生成了一个时间线，其中时间线里包含了10个entry，且每个entry 间隔3s
+并生成了一个时间线，其中时间线里包含了10个entry，且每个entry 间隔10s
 
 entry文本拼接显示了
 
@@ -1214,6 +1340,132 @@ entry文本拼接显示了
 到此为止我们就有了一个可以在主屏幕上展示的小部件了
 
 并且能根据时间线展示不同的视图了。
+
+
+
+七、Reload Timeline 使小部件保持最新
+
+为了使我们的小部件能随时提供最新的，而不是过期的信息，我们需要不时的对小部件进行更新。
+
+我们已经知道了小部件的本质是一系列的视图堆叠，那么更新小部件就是更新这些视图。
+
+比如一个有三个视图的小部件，预测了现在和未来3小时的天气预报，这个小部件显示步骤如下：
+
+
+
+但是有一个很重要的问题就是时间线是我们预测出来的，是预测就会有偏差。比如天气预报，预报2小时后有雨，但是随着天气的变化，2小时后变成晴天了，这个时候我们如果不更新小部件上的时间线，就会在2小时后给用户提供错误的信息。
+
+为此我们需要在有信息变化的时候重新显示新的视图，如下图：
+
+
+
+为了是我们的小部件信息准确无误，首先我们需要了解下小部件是如何刷新的
+
+很不幸，Widget 的刷新完全由 WidgetCenter控制。开发者无法通过任何 API 去主动刷新 Widget 的页面，只能告知 WidgetCenter，Timeline 需要刷新了
+
+所以我们不能直接刷新小部件的视图，而是要通过生成一个新的时间线来替换旧的时间线，Reload Timeline 并不是直接刷新 Widget，而是 WidgetCenter 重新向 Widget 请求下一阶段的数据。
+
+其中Reload Timeline分为两种方式
+
+
+  System Reloads
+  App Reloads
+
+
+1、System Reloads
+
+这个行为由系统主动发起，会调用一次 Reload Timeline 向 Widget 请求下一阶段刷新的数据。系统除了会按时发起 System Reloads 之外，还会动态决策每个不同的 TimeLine 的 System Reloads 的频次。比如被点击次数很大程度上直接决定了 System Reloads 的频率，点击率越高，更新频次越快，当然还有一些由于设备环境变化触发的行为也会触发 System Reloads，比如设备时间进行了变更。
+
+很显然这种方案不能很好的解决我们上边的问题
+
+2、App Reloads
+
+这种行为指的是App主动通知小部件，你需要更新信息了。这里边根据App的当前的前后台状态又分为两种方式
+
+
+  应用在前台运行
+  应用在后台运行
+
+
+当应用在前台运行的时候，App 可以直接使用WidgetCenter的 API 来 Reload Timeline；而当应用处于后台时，可以使用后台推送（Background Notification）来 Reload Timeline。
+
+除了这些，给Timeline设定合适的刷新策略也是很重要的手段
+
+
+
+八、交互
+
+前边我们说过，widget和app交互有两种方式SwiftUI widgetURL API和SwiftUI Link API
+
+这两种方式的本质都是URL Schemes，只要监听SceneDelegate的scene:openURLContexts:就可以了
+
+由于Schemes大家都太熟悉了，关于如何高效快速准确的传递参数，这里就不展开讲了。
+
+
+
+九、设计漂亮的小部件
+
+如果你已经看到了这里，并且已经理解了上述的讲解，你已经具备了开发小部件的能力。
+
+那么有哪些关键点能给自己的小部件锦上添花呢？
+
+去除额外的App信息：系统会在小部件下方自动显示你的应用名称，因此你无需在内容中重复App的名称，Icon，而是要通过颜色，布局和图像来联系您的App
+
+简洁的描述。小部件库中显示的描述可以帮助人们理解每个小部件的功能。从动作动词开始描述通常效果很好；例如，“查看当前天气状况和位置预测”或“跟踪即将举行的活动和会议”。避免包含不必要的短语来引用窗口小部件本身，例如“此窗口小部件显示…”，“使用此窗口小部件…”或“添加此窗口小部件”。
+
+舒适的信息密度：一览无余。当内容显得稀疏时，小部件可能看起来是多余的；当内容太密集时，小部件将无法浏览。如果要包含很多信息，请避免让小部件成为难以解析的项的拼贴。寻求整理内容的方法，以便人们可以立即掌握关键部分，并以更长的时间查看相关细节。您可能还考虑创建一个较大的小部件，并寻找可以用图形替换文本而又不会失去清晰度的位置。
+
+明智地使用颜色：丰富，美丽的色彩吸引眼球，但它们绝不能阻止人们一眼就吸收小部件的信息。使用颜色可以增强小部件的外观，而不会与小部件的内容竞争。
+
+使用系统字体，支持系统功能：例如 支持黑暗模式；使用SF Pro和使用系统字体；文本可缩放。
+
+
+
+设计一个真实的预览以显示在小部件库中：突出显示小部件的外观和功能可帮助人们做出明智的决定，并鼓励他们添加小部件。您可以在小部件预览中显示真实数据，但是如果数据生成或加载所需的时间太长，请显示真实的模拟数据。
+
+设计占位符内容，以帮助人们识别您的小部件。小部件在加载数据时显示占位符内容。通过将UI的静态部分与代表实际内容的半透明形状结合起来，可以创建有效的预览。例如，您可以使用不同宽度的矩形来建议文本行，并使用圆环或正方形代替字形和图像。
+
+
+
+图片适配屏幕尺寸：确保图片在大部件和小部件下都不会压缩
+
+
+
+
+
+十围之木，始生如蘖
+
+简单的总结一下
+
+一个优秀的小部件是完全可以提高用户体验，成为很好的流量入口，给App带来巨大的商业价值。
+
+但是要设计一个优秀的小部件也并非易事。
+
+本文抛砖引玉，希望大家能设计出更多优秀的小部件。
+
+本次的Widget指北到这里就结束了，万字不易，多多传播，可以关注下公众号。
+
+
+
+
+
+Demo
+
+
+  SmileEveryday
+
+
+
+
+参考
+
+
+  Meet WidgetKit
+  Human Interface Guidelines
+  Creating a Widget Extension
+  Keeping a Widget Up To Date
+  Apple Widget：下一个顶级流量入口？
+
 " />
     
     <meta name="author" content="Steve.liu" />
@@ -1282,17 +1534,16 @@ entry文本拼接显示了
     </nav>
   </div>
 
-  
-
   <div class="wrapper-footer-desktop">
-    <div class="site-qrcode">
-      
-        <a href="/" class="site-publicaccount"><img src="/images/publicaccount-qrcode.png" /></a>
-       
-      <p class="site-description">公众号：King技术</p>
-    </div>
     <footer class="footer">
-      <!-- Refer to https://codepen.io/ruandre/pen/howFi -->
+      <div class="site-qrcode">
+    
+      <a href="/" class="site-publicaccount"><img src="/images/publicaccount-qrcode.png" /></a>
+     
+    <p class="site-description">公众号：King技术</p>
+</div>
+
+<!-- Refer to https://codepen.io/ruandre/pen/howFi -->
 <ul class="svg-icon">
 
   
@@ -1926,7 +2177,7 @@ struct SmileEverydayWidget: Widget {
 
 <p>这段代码里我们提供了一个古诗词的快照</p>
 
-<p>并生成了一个时间线，其中时间线里包含了<code class="language-plaintext highlighter-rouge">10个entry，且每个entry 间隔3s</code></p>
+<p>并生成了一个时间线，其中时间线里包含了<code class="language-plaintext highlighter-rouge">10个entry，且每个entry 间隔10s</code></p>
 
 <p>entry文本拼接显示了</p>
 
@@ -1944,6 +2195,132 @@ struct SmileEverydayWidget: Widget {
 <p>到此为止我们就有了一个可以在主屏幕上展示的小部件了</p>
 
 <p>并且能根据时间线展示不同的视图了。</p>
+
+<p><br /></p>
+
+<h2 id="七reload-timeline-使小部件保持最新">七、Reload Timeline 使小部件保持最新</h2>
+
+<p>为了使我们的小部件能随时提供最新的，而不是过期的信息，我们需要不时的对小部件进行更新。</p>
+
+<p>我们已经知道了小部件的本质是一系列的视图堆叠，那么更新小部件就是更新这些视图。</p>
+
+<p>比如一个有三个视图的小部件，预测了现在和未来3小时的天气预报，这个小部件显示步骤如下：</p>
+
+<p><img src="../images/widget/22.png" alt="Alt text" /></p>
+
+<p>但是有一个很重要的问题就是时间线是我们预测出来的，是预测就会有偏差。比如天气预报，预报2小时后有雨，但是随着天气的变化，2小时后变成晴天了，这个时候我们如果不更新小部件上的时间线，就会在2小时后给用户提供错误的信息。</p>
+
+<p>为此我们需要在有信息变化的时候重新显示新的视图，如下图：</p>
+
+<p><img src="../images/widget/23.png" alt="Alt text" /></p>
+
+<p>为了是我们的小部件信息准确无误，首先我们需要了解下小部件是如何刷新的</p>
+
+<p>很不幸，<code class="language-plaintext highlighter-rouge">Widget 的刷新完全由 WidgetCenter控制</code>。开发者无法通过任何 API 去主动刷新 Widget 的页面，只能告知 WidgetCenter，<code class="language-plaintext highlighter-rouge">Timeline 需要刷新了</code></p>
+
+<p>所以我们不能直接刷新小部件的视图，而是要通过生成一个新的时间线来替换旧的时间线，Reload Timeline 并不是直接刷新 Widget，而是 WidgetCenter 重新向 Widget 请求下一阶段的数据。</p>
+
+<p>其中<code class="language-plaintext highlighter-rouge">Reload Timeline</code>分为两种方式</p>
+
+<ul>
+  <li>System Reloads</li>
+  <li>App Reloads</li>
+</ul>
+
+<h4 id="1system-reloads">1、System Reloads</h4>
+
+<p>这个行为由系统主动发起，会调用一次 Reload Timeline 向 Widget 请求下一阶段刷新的数据。系统除了会按时发起 System Reloads 之外，还会动态决策每个不同的 TimeLine 的 System Reloads 的频次。比如被点击次数很大程度上直接决定了 System Reloads 的频率，点击率越高，更新频次越快，当然还有一些由于设备环境变化触发的行为也会触发 System Reloads，比如设备时间进行了变更。</p>
+
+<p>很显然这种方案不能很好的解决我们上边的问题</p>
+
+<h4 id="2app-reloads">2、App Reloads</h4>
+
+<p>这种行为指的是App主动通知小部件，你需要更新信息了。这里边根据App的当前的前后台状态又分为两种方式</p>
+
+<ul>
+  <li>应用在前台运行</li>
+  <li>应用在后台运行</li>
+</ul>
+
+<p>当应用在前台运行的时候，App 可以直接使用WidgetCenter的 API 来 Reload Timeline；而当应用处于后台时，可以使用后台推送（Background Notification）来 Reload Timeline。</p>
+
+<p>除了这些，给Timeline设定合适的刷新策略也是很重要的手段</p>
+
+<p><br /></p>
+
+<h2 id="八交互">八、交互</h2>
+
+<p>前边我们说过，widget和app交互有两种方式<code class="language-plaintext highlighter-rouge">SwiftUI widgetURL API</code>和<code class="language-plaintext highlighter-rouge">SwiftUI Link API</code></p>
+
+<p>这两种方式的本质都是<code class="language-plaintext highlighter-rouge">URL Schemes</code>，只要监听<code class="language-plaintext highlighter-rouge">SceneDelegate</code>的<code class="language-plaintext highlighter-rouge">scene:openURLContexts:</code>就可以了</p>
+
+<p>由于Schemes大家都太熟悉了，关于如何高效快速准确的传递参数，这里就不展开讲了。</p>
+
+<p><br /></p>
+
+<h2 id="九设计漂亮的小部件">九、设计漂亮的小部件</h2>
+
+<p>如果你已经看到了这里，并且已经理解了上述的讲解，你已经具备了开发小部件的能力。</p>
+
+<p>那么有哪些关键点能给自己的小部件锦上添花呢？</p>
+
+<p><code class="language-plaintext highlighter-rouge">去除额外的App信息</code>：系统会在小部件下方自动显示你的应用名称，因此你无需在内容中重复App的名称，Icon，而是要通过颜色，布局和图像来联系您的App</p>
+
+<p><code class="language-plaintext highlighter-rouge">简洁的描述</code>。小部件库中显示的描述可以帮助人们理解每个小部件的功能。从动作动词开始描述通常效果很好；例如，“查看当前天气状况和位置预测”或“跟踪即将举行的活动和会议”。避免包含不必要的短语来引用窗口小部件本身，例如“此窗口小部件显示…”，“使用此窗口小部件…”或“添加此窗口小部件”。</p>
+
+<p><code class="language-plaintext highlighter-rouge">舒适的信息密度</code>：一览无余。当内容显得稀疏时，小部件可能看起来是多余的；当内容太密集时，小部件将无法浏览。如果要包含很多信息，请避免让小部件成为难以解析的项的拼贴。寻求整理内容的方法，以便人们可以立即掌握关键部分，并以更长的时间查看相关细节。您可能还考虑创建一个较大的小部件，并寻找可以用图形替换文本而又不会失去清晰度的位置。</p>
+
+<p><code class="language-plaintext highlighter-rouge">明智地使用颜色</code>：丰富，美丽的色彩吸引眼球，但它们绝不能阻止人们一眼就吸收小部件的信息。使用颜色可以增强小部件的外观，而不会与小部件的内容竞争。</p>
+
+<p><code class="language-plaintext highlighter-rouge">使用系统字体，支持系统功能</code>：例如 支持黑暗模式；使用SF Pro和使用系统字体；文本可缩放。</p>
+
+<p><img src="../images/widget/12.png" alt="Alt text" /></p>
+
+<p><code class="language-plaintext highlighter-rouge">设计一个真实的预览以显示在小部件库中</code>：突出显示小部件的外观和功能可帮助人们做出明智的决定，并鼓励他们添加小部件。您可以在小部件预览中显示真实数据，但是如果数据生成或加载所需的时间太长，请显示真实的模拟数据。</p>
+
+<p><code class="language-plaintext highlighter-rouge">设计占位符内容，以帮助人们识别您的小部件</code>。小部件在加载数据时显示占位符内容。通过将UI的静态部分与代表实际内容的半透明形状结合起来，可以创建有效的预览。例如，您可以使用不同宽度的矩形来建议文本行，并使用圆环或正方形代替字形和图像。</p>
+
+<p><img src="../images/widget/24.png" alt="Alt text" /></p>
+
+<p><code class="language-plaintext highlighter-rouge">图片适配屏幕尺寸</code>：确保图片在大部件和小部件下都不会压缩</p>
+
+<p><img src="../images/widget/25.png" alt="Alt text" /></p>
+
+<p><br /></p>
+
+<h2 id="十围之木始生如蘖">十围之木，始生如蘖</h2>
+
+<p>简单的总结一下</p>
+
+<p>一个优秀的小部件是完全可以提高用户体验，成为很好的流量入口，给App带来巨大的商业价值。</p>
+
+<p>但是要设计一个优秀的小部件也并非易事。</p>
+
+<p>本文抛砖引玉，希望大家能设计出更多优秀的小部件。</p>
+
+<p>本次的Widget指北到这里就结束了，万字不易，多多传播，可以关注下公众号。</p>
+
+<p><img src="../images/widget/26.png" alt="Alt text" /></p>
+
+<p><br /></p>
+
+<p>Demo</p>
+
+<ul>
+  <li><a href="https://github.com/guojunliu/Widget">SmileEveryday</a></li>
+</ul>
+
+<p><br /></p>
+
+<p>参考</p>
+
+<ul>
+  <li><a href="https://developer.apple.com/videos/play/wwdc2020/10028/">Meet WidgetKit</a></li>
+  <li><a href="https://developer.apple.com/design/human-interface-guidelines/ios/system-capabilities/widgets/">Human Interface Guidelines</a></li>
+  <li><a href="https://developer.apple.com/documentation/widgetkit/creating-a-widget-extension">Creating a Widget Extension</a></li>
+  <li><a href="https://developer.apple.com/documentation/widgetkit/keeping-a-widget-up-to-date">Keeping a Widget Up To Date</a></li>
+  <li><a href="https://mp.weixin.qq.com/s?__biz=MzAxNDEwNjk5OQ%3D%3D&amp;idx=1&amp;mid=2650409113&amp;scene=21&amp;sn=8da77e73f42e4d24ae20f6a86dfa5a4a#wechat_redirect">Apple Widget：下一个顶级流量入口？</a></li>
+</ul>
 
   </div>
 
@@ -1968,7 +2345,14 @@ struct SmileEverydayWidget: Widget {
 
   <div class="wrapper-footer-mobile">
     <footer class="footer">
-      <!-- Refer to https://codepen.io/ruandre/pen/howFi -->
+      <div class="site-qrcode">
+    
+      <a href="/" class="site-publicaccount"><img src="/images/publicaccount-qrcode.png" /></a>
+     
+    <p class="site-description">公众号：King技术</p>
+</div>
+
+<!-- Refer to https://codepen.io/ruandre/pen/howFi -->
 <ul class="svg-icon">
 
   

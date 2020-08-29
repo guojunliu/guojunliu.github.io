@@ -1,3 +1,10 @@
+<div class="site-qrcode">
+    {% if site.publicaccount %}
+      <a href="{{ site.baseurl }}/" class="site-publicaccount"><img src="{{ site.publicaccount }}" /></a>
+    {% endif %} 
+    <p class="site-description">{{ site.publicaccount-text }}</p>
+</div>
+
 {% include svg-icons.html %}
 
 {% if site.footer-text %}
