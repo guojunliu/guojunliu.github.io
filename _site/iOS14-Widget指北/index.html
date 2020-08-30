@@ -34,6 +34,8 @@ Think of this as more projecting content from your app onto the Home screen rath
 
 
 
+
+
 二、Widget的特点
 
 
@@ -363,6 +365,8 @@ struct SmileEverydayWidget: Widget {
   placeholder
 
 
+
+
 其中
 
 kind是标识小部件的字符串,并且应描述小部件所代表的内容。即小部件的包名
@@ -461,6 +465,10 @@ struct SimpleEntry: TimelineEntry {
 七、TimelineProvider
 
 TimelineProvider 是一个提供了上述我们所说的TimelineEntry集合的对象
+
+
+
+我们来看下具体的代码：
 
 struct Provider: TimelineProvider {
     public typealias Entry = SimpleEntry
@@ -620,6 +628,8 @@ entry文本拼接显示了
 
 我们已经知道了小部件的本质是一系列的视图堆叠，那么更新小部件就是更新这些视图。
 
+
+
 比如一个有三个视图的小部件，预测了现在和未来3小时的天气预报，这个小部件显示步骤如下：
 
 
@@ -647,6 +657,8 @@ entry文本拼接显示了
 
 这个行为由系统主动发起，会调用一次 Reload Timeline 向 Widget 请求下一阶段刷新的数据。系统除了会按时发起 System Reloads 之外，还会动态决策每个不同的 TimeLine 的 System Reloads 的频次。比如被点击次数很大程度上直接决定了 System Reloads 的频率，点击率越高，更新频次越快，当然还有一些由于设备环境变化触发的行为也会触发 System Reloads，比如设备时间进行了变更。
 
+
+
 很显然这种方案不能很好的解决我们上边的问题
 
 2、App Reloads
@@ -660,7 +672,13 @@ entry文本拼接显示了
 
 当应用在前台运行的时候，App 可以直接使用WidgetCenter的 API 来 Reload Timeline；而当应用处于后台时，可以使用后台推送（Background Notification）来 Reload Timeline。
 
+
+
 除了这些，给Timeline设定合适的刷新策略也是很重要的手段
+
+合理的组合使用这些刷新机制，能够极大的提高Widget信息的准确性
+
+
 
 
 
@@ -671,6 +689,8 @@ entry文本拼接显示了
 这两种方式的本质都是URL Schemes，只要监听SceneDelegate的scene:openURLContexts:就可以了
 
 由于Schemes大家都太熟悉了，关于如何高效快速准确的传递参数，这里就不展开讲了。
+
+
 
 
 
@@ -714,7 +734,13 @@ entry文本拼接显示了
 
 本文抛砖引玉，希望大家能设计出更多优秀的小部件。
 
-本次的Widget指北到这里就结束了，万字不易，多多传播，可以关注下公众号。
+本次的Widget指北到这里就结束了，万字不易，多多传播。
+
+喜欢我你就关注我,
+
+有话说你就评论我,
+
+都不干你就点个赞
 
 
 
@@ -763,6 +789,8 @@ Think of this as more projecting content from your app onto the Home screen rath
 
 
 
+
+
 二、Widget的特点
 
 
@@ -1092,6 +1120,8 @@ struct SmileEverydayWidget: Widget {
   placeholder
 
 
+
+
 其中
 
 kind是标识小部件的字符串,并且应描述小部件所代表的内容。即小部件的包名
@@ -1190,6 +1220,10 @@ struct SimpleEntry: TimelineEntry {
 七、TimelineProvider
 
 TimelineProvider 是一个提供了上述我们所说的TimelineEntry集合的对象
+
+
+
+我们来看下具体的代码：
 
 struct Provider: TimelineProvider {
     public typealias Entry = SimpleEntry
@@ -1349,6 +1383,8 @@ entry文本拼接显示了
 
 我们已经知道了小部件的本质是一系列的视图堆叠，那么更新小部件就是更新这些视图。
 
+
+
 比如一个有三个视图的小部件，预测了现在和未来3小时的天气预报，这个小部件显示步骤如下：
 
 
@@ -1376,6 +1412,8 @@ entry文本拼接显示了
 
 这个行为由系统主动发起，会调用一次 Reload Timeline 向 Widget 请求下一阶段刷新的数据。系统除了会按时发起 System Reloads 之外，还会动态决策每个不同的 TimeLine 的 System Reloads 的频次。比如被点击次数很大程度上直接决定了 System Reloads 的频率，点击率越高，更新频次越快，当然还有一些由于设备环境变化触发的行为也会触发 System Reloads，比如设备时间进行了变更。
 
+
+
 很显然这种方案不能很好的解决我们上边的问题
 
 2、App Reloads
@@ -1389,7 +1427,13 @@ entry文本拼接显示了
 
 当应用在前台运行的时候，App 可以直接使用WidgetCenter的 API 来 Reload Timeline；而当应用处于后台时，可以使用后台推送（Background Notification）来 Reload Timeline。
 
+
+
 除了这些，给Timeline设定合适的刷新策略也是很重要的手段
+
+合理的组合使用这些刷新机制，能够极大的提高Widget信息的准确性
+
+
 
 
 
@@ -1400,6 +1444,8 @@ entry文本拼接显示了
 这两种方式的本质都是URL Schemes，只要监听SceneDelegate的scene:openURLContexts:就可以了
 
 由于Schemes大家都太熟悉了，关于如何高效快速准确的传递参数，这里就不展开讲了。
+
+
 
 
 
@@ -1443,7 +1489,13 @@ entry文本拼接显示了
 
 本文抛砖引玉，希望大家能设计出更多优秀的小部件。
 
-本次的Widget指北到这里就结束了，万字不易，多多传播，可以关注下公众号。
+本次的Widget指北到这里就结束了，万字不易，多多传播。
+
+喜欢我你就关注我,
+
+有话说你就评论我,
+
+都不干你就点个赞
 
 
 
@@ -1615,6 +1667,8 @@ Think of this as more projecting content from your app onto the Home screen rath
 </blockquote>
 
 <p>一句话来说：Widget不是迷你应用程序。而是一种新的主屏幕体验，能快速提供用户关心的内容是重点</p>
+
+<p><img src="../images/widget/47.png" alt="Alt text" /></p>
 
 <p><br /></p>
 
@@ -1947,6 +2001,8 @@ struct SmileEverydayWidget: Widget {
   <li><code class="language-plaintext highlighter-rouge">placeholder</code></li>
 </ol>
 
+<p><img src="../images/widget/31.png" alt="Alt text" /></p>
+
 <p>其中</p>
 
 <p><code class="language-plaintext highlighter-rouge">kind</code>是<code class="language-plaintext highlighter-rouge">标识小部件的字符串,并且应描述小部件所代表的内容。即小部件的包名</code></p>
@@ -2045,6 +2101,10 @@ struct SmileEverydayWidget: Widget {
 <h2 id="七timelineprovider">七、TimelineProvider</h2>
 
 <p><code class="language-plaintext highlighter-rouge">TimelineProvider</code> 是一个提供了上述我们所说的<code class="language-plaintext highlighter-rouge">TimelineEntry</code>集合的对象</p>
+
+<p><img src="../images/widget/39.png" alt="Alt text" /></p>
+
+<p>我们来看下具体的代码：</p>
 
 <div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>struct Provider: TimelineProvider {
     public typealias Entry = SimpleEntry
@@ -2204,6 +2264,8 @@ struct SmileEverydayWidget: Widget {
 
 <p>我们已经知道了小部件的本质是一系列的视图堆叠，那么更新小部件就是更新这些视图。</p>
 
+<p><img src="../images/widget/28.png" alt="Alt text" /></p>
+
 <p>比如一个有三个视图的小部件，预测了现在和未来3小时的天气预报，这个小部件显示步骤如下：</p>
 
 <p><img src="../images/widget/22.png" alt="Alt text" /></p>
@@ -2231,6 +2293,8 @@ struct SmileEverydayWidget: Widget {
 
 <p>这个行为由系统主动发起，会调用一次 Reload Timeline 向 Widget 请求下一阶段刷新的数据。系统除了会按时发起 System Reloads 之外，还会动态决策每个不同的 TimeLine 的 System Reloads 的频次。比如被点击次数很大程度上直接决定了 System Reloads 的频率，点击率越高，更新频次越快，当然还有一些由于设备环境变化触发的行为也会触发 System Reloads，比如设备时间进行了变更。</p>
 
+<p><img src="../images/widget/42.png" alt="Alt text" /></p>
+
 <p>很显然这种方案不能很好的解决我们上边的问题</p>
 
 <h4 id="2app-reloads">2、App Reloads</h4>
@@ -2244,7 +2308,13 @@ struct SmileEverydayWidget: Widget {
 
 <p>当应用在前台运行的时候，App 可以直接使用WidgetCenter的 API 来 Reload Timeline；而当应用处于后台时，可以使用后台推送（Background Notification）来 Reload Timeline。</p>
 
+<p><img src="../images/widget/44.png" alt="Alt text" /></p>
+
 <p>除了这些，给Timeline设定合适的刷新策略也是很重要的手段</p>
+
+<p>合理的组合使用这些刷新机制，能够极大的提高Widget信息的准确性</p>
+
+<p><img src="../images/widget/46.png" alt="Alt text" /></p>
 
 <p><br /></p>
 
@@ -2255,6 +2325,8 @@ struct SmileEverydayWidget: Widget {
 <p>这两种方式的本质都是<code class="language-plaintext highlighter-rouge">URL Schemes</code>，只要监听<code class="language-plaintext highlighter-rouge">SceneDelegate</code>的<code class="language-plaintext highlighter-rouge">scene:openURLContexts:</code>就可以了</p>
 
 <p>由于Schemes大家都太熟悉了，关于如何高效快速准确的传递参数，这里就不展开讲了。</p>
+
+<p><img src="../images/widget/35.png" alt="Alt text" /></p>
 
 <p><br /></p>
 
@@ -2298,7 +2370,13 @@ struct SmileEverydayWidget: Widget {
 
 <p>本文抛砖引玉，希望大家能设计出更多优秀的小部件。</p>
 
-<p>本次的Widget指北到这里就结束了，万字不易，多多传播，可以关注下公众号。</p>
+<p>本次的Widget指北到这里就结束了，万字不易，多多传播。</p>
+
+<p>喜欢我你就关注我,</p>
+
+<p>有话说你就评论我,</p>
+
+<p>都不干你就点个赞</p>
 
 <p><img src="../images/widget/26.png" alt="Alt text" /></p>
 
