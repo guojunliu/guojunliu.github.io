@@ -114,7 +114,7 @@ open "${SRCROOT}"
 ```
 
 <br>
-### 2019-6-10 Update
+### 2020-9-16 Update
 
 因Xcode11更新Bulid的目录，将Simulator和真机的编译目录修改为同一个地址，之前的脚本对导致出错，下边是修改后的sh脚本
 
@@ -203,6 +203,109 @@ cp -R "${DEVICE_DIR1}/" "${INSTALL_DIR}/"
 
 # Uses the Lipo Tool to merge both binary files (i386 + armv6/armv7) into one Universal final product.
 lipo -create "${DEVICE_DIR1}/${FMK_NAME}" "${SIMULATOR_DIR1}/${FMK_NAME}" -output "${INSTALL_DIR}/${FMK_NAME}"
+rm -r "${WRK_DIR}"
+rm -r "${WRK_DIR_iphone}"
+rm -r "${WRK_DIR_iphonesimulator}"
+
+open "${SRCROOT}"
+
+```
+
+<br>
+### 2019-6-10 Update
+
+因Xcode12模拟器Release编译的时候，编译出来的Framework自带arm64架构，和真机编译出来的Framework的arm64架构冲突，合并不了，导致之前的脚本对导致出错。修改方案，是模拟器先移除arm64架构，再合并，下边是修改后的sh脚本
+
+```
+
+# Sets the target folders and the final framework product.
+# 如果工程名称和Framework的Target名称不一样的 话，要自定义FMKNAME
+# 例如: FMK_NAME = "MyFramework"
+FMK_NAME=TraceAnalysisSDK
+
+PROJECT_PATH=$(cd "$(dirname "$0")";pwd)
+
+# 工程Info.list路径
+InfoPlist=${PROJECT_PATH}/${FMK_NAME}/Info.plist
+
+# 工程Version
+Version=$(/usr/libexec/PlistBuddy -c "Print CFBundleShortVersionString" $InfoPlist)
+Version=${Version//./}
+
+# 工程Build
+Build=$(/usr/libexec/PlistBuddy -c "Print CFBundleVersion" $InfoPlist)
+
+# SDK文件夹名称
+SDKFilePath=${PROJECT_PATH}/${FMK_NAME}_${Version}_${Build}
+
+if [ -d "${SDKFilePath}" ]
+then
+rm -rf "${SDKFilePath}"
+fi
+mkdir -p "${SDKFilePath}"
+
+updataDate=`date +%F`
+#updataMessage=版本:${Version}\\n编译:${Build}\\n时间:${updataDate}\\n更新:
+
+updataFileName=${SDKFilePath}/version.md
+touch ${updataFileName}
+echo 版本:${Version} >> ${updataFileName}
+echo 编译:${Build} >> ${updataFileName}
+echo 时间:${updataDate} >> ${updataFileName}
+echo 更新: >> ${updataFileName}
+
+# SDK目录
+INSTALL_DIR=${SDKFilePath}/${FMK_NAME}.framework
+
+# Working dir will be deleted after the framework creation.
+WRK_DIR=build
+WRK_DIR_iphone=build_Release-iphoneos
+WRK_DIR_iphonesimulator=build_Release-iphonesimulator
+
+DEVICE_DIR=${WRK_DIR}/Release-iphoneos/${FMK_NAME}.framework
+SIMULATOR_DIR=${WRK_DIR}/Release-iphonesimulator/${FMK_NAME}.framework
+
+DEVICE_DIR1=${WRK_DIR_iphone}/Release-iphoneos/${FMK_NAME}.framework
+SIMULATOR_DIR1=${WRK_DIR_iphonesimulator}/Release-iphonesimulator/${FMK_NAME}.framework
+
+# -configuration ${CONFIGURATION}
+# Clean and Building both architectures.
+xcodebuild -configuration "Release" -target "${FMK_NAME}" -sdk iphoneos clean build
+
+# Cleaning the oldest.
+if [ -d "${DEVICE_DIR1}" ]
+then
+rm -rf "${DEVICE_DIR1}"
+fi
+mkdir -p "${DEVICE_DIR1}"
+cp -R "${DEVICE_DIR}/" "${DEVICE_DIR1}/"
+
+
+xcodebuild -configuration "Release" -target "${FMK_NAME}" -sdk iphonesimulator clean build
+
+# Cleaning the oldest.
+if [ -d "${SIMULATOR_DIR1}" ]
+then
+rm -rf "${SIMULATOR_DIR1}"
+fi
+mkdir -p "${SIMULATOR_DIR1}"
+cp -R "${SIMULATOR_DIR}/" "${SIMULATOR_DIR1}/"
+
+# Cleaning the oldest.
+if [ -d "${INSTALL_DIR}" ]
+then
+rm -rf "${INSTALL_DIR}"
+fi
+mkdir -p "${INSTALL_DIR}"
+cp -R "${DEVICE_DIR1}/" "${INSTALL_DIR}/"
+
+# Uses the Lipo Tool to merge both binary files (i386 + armv6/armv7) into one Universal final product.
+
+lipo -remove arm64 "${SIMULATOR_DIR1}/${FMK_NAME}" -output "${WRK_DIR}/${FMK_NAME}"
+lipo -create "${DEVICE_DIR1}/${FMK_NAME}" "${WRK_DIR}/${FMK_NAME}" -output "${INSTALL_DIR}/${FMK_NAME}"
+
+
+#lipo -create "${DEVICE_DIR1}/${FMK_NAME}" "${SIMULATOR_DIR1}/${FMK_NAME}" -output "${INSTALL_DIR}/${FMK_NAME}"
 rm -r "${WRK_DIR}"
 rm -r "${WRK_DIR_iphone}"
 rm -r "${WRK_DIR_iphonesimulator}"
