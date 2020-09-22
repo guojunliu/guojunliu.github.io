@@ -114,7 +114,7 @@ open "${SRCROOT}"
 ```
 
 <br>
-### 2020-9-16 Update
+### 2019-6-10 Update
 
 因Xcode11更新Bulid的目录，将Simulator和真机的编译目录修改为同一个地址，之前的脚本对导致出错，下边是修改后的sh脚本
 
@@ -212,7 +212,7 @@ open "${SRCROOT}"
 ```
 
 <br>
-### 2019-6-10 Update
+### 2020-9-15 Update
 
 因Xcode12模拟器Release编译的时候，编译出来的Framework自带arm64架构，和真机编译出来的Framework的arm64架构冲突，合并不了，导致之前的脚本对导致出错。修改方案，是模拟器先移除arm64架构，再合并，下边是修改后的sh脚本
 
