@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-  <title>标签 – Steve.liu – A blog of an iOS R&D engineer</title>
+  <title>Mopub update issues （5.13.1 to 5.15.0） – Steve.liu – A blog of an iOS R&D engineer</title>
 
       <meta charset="utf-8" />
     <meta content='text/html; charset=utf-8' http-equiv='Content-Type'>
@@ -9,14 +9,150 @@
     <meta name='viewport' content='width=device-width, initial-scale=1.0, maximum-scale=1.0'>
 
     
-    <meta name="description" content="A blog of an iOS R&D engineer">
-    <meta property="og:description" content="A blog of an iOS R&D engineer" />
+    <meta name="description" content="Mopub update issues （5.13.1 to 5.15.0）
+
+目的：在广告关闭之后立刻加载一个新的广告
+
+步骤：
+在MPRewardedVideoDelegate的rewardedVideoAdDidDisappearForAdUnitID回调中，调用loadRewardedVideoAdWithAdUnitID:withMediationSettings:方法
+
+这在5.13.1版本中是没有问题的，
+
+但是在5.15.0版本中，这是有问题的，虽然告诉我广告已经加载成功，但是在我准备展示广告的时候，却发现hasAdAvailableForAdUnitID is fasle
+
+Log：
+
+
+  5.13.1
+
+
+
+
+
+  5.15.0
+
+
+
+
+
+
+当我对比了5.13.1和5.15.0两个版本的代码发现，Reset ad state的流程有所改变
+
+5.13.1 先reset，然后callback
+
+
+  1、Reset ad state
+  2、call rewardedVideoAdDidDisappearForAdUnitID:
+
+
+5.15.0 先callback，然后reset
+
+
+  1、call rewardedVideoAdDidDisappearForAdUnitID:
+  2、Reset ad state
+
+
+code:
+
+
+
+
+
+这导致了我在rewardedVideoAdDidDisappearForAdUnitID 中继续调用loadRewardedVideoAdWithAdUnitID:withMediationSettings:方法时，广告的状态是没有重置的，在判断if (self.ready &amp;&amp; !self.playedAd)时为true
+
+- (void)loadRewardedVideoAdWithCustomerId:(NSString *)customerId targeting:(MPAdTargeting *)targeting
+{
+    MPLogAdEvent(MPLogEvent.adLoadAttempt, self.adUnitId);
+
+    if (self.ready &amp;&amp; !self.playedAd) {
+        [self.delegate rewardedVideoDidLoadForAdManager:self];
+    } else {
+        self.customerId = customerId;
+        self.targeting = targeting;
+        [self loadAdWithURL:[MPAdServerURLBuilder URLWithAdUnitID:self.adUnitId targeting:targeting]];
+    }
+}
+
+
+但是广告并没有真的去加载。
+
+复现Demo
+" />
+    <meta property="og:description" content="Mopub update issues （5.13.1 to 5.15.0）
+
+目的：在广告关闭之后立刻加载一个新的广告
+
+步骤：
+在MPRewardedVideoDelegate的rewardedVideoAdDidDisappearForAdUnitID回调中，调用loadRewardedVideoAdWithAdUnitID:withMediationSettings:方法
+
+这在5.13.1版本中是没有问题的，
+
+但是在5.15.0版本中，这是有问题的，虽然告诉我广告已经加载成功，但是在我准备展示广告的时候，却发现hasAdAvailableForAdUnitID is fasle
+
+Log：
+
+
+  5.13.1
+
+
+
+
+
+  5.15.0
+
+
+
+
+
+
+当我对比了5.13.1和5.15.0两个版本的代码发现，Reset ad state的流程有所改变
+
+5.13.1 先reset，然后callback
+
+
+  1、Reset ad state
+  2、call rewardedVideoAdDidDisappearForAdUnitID:
+
+
+5.15.0 先callback，然后reset
+
+
+  1、call rewardedVideoAdDidDisappearForAdUnitID:
+  2、Reset ad state
+
+
+code:
+
+
+
+
+
+这导致了我在rewardedVideoAdDidDisappearForAdUnitID 中继续调用loadRewardedVideoAdWithAdUnitID:withMediationSettings:方法时，广告的状态是没有重置的，在判断if (self.ready &amp;&amp; !self.playedAd)时为true
+
+- (void)loadRewardedVideoAdWithCustomerId:(NSString *)customerId targeting:(MPAdTargeting *)targeting
+{
+    MPLogAdEvent(MPLogEvent.adLoadAttempt, self.adUnitId);
+
+    if (self.ready &amp;&amp; !self.playedAd) {
+        [self.delegate rewardedVideoDidLoadForAdManager:self];
+    } else {
+        self.customerId = customerId;
+        self.targeting = targeting;
+        [self loadAdWithURL:[MPAdServerURLBuilder URLWithAdUnitID:self.adUnitId targeting:targeting]];
+    }
+}
+
+
+但是广告并没有真的去加载。
+
+复现Demo
+" />
     
     <meta name="author" content="Steve.liu" />
 
     
-    <meta property="og:title" content="标签" />
-    <meta property="twitter:title" content="标签" />
+    <meta property="og:title" content="Mopub update issues （5.13.1 to 5.15.0）" />
+    <meta property="twitter:title" content="Mopub update issues （5.13.1 to 5.15.0）" />
     
   <!-- Async font loading -->
 <script>
@@ -117,293 +253,110 @@
 </div>
 
     <div id="main" role="main" class="wrapper-content">
-      <article class="page">
+      <article class="posts">
+  <h1><font color=#0099ff>Mopub update issues （5.13.1 to 5.15.0）</font></h1>
 
-  <h1><font color=#0099ff>标签</font></h1>
+  <div clsss="meta">
+    <span class="date">
+      2021-02-07
+    </span>
+
+    <ul class="tag">
+      
+      <li>
+        <a href="http://localhost:4000/tags#Mopub">
+          Mopub
+        </a>
+      </li>
+      
+    </ul>
+  </div>
 
   <div class="entry">
-    
+    <p>Mopub update issues （5.13.1 to 5.15.0）</p>
 
-<div class="tags">
-  <ul class="label">
-    
-    <li>
-      <a href="#idfa">
-        <span>idfa</span>
-        <span class="count">1</span>
-      </a>
-    </li>
-    
-    <li>
-      <a href="#udid">
-        <span>udid</span>
-        <span class="count">1</span>
-      </a>
-    </li>
-    
-    <li>
-      <a href="#c++">
-        <span>c++</span>
-        <span class="count">1</span>
-      </a>
-    </li>
-    
-    <li>
-      <a href="#djinni">
-        <span>djinni</span>
-        <span class="count">1</span>
-      </a>
-    </li>
-    
-    <li>
-      <a href="#SDK">
-        <span>SDK</span>
-        <span class="count">3</span>
-      </a>
-    </li>
-    
-    <li>
-      <a href="#Framework">
-        <span>Framework</span>
-        <span class="count">3</span>
-      </a>
-    </li>
-    
-    <li>
-      <a href="#iOS14">
-        <span>iOS14</span>
-        <span class="count">1</span>
-      </a>
-    </li>
-    
-    <li>
-      <a href="#IAP">
-        <span>IAP</span>
-        <span class="count">1</span>
-      </a>
-    </li>
-    
-    <li>
-      <a href="#Mopub">
-        <span>Mopub</span>
-        <span class="count">1</span>
-      </a>
-    </li>
-    
-  </ul>
+<p>目的：在广告关闭之后立刻加载一个新的广告</p>
 
-  
-    <h2 id="idfa">
-      idfa
-    </h2>
-    <ul class="tag">
-      
-        
-          <li>
-            
-              <a href="/XYUUID/">
-            
-                <font color=#0099ff>iOS 10后的设备唯一标识替代方案 — XYUUID库</font>
-              </a>
-              <time>2016-10-12</time>
-          </li>
-        
-      
-    </ul>
-  
-    <h2 id="udid">
-      udid
-    </h2>
-    <ul class="tag">
-      
-        
-          <li>
-            
-              <a href="/XYUUID/">
-            
-                <font color=#0099ff>iOS 10后的设备唯一标识替代方案 — XYUUID库</font>
-              </a>
-              <time>2016-10-12</time>
-          </li>
-        
-      
-    </ul>
-  
-    <h2 id="c++">
-      c++
-    </h2>
-    <ul class="tag">
-      
-        
-          <li>
-            
-              <a href="/djinni/">
-            
-                <font color=#0099ff>djinni中文文档</font>
-              </a>
-              <time>2016-10-28</time>
-          </li>
-        
-      
-    </ul>
-  
-    <h2 id="djinni">
-      djinni
-    </h2>
-    <ul class="tag">
-      
-        
-          <li>
-            
-              <a href="/djinni/">
-            
-                <font color=#0099ff>djinni中文文档</font>
-              </a>
-              <time>2016-10-28</time>
-          </li>
-        
-      
-    </ul>
-  
-    <h2 id="SDK">
-      SDK
-    </h2>
-    <ul class="tag">
-      
-        
-          <li>
-            
-              <a href="/Xcode11%E6%8F%90%E5%89%8D%E9%80%82%E9%85%8DiOS14IDFA%E5%B9%B6%E4%B8%8A%E7%BA%BF/">
-            
-                <font color=#0099ff>Xcode11提前适配iOS14 IDFA，并打包上线</font>
-              </a>
-              <time>2020-08-04</time>
-          </li>
-        
-      
-        
-          <li>
-            
-              <a href="/SDKAutoArchive/">
-            
-                <font color=#0099ff>SDK自动打包</font>
-              </a>
-              <time>2017-08-08</time>
-          </li>
-        
-      
-        
-          <li>
-            
-              <a href="/CocoaPodsHostingFramework/">
-            
-                <font color=#0099ff>CocoaPods托管Framework</font>
-              </a>
-              <time>2017-06-16</time>
-          </li>
-        
-      
-    </ul>
-  
-    <h2 id="Framework">
-      Framework
-    </h2>
-    <ul class="tag">
-      
-        
-          <li>
-            
-              <a href="/Xcode11%E6%8F%90%E5%89%8D%E9%80%82%E9%85%8DiOS14IDFA%E5%B9%B6%E4%B8%8A%E7%BA%BF/">
-            
-                <font color=#0099ff>Xcode11提前适配iOS14 IDFA，并打包上线</font>
-              </a>
-              <time>2020-08-04</time>
-          </li>
-        
-      
-        
-          <li>
-            
-              <a href="/SDKAutoArchive/">
-            
-                <font color=#0099ff>SDK自动打包</font>
-              </a>
-              <time>2017-08-08</time>
-          </li>
-        
-      
-        
-          <li>
-            
-              <a href="/CocoaPodsHostingFramework/">
-            
-                <font color=#0099ff>CocoaPods托管Framework</font>
-              </a>
-              <time>2017-06-16</time>
-          </li>
-        
-      
-    </ul>
-  
-    <h2 id="iOS14">
-      iOS14
-    </h2>
-    <ul class="tag">
-      
-        
-          <li>
-            
-              <a href="/iOS14-WidgetGuide/">
-            
-                <font color=#0099ff>iOS14 Widget指北</font>
-              </a>
-              <time>2020-08-27</time>
-          </li>
-        
-      
-    </ul>
-  
-    <h2 id="IAP">
-      IAP
-    </h2>
-    <ul class="tag">
-      
-        
-          <li>
-            
-              <a href="/%E8%8B%B9%E6%9E%9C%E5%86%8D%E6%AC%A1%E6%9B%B4%E6%96%B0App-Store%E5%AE%A1%E6%A0%B8%E6%8C%87%E5%8D%97-%E6%94%BE%E5%AE%BDApp%E5%86%85%E8%B4%AD%E9%99%90%E5%88%B6/">
-            
-                <font color=#0099ff>苹果今年再次更新App Store审核指南，放宽App内购限制</font>
-              </a>
-              <time>2020-09-15</time>
-          </li>
-        
-      
-    </ul>
-  
-    <h2 id="Mopub">
-      Mopub
-    </h2>
-    <ul class="tag">
-      
-        
-          <li>
-            
-              <a href="/MopubUpdateIssues/">
-            
-                <font color=#0099ff>Mopub update issues （5.13.1 to 5.15.0）</font>
-              </a>
-              <time>2021-02-07</time>
-          </li>
-        
-      
-    </ul>
-  
-</div>
+<p>步骤：
+在<code class="language-plaintext highlighter-rouge">MPRewardedVideoDelegate</code>的<code class="language-plaintext highlighter-rouge">rewardedVideoAdDidDisappearForAdUnitID</code>回调中，调用<code class="language-plaintext highlighter-rouge">loadRewardedVideoAdWithAdUnitID:withMediationSettings:</code>方法</p>
+
+<p>这在5.13.1版本中是没有问题的，</p>
+
+<p>但是在5.15.0版本中，这是有问题的，虽然告诉我广告已经加载成功，但是在我准备展示广告的时候，却发现<code class="language-plaintext highlighter-rouge">hasAdAvailableForAdUnitID is fasle</code></p>
+
+<p>Log：</p>
+
+<ul>
+  <li>5.13.1</li>
+</ul>
+
+<p><img src="../images/mopub/log1.png" alt="日志" /></p>
+
+<ul>
+  <li>5.15.0</li>
+</ul>
+
+<p><img src="../images/mopub/log2.png" alt="日志" /></p>
+
+<p><img src="../images/mopub/log3.png" alt="日志" /></p>
+
+<p>当我对比了5.13.1和5.15.0两个版本的代码发现，Reset ad state的流程有所改变</p>
+
+<p>5.13.1 先reset，然后callback</p>
+
+<ul>
+  <li>1、Reset ad state</li>
+  <li>2、call rewardedVideoAdDidDisappearForAdUnitID:</li>
+</ul>
+
+<p>5.15.0 先callback，然后reset</p>
+
+<ul>
+  <li>1、call rewardedVideoAdDidDisappearForAdUnitID:</li>
+  <li>2、Reset ad state</li>
+</ul>
+
+<p>code:</p>
+
+<p><img src="../images/mopub/code2.png" alt="code" />
+<img src="../images/mopub/code1.png" alt="code" />
+<img src="../images/mopub/code.png" alt="code" /></p>
+
+<p>这导致了我在<code class="language-plaintext highlighter-rouge">rewardedVideoAdDidDisappearForAdUnitID </code>中继续调用<code class="language-plaintext highlighter-rouge">loadRewardedVideoAdWithAdUnitID:withMediationSettings:</code>方法时，广告的状态是没有重置的，在判断<code class="language-plaintext highlighter-rouge">if (self.ready &amp;&amp; !self.playedAd)</code>时为true</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>- (void)loadRewardedVideoAdWithCustomerId:(NSString *)customerId targeting:(MPAdTargeting *)targeting
+{
+    MPLogAdEvent(MPLogEvent.adLoadAttempt, self.adUnitId);
+
+    if (self.ready &amp;&amp; !self.playedAd) {
+        [self.delegate rewardedVideoDidLoadForAdManager:self];
+    } else {
+        self.customerId = customerId;
+        self.targeting = targeting;
+        [self loadAdWithURL:[MPAdServerURLBuilder URLWithAdUnitID:self.adUnitId targeting:targeting]];
+    }
+}
+</code></pre></div></div>
+
+<p>但是广告并没有真的去加载。</p>
+
+<p><a href="https://github.com/guojunliu/MopubIssuesDemo">复现Demo</a></p>
 
   </div>
+
+  
 </article>
 
+<div class="pagination">
+  
+    <span class="prev" >
+      <a href="http://localhost:4000/%E8%8B%B9%E6%9E%9C%E5%86%8D%E6%AC%A1%E6%9B%B4%E6%96%B0App-Store%E5%AE%A1%E6%A0%B8%E6%8C%87%E5%8D%97-%E6%94%BE%E5%AE%BDApp%E5%86%85%E8%B4%AD%E9%99%90%E5%88%B6/">
+        ← 上一篇
+      </a>
+    </span>
+  
+  
+</div>
     </div>
 
     

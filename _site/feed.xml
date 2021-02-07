@@ -1,4 +1,71 @@
-<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.1.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2020-09-15T20:45:16+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Steve.liu</title><subtitle>A blog of an iOS R&amp;D engineer</subtitle><entry><title type="html">苹果今年再次更新App Store审核指南，放宽App内购限制</title><link href="http://localhost:4000/%E8%8B%B9%E6%9E%9C%E5%86%8D%E6%AC%A1%E6%9B%B4%E6%96%B0App-Store%E5%AE%A1%E6%A0%B8%E6%8C%87%E5%8D%97-%E6%94%BE%E5%AE%BDApp%E5%86%85%E8%B4%AD%E9%99%90%E5%88%B6/" rel="alternate" type="text/html" title="苹果今年再次更新App Store审核指南，放宽App内购限制" /><published>2020-09-15T00:00:00+08:00</published><updated>2020-09-15T00:00:00+08:00</updated><id>http://localhost:4000/%E8%8B%B9%E6%9E%9C%E5%86%8D%E6%AC%A1%E6%9B%B4%E6%96%B0App%20Store%E5%AE%A1%E6%A0%B8%E6%8C%87%E5%8D%97,%E6%94%BE%E5%AE%BDApp%E5%86%85%E8%B4%AD%E9%99%90%E5%88%B6</id><content type="html" xml:base="http://localhost:4000/%E8%8B%B9%E6%9E%9C%E5%86%8D%E6%AC%A1%E6%9B%B4%E6%96%B0App-Store%E5%AE%A1%E6%A0%B8%E6%8C%87%E5%8D%97-%E6%94%BE%E5%AE%BDApp%E5%86%85%E8%B4%AD%E9%99%90%E5%88%B6/">&lt;blockquote&gt;
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="4.1.1">Jekyll</generator><link href="http://localhost:4000/feed.xml" rel="self" type="application/atom+xml" /><link href="http://localhost:4000/" rel="alternate" type="text/html" /><updated>2021-02-07T15:34:41+08:00</updated><id>http://localhost:4000/feed.xml</id><title type="html">Steve.liu</title><subtitle>A blog of an iOS R&amp;D engineer</subtitle><entry><title type="html">Mopub update issues （5.13.1 to 5.15.0）</title><link href="http://localhost:4000/MopubUpdateIssues/" rel="alternate" type="text/html" title="Mopub update issues （5.13.1 to 5.15.0）" /><published>2021-02-07T00:00:00+08:00</published><updated>2021-02-07T00:00:00+08:00</updated><id>http://localhost:4000/MopubUpdateIssues</id><content type="html" xml:base="http://localhost:4000/MopubUpdateIssues/">&lt;p&gt;Mopub update issues （5.13.1 to 5.15.0）&lt;/p&gt;
+
+&lt;p&gt;目的：在广告关闭之后立刻加载一个新的广告&lt;/p&gt;
+
+&lt;p&gt;步骤：
+在&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;MPRewardedVideoDelegate&lt;/code&gt;的&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rewardedVideoAdDidDisappearForAdUnitID&lt;/code&gt;回调中，调用&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;loadRewardedVideoAdWithAdUnitID:withMediationSettings:&lt;/code&gt;方法&lt;/p&gt;
+
+&lt;p&gt;这在5.13.1版本中是没有问题的，&lt;/p&gt;
+
+&lt;p&gt;但是在5.15.0版本中，这是有问题的，虽然告诉我广告已经加载成功，但是在我准备展示广告的时候，却发现&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;hasAdAvailableForAdUnitID is fasle&lt;/code&gt;&lt;/p&gt;
+
+&lt;p&gt;Log：&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;5.13.1&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;../images/mopub/log1.png&quot; alt=&quot;日志&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;5.15.0&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;../images/mopub/log2.png&quot; alt=&quot;日志&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../images/mopub/log3.png&quot; alt=&quot;日志&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;当我对比了5.13.1和5.15.0两个版本的代码发现，Reset ad state的流程有所改变&lt;/p&gt;
+
+&lt;p&gt;5.13.1 先reset，然后callback&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;1、Reset ad state&lt;/li&gt;
+  &lt;li&gt;2、call rewardedVideoAdDidDisappearForAdUnitID:&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;5.15.0 先callback，然后reset&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;1、call rewardedVideoAdDidDisappearForAdUnitID:&lt;/li&gt;
+  &lt;li&gt;2、Reset ad state&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;code:&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;../images/mopub/code2.png&quot; alt=&quot;code&quot; /&gt;
+&lt;img src=&quot;../images/mopub/code1.png&quot; alt=&quot;code&quot; /&gt;
+&lt;img src=&quot;../images/mopub/code.png&quot; alt=&quot;code&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;这导致了我在&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;rewardedVideoAdDidDisappearForAdUnitID &lt;/code&gt;中继续调用&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;loadRewardedVideoAdWithAdUnitID:withMediationSettings:&lt;/code&gt;方法时，广告的状态是没有重置的，在判断&lt;code class=&quot;language-plaintext highlighter-rouge&quot;&gt;if (self.ready &amp;amp;&amp;amp; !self.playedAd)&lt;/code&gt;时为true&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;- (void)loadRewardedVideoAdWithCustomerId:(NSString *)customerId targeting:(MPAdTargeting *)targeting
+{
+    MPLogAdEvent(MPLogEvent.adLoadAttempt, self.adUnitId);
+
+    if (self.ready &amp;amp;&amp;amp; !self.playedAd) {
+        [self.delegate rewardedVideoDidLoadForAdManager:self];
+    } else {
+        self.customerId = customerId;
+        self.targeting = targeting;
+        [self loadAdWithURL:[MPAdServerURLBuilder URLWithAdUnitID:self.adUnitId targeting:targeting]];
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;但是广告并没有真的去加载。&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&quot;https://github.com/guojunliu/MopubIssuesDemo&quot;&gt;复现Demo&lt;/a&gt;&lt;/p&gt;</content><author><name></name></author><category term="Mopub" /><summary type="html">Mopub update issues （5.13.1 to 5.15.0） 目的：在广告关闭之后立刻加载一个新的广告 步骤： 在MPRewardedVideoDelegate的rewardedVideoAdDidDisappearForAdUnitID回调中，调用loadRewardedVideoAdWithAdUnitID:withMediationSettings:方法 这在5.13.1版本中是没有问题的， 但是在5.15.0版本中，这是有问题的，虽然告诉我广告已经加载成功，但是在我准备展示广告的时候，却发现hasAdAvailableForAdUnitID is fasle Log： 5.13.1 5.15.0 当我对比了5.13.1和5.15.0两个版本的代码发现，Reset ad state的流程有所改变 5.13.1 先reset，然后callback 1、Reset ad state 2、call rewardedVideoAdDidDisappearForAdUnitID: 5.15.0 先callback，然后reset 1、call rewardedVideoAdDidDisappearForAdUnitID: 2、Reset ad state code: 这导致了我在rewardedVideoAdDidDisappearForAdUnitID 中继续调用loadRewardedVideoAdWithAdUnitID:withMediationSettings:方法时，广告的状态是没有重置的，在判断if (self.ready &amp;amp;&amp;amp; !self.playedAd)时为true - (void)loadRewardedVideoAdWithCustomerId:(NSString *)customerId targeting:(MPAdTargeting *)targeting { MPLogAdEvent(MPLogEvent.adLoadAttempt, self.adUnitId); if (self.ready &amp;amp;&amp;amp; !self.playedAd) { [self.delegate rewardedVideoDidLoadForAdManager:self]; } else { self.customerId = customerId; self.targeting = targeting; [self loadAdWithURL:[MPAdServerURLBuilder URLWithAdUnitID:self.adUnitId targeting:targeting]]; } } 但是广告并没有真的去加载。 复现Demo</summary></entry><entry><title type="html">苹果今年再次更新App Store审核指南，放宽App内购限制</title><link href="http://localhost:4000/%E8%8B%B9%E6%9E%9C%E5%86%8D%E6%AC%A1%E6%9B%B4%E6%96%B0App-Store%E5%AE%A1%E6%A0%B8%E6%8C%87%E5%8D%97-%E6%94%BE%E5%AE%BDApp%E5%86%85%E8%B4%AD%E9%99%90%E5%88%B6/" rel="alternate" type="text/html" title="苹果今年再次更新App Store审核指南，放宽App内购限制" /><published>2020-09-15T00:00:00+08:00</published><updated>2020-09-15T00:00:00+08:00</updated><id>http://localhost:4000/%E8%8B%B9%E6%9E%9C%E5%86%8D%E6%AC%A1%E6%9B%B4%E6%96%B0App%20Store%E5%AE%A1%E6%A0%B8%E6%8C%87%E5%8D%97,%E6%94%BE%E5%AE%BDApp%E5%86%85%E8%B4%AD%E9%99%90%E5%88%B6</id><content type="html" xml:base="http://localhost:4000/%E8%8B%B9%E6%9E%9C%E5%86%8D%E6%AC%A1%E6%9B%B4%E6%96%B0App-Store%E5%AE%A1%E6%A0%B8%E6%8C%87%E5%8D%97-%E6%94%BE%E5%AE%BDApp%E5%86%85%E8%B4%AD%E9%99%90%E5%88%B6/">&lt;blockquote&gt;
   &lt;p&gt;2020年9月11日，苹果更新了App Store审核指南，这也是进入2020年后，苹果第二次更新其审核指南。这次更新的主要内容包括App Clip、App内购买、云游戏等多个方面。&lt;/p&gt;
 &lt;/blockquote&gt;
 
@@ -1395,6 +1462,108 @@ cp -R &quot;${DEVICE_DIR1}/&quot; &quot;${INSTALL_DIR}/&quot;
 
 # Uses the Lipo Tool to merge both binary files (i386 + armv6/armv7) into one Universal final product.
 lipo -create &quot;${DEVICE_DIR1}/${FMK_NAME}&quot; &quot;${SIMULATOR_DIR1}/${FMK_NAME}&quot; -output &quot;${INSTALL_DIR}/${FMK_NAME}&quot;
+rm -r &quot;${WRK_DIR}&quot;
+rm -r &quot;${WRK_DIR_iphone}&quot;
+rm -r &quot;${WRK_DIR_iphonesimulator}&quot;
+
+open &quot;${SRCROOT}&quot;
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;br /&gt;&lt;/p&gt;
+&lt;h3 id=&quot;2020-9-15-update&quot;&gt;2020-9-15 Update&lt;/h3&gt;
+
+&lt;p&gt;因Xcode12模拟器Release编译的时候，编译出来的Framework自带arm64架构，和真机编译出来的Framework的arm64架构冲突，合并不了，导致之前的脚本对导致出错。修改方案，是模拟器先移除arm64架构，再合并，下边是修改后的sh脚本&lt;/p&gt;
+
+&lt;div class=&quot;language-plaintext highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;
+# Sets the target folders and the final framework product.
+# 如果工程名称和Framework的Target名称不一样的 话，要自定义FMKNAME
+# 例如: FMK_NAME = &quot;MyFramework&quot;
+FMK_NAME=TraceAnalysisSDK
+
+PROJECT_PATH=$(cd &quot;$(dirname &quot;$0&quot;)&quot;;pwd)
+
+# 工程Info.list路径
+InfoPlist=${PROJECT_PATH}/${FMK_NAME}/Info.plist
+
+# 工程Version
+Version=$(/usr/libexec/PlistBuddy -c &quot;Print CFBundleShortVersionString&quot; $InfoPlist)
+Version=${Version//./}
+
+# 工程Build
+Build=$(/usr/libexec/PlistBuddy -c &quot;Print CFBundleVersion&quot; $InfoPlist)
+
+# SDK文件夹名称
+SDKFilePath=${PROJECT_PATH}/${FMK_NAME}_${Version}_${Build}
+
+if [ -d &quot;${SDKFilePath}&quot; ]
+then
+rm -rf &quot;${SDKFilePath}&quot;
+fi
+mkdir -p &quot;${SDKFilePath}&quot;
+
+updataDate=`date +%F`
+#updataMessage=版本:${Version}\\n编译:${Build}\\n时间:${updataDate}\\n更新:
+
+updataFileName=${SDKFilePath}/version.md
+touch ${updataFileName}
+echo 版本:${Version} &amp;gt;&amp;gt; ${updataFileName}
+echo 编译:${Build} &amp;gt;&amp;gt; ${updataFileName}
+echo 时间:${updataDate} &amp;gt;&amp;gt; ${updataFileName}
+echo 更新: &amp;gt;&amp;gt; ${updataFileName}
+
+# SDK目录
+INSTALL_DIR=${SDKFilePath}/${FMK_NAME}.framework
+
+# Working dir will be deleted after the framework creation.
+WRK_DIR=build
+WRK_DIR_iphone=build_Release-iphoneos
+WRK_DIR_iphonesimulator=build_Release-iphonesimulator
+
+DEVICE_DIR=${WRK_DIR}/Release-iphoneos/${FMK_NAME}.framework
+SIMULATOR_DIR=${WRK_DIR}/Release-iphonesimulator/${FMK_NAME}.framework
+
+DEVICE_DIR1=${WRK_DIR_iphone}/Release-iphoneos/${FMK_NAME}.framework
+SIMULATOR_DIR1=${WRK_DIR_iphonesimulator}/Release-iphonesimulator/${FMK_NAME}.framework
+
+# -configuration ${CONFIGURATION}
+# Clean and Building both architectures.
+xcodebuild -configuration &quot;Release&quot; -target &quot;${FMK_NAME}&quot; -sdk iphoneos clean build
+
+# Cleaning the oldest.
+if [ -d &quot;${DEVICE_DIR1}&quot; ]
+then
+rm -rf &quot;${DEVICE_DIR1}&quot;
+fi
+mkdir -p &quot;${DEVICE_DIR1}&quot;
+cp -R &quot;${DEVICE_DIR}/&quot; &quot;${DEVICE_DIR1}/&quot;
+
+
+xcodebuild -configuration &quot;Release&quot; -target &quot;${FMK_NAME}&quot; -sdk iphonesimulator clean build
+
+# Cleaning the oldest.
+if [ -d &quot;${SIMULATOR_DIR1}&quot; ]
+then
+rm -rf &quot;${SIMULATOR_DIR1}&quot;
+fi
+mkdir -p &quot;${SIMULATOR_DIR1}&quot;
+cp -R &quot;${SIMULATOR_DIR}/&quot; &quot;${SIMULATOR_DIR1}/&quot;
+
+# Cleaning the oldest.
+if [ -d &quot;${INSTALL_DIR}&quot; ]
+then
+rm -rf &quot;${INSTALL_DIR}&quot;
+fi
+mkdir -p &quot;${INSTALL_DIR}&quot;
+cp -R &quot;${DEVICE_DIR1}/&quot; &quot;${INSTALL_DIR}/&quot;
+
+# Uses the Lipo Tool to merge both binary files (i386 + armv6/armv7) into one Universal final product.
+
+lipo -remove arm64 &quot;${SIMULATOR_DIR1}/${FMK_NAME}&quot; -output &quot;${WRK_DIR}/${FMK_NAME}&quot;
+lipo -create &quot;${DEVICE_DIR1}/${FMK_NAME}&quot; &quot;${WRK_DIR}/${FMK_NAME}&quot; -output &quot;${INSTALL_DIR}/${FMK_NAME}&quot;
+
+
+#lipo -create &quot;${DEVICE_DIR1}/${FMK_NAME}&quot; &quot;${SIMULATOR_DIR1}/${FMK_NAME}&quot; -output &quot;${INSTALL_DIR}/${FMK_NAME}&quot;
 rm -r &quot;${WRK_DIR}&quot;
 rm -r &quot;${WRK_DIR_iphone}&quot;
 rm -r &quot;${WRK_DIR_iphonesimulator}&quot;
