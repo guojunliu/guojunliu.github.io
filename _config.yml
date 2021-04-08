@@ -7,7 +7,7 @@
 # 井号后面的文字是说明文档，不会被程序读取。
 name: Steve.liu
 # 描述/签名
-description: A blog of an iOS R&D engineer
+description:  OC中国
 
 #
 # 下面的设定都是可选的
@@ -56,7 +56,7 @@ footer-links:
 # 站点页脚的文字
 footer-text: 909476821@qq.com
 
-publicaccount-text : 公众号：King技术
+publicaccount-text : 公众号：落笔成兵
 
 ## 输入Disqus shortname，即可添加评论区，细节可阅读文档。
 #disqus: loffer #shortname
