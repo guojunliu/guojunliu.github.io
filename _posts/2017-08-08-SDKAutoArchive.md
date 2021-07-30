@@ -49,6 +49,13 @@ x86_64	 | 模拟器64位|针对x86架构的64位处理器
 
 ### shell编写打包代码
 
+- 历史版本
+ - [2017-08-08更新 适用于Xcode10 and before](#update1)
+ - [2019-06-10更新 适用于Xcode11](#update2)
+ - [2020-9-15更新 适用于Xcode12](#update3)
+
+### <span id="update1">2017-08-08更新 适用于Xcode10 and before</span>
+
 ```
 # 工程名称
 # 如果工程名称和Framework的Target名称不一样的 话，要自定义FMKNAME
@@ -114,7 +121,7 @@ open "${SRCROOT}"
 ```
 
 <br>
-### 2019-6-10 Update
+### <span id="update2">2019-06-10更新 适用于Xcode11</span>
 
 因Xcode11更新Bulid的目录，将Simulator和真机的编译目录修改为同一个地址，之前的脚本对导致出错，下边是修改后的sh脚本
 
@@ -212,7 +219,7 @@ open "${SRCROOT}"
 ```
 
 <br>
-### 2020-9-15 Update
+### <span id="update2">2020-9-15更新 适用于Xcode12</span>
 
 因Xcode12模拟器Release编译的时候，编译出来的Framework自带arm64架构，和真机编译出来的Framework的arm64架构冲突，合并不了，导致之前的脚本对导致出错。修改方案，是模拟器先移除arm64架构，再合并，下边是修改后的sh脚本
 
