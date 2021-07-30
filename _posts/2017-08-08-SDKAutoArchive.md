@@ -219,7 +219,7 @@ open "${SRCROOT}"
 ```
 
 <br>
-### <span id="update2">2020-9-15更新 适用于Xcode12</span>
+### <span id="update3">2020-9-15更新 适用于Xcode12</span>
 
 因Xcode12模拟器Release编译的时候，编译出来的Framework自带arm64架构，和真机编译出来的Framework的arm64架构冲突，合并不了，导致之前的脚本对导致出错。修改方案，是模拟器先移除arm64架构，再合并，下边是修改后的sh脚本
 
